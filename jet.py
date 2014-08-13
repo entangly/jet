@@ -21,42 +21,24 @@ def commit():
     else:
         print "Commited"
 
+def add():
+    # At the moment, adds all of the files, however will eventually be able to choose!
+    print "Added to changeset"
+
 def merge():
     print "Merged"
 
 def status():
-    f = []
-    for (dirpath, dirnames, filenames) in walk(os.getcwd()):
-        f.extend(filenames)
-    with open('.jet/current_files.txt', 'r') as myFile:
-        stored_files = []
-        for line in myFile:
-            stored_files.append(line)
-    jet_files = []
-    for (dirpath, dirnames, filenames) in walk('.jet/'):
-        jet_files.extend(filenames)
-    current_files = []
-    for file_to_check in f:
-        if file_to_check not in jet_files:
-            current_files.append(file_to_check)
-    if len(current_files) == len(stored_files):
-        print "No files changed"
+    if len(get_current_files()) == len(get_stored_files()):
+        print "Nothing has changed!"
     else:
-        new_files = []
-        deleted_files = []
-        for current_file in current_files:
-            if current_file not in stored_files:
-                new_files.append(current_file)
-        for stored_file in stored_files:
-            if stored_file not in current_files:
-                deleted_files.append(stored_file)
         print "Your repo has changed since the last commit"
         print "You have added:"
-        for new_file in new_files:
+        for new_file in get_new_files():
             print "    %s" % new_file
         print "You have deleted:"
-        for deleted_file in deleted_files:
-            print "    %s" % old_file
+        for deleted_file in get_deleted_files():
+            print "    %s" % deleted_file
         
 
 def init():
@@ -71,12 +53,75 @@ def init():
         os.mkdir('.jet')
         f = []
         for (dirpath, dirnames, filenames) in walk(os.getcwd()):
-            f.extend(filenames)
+            for filename in filenames:
+                f.append(os.path.join(dirpath, filename))
         with open('.jet/current_files.txt', 'w') as file_:
             for file_to_add in f:
-                file_.write(file_to_add)
+                file_.write(file_to_add + "\n")
 
         print "Initializing Jet repository in %s" % directory
+
+def get_current_files():
+    file_list = []
+    for (dirpath, dirnames, filenames) in walk(os.getcwd()):
+        for filename in filenames:
+            file_list.append(os.path.join(dirpath, filename))
+        #print "Dirpath %s" % dirpath
+        #print "dirname %s" % dirnames
+        #print "filenames %s" % filenames
+    jet_files = []
+    for (dirpath, dirnames, filenames) in walk(os.path.join(os.getcwd(),'.jet/')):
+        for filename in filenames:
+            jet_files.append(os.path.join(dirpath, filename))
+
+    #print file_list
+    #print jet_files
+
+    current_files = []
+    for file_to_check in file_list:
+        if file_to_check not in jet_files:
+            current_files.append(file_to_check)
+    #print current_files
+    return current_files
+
+
+def get_stored_files():
+    with open('.jet/current_files.txt', 'r') as myFile:
+        lines = myFile.read().splitlines()
+        #print lines
+        stored_files = []
+        for line in lines:
+            stored_files.append(line)
+    return stored_files
+
+def get_new_files():
+    current_files = get_current_files()
+    stored_files = get_stored_files()
+    new_files = []
+    for current_file in current_files:
+        if current_file not in stored_files:
+            new_files.append(current_file)
+    return new_files
+
+def get_deleted_files():
+    current_files = get_current_files()
+    stored_files = get_stored_files()
+    deleted_files = []
+    for stored_file in stored_files:
+        if stored_file not in current_files:
+            deleted_files.append(stored_file)
+    return deleted_files
+
+
+
+
+
+
+
+
+
+
+
 
 commands = {
     "push": push,
@@ -93,3 +138,4 @@ except (KeyError):
     print "Invalid Command - Please set www.jet.com/commands for more info!"
 except (IndexError):
     print "Not enough arguments"
+
