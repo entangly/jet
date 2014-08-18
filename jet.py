@@ -2,6 +2,8 @@
 import sys
 import os
 from os import walk
+import hashlib
+
 #called when file called
 #print 'Number of arguments:', len(sys.argv), 'arguments.'
 #print 'Argument List:', str(sys.argv)
@@ -17,6 +19,7 @@ def pull():
     if not already_initialized():
        print "Please init a jet repo before calling other commands"
        return
+    print checksum_md5("one.py")
     print "Pulled"
 
 
@@ -70,8 +73,8 @@ def commit():
                 for file_to_add in deleted_files_in_changeset:
                     file_.write("-" + file_to_add + "\n")
             os.remove(os.path.join(os.getcwd() + '/.jet/changeset.txt'))
-            with open('.jet/latest_saved_files.txt', 'r') as file_:
-                lines = file_.read().splitlines()
+
+            lines = get_stored_files()
             lines.extend(new_files_in_changeset)
             to_keep = []
             for line in lines:
@@ -81,6 +84,7 @@ def commit():
             with open('.jet/latest_saved_files.txt', 'w') as file_:
                 for file_to_add in to_keep:
                     file_.write(file_to_add + "\n")
+                    file_.write(checksum_md5(file_to_add + "\n"))
             print "Commiting"
         else:
             print "Please add files to commit using jet add before commiting!"
@@ -165,6 +169,7 @@ def init():
         with open('.jet/latest_saved_files.txt', 'w') as file_:
             for file_to_add in f:
                 file_.write(file_to_add + "\n")
+                file_.write(checksum_md5(file_to_add) + "\n")
         os.mkdir('.jet/0/')
         with open('.jet/0/file_list.txt', 'w') as file_:
             for file_to_add in f:
@@ -210,7 +215,12 @@ def get_new_commit_number():
 def get_stored_files():
     with open('.jet/latest_saved_files.txt', 'r') as myFile:
         lines = myFile.read().splitlines()
-    return lines
+    print lines
+    print len(lines)
+    return lines[::2]
+
+def get_hash(filename):
+    return "no"
 
 def get_new_files():
     current_files = get_current_files()
@@ -264,7 +274,12 @@ def already_initialized():
             already_done = True
     return already_done
 
-
+def checksum_md5(filename):
+    md5 = hashlib.md5()
+    with open(filename,'rb') as f: 
+        for chunk in iter(lambda: f.read(8192), b''): 
+            md5.update(chunk)
+    return md5.digest()
 
 
 
@@ -286,7 +301,7 @@ commands = {
     "help": help_text,
     "list": list_commits,
 }
-
+get_stored_files()
 try:
     commands[sys.argv[1]]()
 except (KeyError):
