@@ -53,7 +53,7 @@ coverage.xml
 docs/_build/
 
 
-.idea/ 
+.idea/*
 **/.idea/
 *.iml
 
