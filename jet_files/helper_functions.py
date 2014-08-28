@@ -27,7 +27,7 @@ def get_immediate_subdirectories(directory):
 
 def get_current_files():
     file_list = []
-    for (dirpath, dirnames, filenames) in walk(os.getcwd()):
+    for (dirpath, dirnames, filenames) in walk(get_jet_directory()):
         for filename in filenames:
             file_list.append(os.path.join(dirpath, filename))
 
@@ -46,7 +46,7 @@ def get_current_files():
 
 
 def get_new_commit_number():
-    commits = get_immediate_subdirectories(os.path.join(os.getcwd() +
+    commits = get_immediate_subdirectories(os.path.join(get_jet_directory() +
                                                         '/.jet/'))
     latest = commits[-1]
     int_latest = int(latest)
@@ -56,7 +56,8 @@ def get_new_commit_number():
 
 def get_stored_files_and_hashes():
     #~J/E\T is the keyword separating files
-    with open('.jet/latest_saved_files', 'r') as myFile:
+    filename = os.path.join(get_jet_directory() + '/.jet/latest_saved_files')
+    with open(filename, 'r') as myFile:
         data = myFile.read().replace('\n', '')
     word = []
     lines = []
@@ -112,7 +113,8 @@ def get_new_files():
 
 def get_new_files_in_changeset():
     try:
-        with open('.jet/changeset.txt', 'r') as myFile:
+        filename = os.path.join(get_jet_directory() + '/.jet/changeset.txt')
+        with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
         return []
@@ -125,7 +127,8 @@ def get_new_files_in_changeset():
 
 def get_deleted_files_in_changeset():
     try:
-        with open('.jet/changeset.txt', 'r') as myFile:
+        filename = os.path.join(get_jet_directory() + '/.jet/changeset.txt')
+        with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
         return []
@@ -138,7 +141,8 @@ def get_deleted_files_in_changeset():
 
 def get_changed_files_in_changeset():
     try:
-        with open('.jet/changeset.txt', 'r') as myFile:
+        filename = os.path.join(get_jet_directory() + '/.jet/changeset.txt')
+        with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
         return []

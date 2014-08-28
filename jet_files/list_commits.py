@@ -13,30 +13,33 @@ def list_commits():
             print "Initial commit"
             return
     except IndexError:
-        commits = hf.get_immediate_subdirectories(os.path.join(os.getcwd() +
-                                                  '/.jet/'))
+        folder = os.path.join(hf.get_jet_directory() + '/.jet/')
+        commits = hf.get_immediate_subdirectories(folder)
         print "List of all commits. Type '$jet list <commit_number>' " \
               "to see more information"
         commits.reverse()
         for commit_num in commits:
             print "Commit number: %s" % commit_num
         return
-    commits = hf.get_immediate_subdirectories(os.path.join(os.getcwd() +
-                                              '/.jet/'))
+    folder = os.path.join(hf.get_jet_directory() + '/.jet/')
+    commits = hf.get_immediate_subdirectories(folder)
     found = False
     for commit in commits:
         if commit == commit_number:
             found = True
-            with open('.jet/%s/file_log.txt' % commit_number, 'r') as file_:
+            filename = os.path.join(hf.get_jet_directory() +
+                                    '/.jet/%s/file_log.txt' % commit_number)
+            with open(filename, 'r') as file_:
                 lines = file_.read().splitlines()
             try:
                 line_number = sys.argv[3]
                 try:
                     line = lines[int(line_number)]
                     try:
-                        with open('.jet/%s/%s/changes.txt' % (commit_number,
-                                                              line_number),
-                                  'r') as file_:
+                        filename = os.path.join(hf.get_jet_directory() +
+                                                '/.jet/%s/%s/changes.txt' %
+                                                (commit_number, line_number))
+                        with open(filename, 'r') as file_:
                             to_print = file_.read().splitlines()
                         print "Changes to file %s" % line
                         for line_to_print in to_print:

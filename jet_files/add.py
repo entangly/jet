@@ -1,3 +1,4 @@
+import os
 from jet_files import helper_functions as hf
 
 
@@ -7,7 +8,8 @@ def add():
         return
     # At the moment, adds all of the files, however will be able to choose!
     print "Added to changeset"
-    with open('.jet/changeset.txt', 'w') as file_:
+    filename = os.path.join(hf.get_jet_directory() + '/.jet/changeset.txt')
+    with open(filename, 'w') as file_:
         for file_to_add in hf.get_new_files():
             file_.write("+" + file_to_add + "\n")
         for file_to_add in hf.get_deleted_files():
