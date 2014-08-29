@@ -64,7 +64,10 @@ except IndexError:
     print "Not enough arguments"
 
 
-# from jet_files import helper_functions
+from jet_files import helper_functions
 # print helper_functions.get_jet_directory()
 
 #filename = os.path.join(hf.get_jet_directory() +)
+
+print helper_functions.get_change_description('/home/connor/Documents/python'
+                                              '/test_dir/one.py')

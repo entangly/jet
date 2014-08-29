@@ -186,5 +186,68 @@ def get_changed_files():
 
 
 def get_change_description(filename):
-    print filename
-    return "File was changed"
+    commit_number = get_new_commit_number() - 1
+    if get_file_at(commit_number, filename):
+        temp_file = os.path.join(get_jet_directory() + '/.jet/temp')
+        try:
+            with open(temp_file, 'r') as file_:
+                temp_lines = file_.read().splitlines()
+            with open(filename, 'r') as file_:
+                current_lines = file_.read().splitlines()
+            print "Before"
+            print temp_lines
+            print "After"
+            print current_lines
+        except IOError:
+            return "Jet is sorry, but there was an error in processing the" \
+                   " changes for this file"
+        description = ""
+        line_number = -1
+        count = -1
+        for line in temp_lines:
+            count += 1
+            line_number += 1
+            try:
+                current_lines[count]
+            except IndexError:
+                description += ("(" + str(line_number) + ") " +
+                                "- " +
+                                line +
+                                "\n")
+                break
+            print "Comparing %s and %s" % (current_lines[count], line)
+            if not current_lines[count] == line:
+                if line == "":
+                    description += ("(" + str(line_number) + ") " +
+                                    "- blank line\n")
+                    count -= 1
+                else:
+                    if current_lines[count] == "":
+                        description += ("(" + str(line_number) + ") " +
+                                        "+ blank line\n")
+                        count += 1
+                    else:
+                        description += ("(" + str(line_number) + ") " +
+                                        "~ " + current_lines[count] + "\n")
+
+        while count < len(current_lines) - 1:
+            line_number += 1
+            count += 1
+            description += ("(" + str(line_number) + ") " +
+                            "+ " +
+                            current_lines[count] +
+                            "\n")
+
+        description_to_return = description[:-1]
+        if description_to_return == "":
+            return "No changes found"
+        else:
+            return description_to_return
+
+    else:
+        return "Jet is sorry, but there was an error in processing the" \
+               " changes for this file"
+
+
+def get_file_at(commit_number, filename):
+    return True
