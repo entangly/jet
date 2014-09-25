@@ -1,0 +1,14 @@
+Objectives from 20th September - 4th October.
+
+1 - Finish the diff algorithm
+2 - Write unit tests for the diff algorithm
+3 - Draw diagrams on how branching will work
+4 - Implement usernames to track who commited what
+5 - Change commit numbers to include username reference
+
+4th Octoboer evaluation
+1 - 
+2 - 
+3 - 
+4 - 
+5 -
