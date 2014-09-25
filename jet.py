@@ -7,7 +7,8 @@ from jet_files import (status,
                        init,
                        add,
                        merge,
-                       help_text)
+                       help_text,
+                       local_tests,)
 
 
 def jet_push():
@@ -45,6 +46,10 @@ def jet_help_text():
 def jet_init():
     init.run()
 
+
+def test():
+    local_tests.run()
+
 commands = {
     "add": jet_add,
     "push": jet_push,
@@ -55,6 +60,7 @@ commands = {
     "init": jet_init,
     "help": jet_help_text,
     "list": jet_list_commits,
+    "test": test,
 }
 try:
     commands[sys.argv[1]]()
@@ -64,10 +70,10 @@ except IndexError:
     print "Not enough arguments"
 
 
-from jet_files import helper_functions
-# print helper_functions.get_jet_directory()
+#from jet_files import helper_functions
+#print helper_functions.get_jet_directory()
 
 #filename = os.path.join(hf.get_jet_directory() +)
 
-print helper_functions.get_change_description('/home/connor/Documents/python'
-                                              '/test_dir/one.py')
+#print helper_functions.get_change_description('/home/connor/development/'
+                                     #         'project/test_dir/one.py')

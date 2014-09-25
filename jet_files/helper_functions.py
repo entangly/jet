@@ -187,67 +187,84 @@ def get_changed_files():
 
 def get_change_description(filename):
     commit_number = get_new_commit_number() - 1
-    if get_file_at(commit_number, filename):
-        temp_file = os.path.join(get_jet_directory() + '/.jet/temp')
-        try:
-            with open(temp_file, 'r') as file_:
-                temp_lines = file_.read().splitlines()
-            with open(filename, 'r') as file_:
-                current_lines = file_.read().splitlines()
-            print "Before"
-            print temp_lines
-            print "After"
-            print current_lines
-        except IOError:
-            return "Jet is sorry, but there was an error in processing the" \
-                   " changes for this file"
-        description = ""
-        line_number = -1
-        count = -1
-        for line in temp_lines:
-            count += 1
-            line_number += 1
-            try:
-                current_lines[count]
-            except IndexError:
-                description += ("(" + str(line_number) + ") " +
-                                "- " +
-                                line +
-                                "\n")
-                break
-            print "Comparing %s and %s" % (current_lines[count], line)
-            if not current_lines[count] == line:
-                if line == "":
-                    description += ("(" + str(line_number) + ") " +
-                                    "- blank line\n")
-                    count -= 1
-                else:
-                    if current_lines[count] == "":
-                        description += ("(" + str(line_number) + ") " +
-                                        "+ blank line\n")
-                        count += 1
-                    else:
-                        description += ("(" + str(line_number) + ") " +
-                                        "~ " + current_lines[count] + "\n")
+    previous_file = get_file_at(commit_number, filename)
 
-        while count < len(current_lines) - 1:
-            line_number += 1
-            count += 1
+    difference = diff(previous_file, filename)
+    if not difference:
+        return "Jet is sorry, but there was an error in processing the" \
+               " changes for this file"
+    else:
+        return difference
+
+
+def diff(file1, file2):
+    try:
+        with open(file1, 'r') as file_:
+            old_lines = file_.read().splitlines()
+        with open(file2, 'r') as file_:
+            current_lines = file_.read().splitlines()
+        #print "Before"
+        #print old_lines
+        #print "After"
+        #print current_lines
+    except IOError:
+        return "Jet is sorry, but there was an error in processing the" \
+               " changes for this file"
+    description = ""
+    line_number = -1
+    count = -1
+    old_count = -1
+    while old_count < len(old_lines):
+        old_count += 1
+        count += 1
+        line_number += 1
+        try:
+            line = old_lines[old_count]
+        except IndexError:
+            break
+        try:
+            current_lines[count]
+        except IndexError:
+            description += ("(" + str(line_number) + ") " +
+                            "- " +
+                            line +
+                            "\n")
+            continue
+        #print "Comparing %s and %s" % (line, current_lines[count])
+        #print "Old count is %s, count is %s" % (old_count, count)
+
+        if not current_lines[count] == line:
+            if line == "":
+                description += ("(" + str(line_number) + ") " +
+                                "- blank line\n")
+                count -= 1
+            else:
+                if current_lines[count] == "":
+                    description += ("(" + str(line_number) + ") " +
+                                    "+ blank line\n")
+                    old_count -= 1
+                else:
+                    description += ("(" + str(line_number) + ") " +
+                                    "~ " + current_lines[count] + "\n")
+
+    while count <= len(current_lines) - 1:
+        if current_lines[count] == "":
+            description += ("(" + str(line_number) + ") " +
+                            "+ blank line\n")
+        else:
             description += ("(" + str(line_number) + ") " +
                             "+ " +
                             current_lines[count] +
                             "\n")
+        line_number += 1
+        count += 1
 
-        description_to_return = description[:-1]
-        if description_to_return == "":
-            return "No changes found"
-        else:
-            return description_to_return
-
+    description_to_return = description[:-1]
+    if description_to_return == "":
+        return "No changes found"
     else:
-        return "Jet is sorry, but there was an error in processing the" \
-               " changes for this file"
+        return description_to_return
 
 
 def get_file_at(commit_number, filename):
-    return True
+    return os.path.join(get_jet_directory() + '/.jet/temp')
