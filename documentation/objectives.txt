@@ -6,7 +6,7 @@ Objectives from 20th September - 4th October.
 4 - Implement usernames to track who commited what
 5 - Change commit numbers to include username reference
 
-4th Octoboer evaluation
+4th Octobor evaluation
 1 - 
 2 - 
 3 - 
