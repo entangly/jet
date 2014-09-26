@@ -268,3 +268,7 @@ def diff(file1, file2):
 
 def get_file_at(commit_number, filename):
     return os.path.join(get_jet_directory() + '/.jet/temp')
+
+
+def reform_file(filename, diff):
+    return os.path.join(get_jet_directory() + '/.jet/temp')
