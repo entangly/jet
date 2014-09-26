@@ -1,17 +1,26 @@
 #Purpose of this file is to test the local version of the version control
 from jet_files import helper_functions
 RESULTS = []
+EXPECTED_RESULT = "No changes found"
 
 
 def test_same_files():
-    diff = helper_functions.diff('.jet/temp', "one.py")
-    expected_result = "No changes found"
-    if diff == expected_result:
-        RESULTS.append("Passed")
-    else:
-        #RESULTS.append("Failed")
-        #RESULTS.append("Expected %s" % expected_result)
-        RESULTS.append(diff)
+    test_list = ['1',
+                 '2',
+                 '3',
+                 '4',
+                 '5']
+    for test in test_list:
+        RESULTS.append("Testing %s" % test)
+        diff = helper_functions.diff('tests/diff/same/%s/before.txt' % test,
+                                     "tests/diff/same/%s/after.txt" % test)
+
+        if diff == EXPECTED_RESULT:
+            RESULTS.append("Passed")
+        else:
+            RESULTS.append("Test '%s' Failed" % test)
+            RESULTS.append("Expected %s" % EXPECTED_RESULT)
+            RESULTS.append("Received:\n %s" % diff)
 
 
 def test_diff_algorithm():
