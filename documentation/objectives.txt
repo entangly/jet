@@ -1,10 +1,11 @@
 Objectives from 20th September - 4th October.
 
 1 - Finish the diff algorithm
-2 - Write unit tests for the diff algorithm
-3 - Draw diagrams on how branching will work
-4 - Implement usernames to track who commited what
-5 - Change commit numbers to include username reference
+2 - Write a "file re-create algorithm"
+3 - Write unit tests for the diff algorithm
+4 - Draw diagrams on how branching will work
+5 - Implement usernames to track who commited what
+6 - Change commit numbers to include username reference
 
 4th Octobor evaluation
 1 - 
@@ -12,3 +13,4 @@ Objectives from 20th September - 4th October.
 3 - 
 4 - 
 5 -
+6 - 
