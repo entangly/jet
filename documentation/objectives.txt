@@ -1,4 +1,4 @@
-Objectives from 20th September - 4th October.
+Objectives from 20th September - 3rd October.
 
 1 - Finish the diff algorithm
 2 - Write a "file re-create algorithm"
