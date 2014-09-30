@@ -270,5 +270,41 @@ def get_file_at(commit_number, filename):
     return os.path.join(get_jet_directory() + '/.jet/temp')
 
 
-def reform_file(filename, diff):
-    return os.path.join(get_jet_directory() + '/.jet/temp')
+def reform_file(filename, diff_string):
+    with open(filename, 'r') as file_:
+        lines = file_.read().splitlines()
+    count = -1
+    offset = 0
+    for d in diff_string:
+        count += 1
+        line_number = d[1]
+        index = d.index(' ')
+        action = d[index + 1]
+        content = d[index + 3:]
+        if action == '~':
+            try:
+                lines[count + offset] = content
+            except IndexError:
+                pass
+        elif action == '+':
+            try:
+                lines.insert(count + offset, content)
+                offset += 1
+            except IndexError:
+                pass
+        elif action == '-':
+            try:
+                del lines[count + offset]
+                offset -= 1
+            except Exception:
+                pass
+
+    answer = os.path.join(get_jet_directory() + '/.jet/temp')
+    try:
+        os.remove(answer)
+    except OSError:
+        pass
+    # with open(answer, 'w') as file_:
+    #     for line in lines:
+    #         file_.write(line)
+    return lines

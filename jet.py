@@ -70,10 +70,13 @@ except IndexError:
     print "Not enough arguments"
 
 
-#from jet_files import helper_functions
+from jet_files import helper_functions
 #print helper_functions.get_jet_directory()
 
 #filename = os.path.join(hf.get_jet_directory() +)
 
 #print helper_functions.get_change_description('/home/connor/development/'
                                      #         'project/test_dir/one.py')
+
+diff = helper_functions.diff("one.py", "two.py").splitlines()
+print helper_functions.reform_file("one.py", diff)

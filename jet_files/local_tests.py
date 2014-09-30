@@ -47,7 +47,7 @@ def test_different_files():
                                      "tests/diff/different/%s/after.txt"
                                      % test)
 
-        answer = helper_functions.reform_file('test/diff/different/'
+        answer = helper_functions.reform_file('tests/diff/different/'
                                               '%s/before.txt' % test,
                                               diff)
 
