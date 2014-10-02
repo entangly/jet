@@ -1,3 +1,4 @@
+import os
 import sys
 from jet_files import (status,
                        push,
@@ -8,7 +9,8 @@ from jet_files import (status,
                        add,
                        merge,
                        help_text,
-                       local_tests,)
+                       local_tests,
+                       helper_functions)
 
 
 def jet_push():
@@ -50,6 +52,23 @@ def jet_init():
 def test():
     local_tests.run()
 
+
+def login():
+    if not helper_functions.already_initialized():
+        print "Please init a jet repo before calling other commands"
+        return
+    if len(sys.argv) != 3:
+        print "To login, type: \n    $jet login <username> \nThis could be the " \
+              "username you use on www.jetvc.co.uk or one you" \
+              " wish to put with your commits"
+    else:
+        username = sys.argv[2]
+        filename = os.path.join(helper_functions.get_jet_directory()
+                                + '/.jet/username')
+        with open(filename, 'w') as file_:
+            file_.write(username)
+        print "Welcome %s" % username
+
 commands = {
     "add": jet_add,
     "push": jet_push,
@@ -61,6 +80,7 @@ commands = {
     "help": jet_help_text,
     "list": jet_list_commits,
     "test": test,
+    "login": login,
 }
 try:
     commands[sys.argv[1]]()
@@ -69,14 +89,3 @@ except KeyError:
 except IndexError:
     print "Not enough arguments"
 
-
-from jet_files import helper_functions
-#print helper_functions.get_jet_directory()
-
-#filename = os.path.join(hf.get_jet_directory() +)
-
-#print helper_functions.get_change_description('/home/connor/development/'
-                                     #         'project/test_dir/one.py')
-
-diff = helper_functions.diff("one.py", "two.py").splitlines()
-print helper_functions.reform_file("one.py", diff)

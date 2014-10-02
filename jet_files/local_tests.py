@@ -40,6 +40,11 @@ def test_different_files():
         '13',
         '14',
         '15',
+        '16',
+        '17',
+        '18',
+        '19',
+        '20',
     ]
     for test in test_list:
         diff = helper_functions.diff('tests/diff/different/%s/before.txt'
@@ -49,9 +54,9 @@ def test_different_files():
 
         answer = helper_functions.reform_file('tests/diff/different/'
                                               '%s/before.txt' % test,
-                                              diff)
+                                              diff.splitlines())
 
-        difference = helper_functions.diff('tests/diff/same/%s/before.txt'
+        difference = helper_functions.diff('tests/diff/different/%s/after.txt'
                                            % test,
                                            answer)
 
@@ -59,18 +64,27 @@ def test_different_files():
             RESULTS.append("Passed")
         else:
             RESULTS.append("Different Test '%s' Failed" % test)
-            RESULTS.append("     Expected the files to be reformed")
-            RESULTS.append("     Received:\n %s" % diff)
 
 
 def test_diff_algorithm():
     print "Testing diff algorithm"
-    test_same_files()
-    test_different_files()
+    try:
+        test_same_files()
+    except Exception, e:
+        print e
+    try:
+        test_different_files()
+    except Exception, e:
+        print e
 
 
 def run():
     print "Beginning tests..."
     test_diff_algorithm()
+    number_of_tests = len(RESULTS)
+    passed = 0
     for result in RESULTS:
+        if result == 'Passed':
+            passed += 1
         print result
+    print "Passed %s out of %s tests" % (passed, number_of_tests)

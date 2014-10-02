@@ -7,6 +7,10 @@ def commit_changeset():
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
+    if not hf.logged_in():
+        print "You must login before commiting! To do this type:" \
+              " $jet login <username>"
+        return
     if len(sys.argv) != 4 or sys.argv[2] != "-m":
         print "Commit commands need to be formed by typing:" \
               " $jet commit -m \"Your message here\""
@@ -34,10 +38,16 @@ def commit_changeset():
                 for file_to_add in changed_files_in_changeset:
                     file_.write("~" + file_to_add + "\n")
 
+            filename = os.path.join(hf.get_jet_directory() + '/.jet/%s/info'
+                                    % new_commit_number)
+            with open(filename, 'w') as file_:
+                file_.write(hf.get_username() + '\n')
+                file_.write(sys.argv[3])
+
             for file_ in changed_files_in_changeset:
                 folder = os.path.join(hf.get_jet_directory() +
                                       '/.jet/%s/%s' % (new_commit_number,
-                                                      counter))
+                                                       counter))
                 os.mkdir(folder)
                 filename = os.path.join(hf.get_jet_directory() +
                                         '/.jet/%s/%s/changes.txt'

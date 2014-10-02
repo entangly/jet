@@ -199,14 +199,16 @@ def get_change_description(filename):
 
 def diff(file1, file2):
     try:
-        with open(file1, 'r') as file_:
-            old_lines = file_.read().splitlines()
-        with open(file2, 'r') as file_:
-            current_lines = file_.read().splitlines()
-        #print "Before"
-        #print old_lines
-        #print "After"
-        #print current_lines
+        if type(file1) == list:
+            old_lines = file1
+        else:
+            with open(file1, 'r') as file_:
+                old_lines = file_.read().splitlines()
+        if type(file2) == list:
+            current_lines = file2
+        else:
+            with open(file2, 'r') as file_:
+                current_lines = file_.read().splitlines()
     except IOError:
         return "Jet is sorry, but there was an error in processing the" \
                " changes for this file"
@@ -270,41 +272,58 @@ def get_file_at(commit_number, filename):
     return os.path.join(get_jet_directory() + '/.jet/temp')
 
 
-def reform_file(filename, diff_string):
+def reform_file(filename, diff_list):
     with open(filename, 'r') as file_:
         lines = file_.read().splitlines()
-    count = -1
-    offset = 0
-    for d in diff_string:
-        count += 1
-        line_number = d[1]
+    # diff_list.reverse()
+    for d in diff_list:
         index = d.index(' ')
+        line_number_list = d[1:index-1]
+        line_number = ''
+        for number in line_number_list:
+            line_number += number
+        count = int(line_number)
         action = d[index + 1]
         content = d[index + 3:]
         if action == '~':
             try:
-                lines[count + offset] = content
+                lines[count] = content
             except IndexError:
                 pass
         elif action == '+':
             try:
-                lines.insert(count + offset, content)
-                offset += 1
+                if content == 'blank line':
+                    lines.insert(count, '')
+                else:
+                    lines.insert(count, content)
             except IndexError:
                 pass
         elif action == '-':
             try:
-                del lines[count + offset]
-                offset -= 1
+                lines[count] = "~J/E\T DELETE ~J/E\T"
             except Exception:
                 pass
 
-    answer = os.path.join(get_jet_directory() + '/.jet/temp')
+    to_return = []
+    for line in lines:
+        if not line == "~J/E\T DELETE ~J/E\T":
+            to_return.append(line)
+    return to_return
+
+
+def get_username():
+    filename = os.path.join(get_jet_directory() + '/.jet/username')
     try:
-        os.remove(answer)
-    except OSError:
-        pass
-    # with open(answer, 'w') as file_:
-    #     for line in lines:
-    #         file_.write(line)
-    return lines
+        with open(filename, 'r') as file_:
+                    lines = file_.read().splitlines()
+        username = lines[0]
+    except IOError:
+        username = ''
+    except IndexError:
+        os.remove(filename)
+        username = ''
+    return username
+
+
+def logged_in():
+    return not get_username() == ''
