@@ -1,0 +1,6 @@
+Objectives from 03/10 to 17/10
+
+1 - Implement branching minus the merge algorithm.
+2 - Implement "Hooks"
+3 - Implement Commit logs better
+4 - Implement 'reverts'
