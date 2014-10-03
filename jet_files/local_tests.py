@@ -25,6 +25,7 @@ def test_same_files():
 
 def test_different_files():
     test_list = [
+        '0',
         '1',
         '2',
         '3',

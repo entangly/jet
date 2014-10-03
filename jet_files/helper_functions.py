@@ -48,8 +48,15 @@ def get_current_files():
 def get_new_commit_number():
     commits = get_immediate_subdirectories(os.path.join(get_jet_directory() +
                                                         '/.jet/'))
-    latest = commits[-1]
-    int_latest = int(latest)
+    biggest = 0
+    for commit in commits:
+        try:
+            commit_num = int(commit)
+            if commit_num > biggest:
+                biggest = commit_num
+        except ValueError:
+            pass
+    int_latest = int(biggest)
     new_commit_number = int_latest + 1
     return new_commit_number
 
@@ -188,7 +195,6 @@ def get_changed_files():
 def get_change_description(filename):
     commit_number = get_new_commit_number() - 1
     previous_file = get_file_at(commit_number, filename)
-
     difference = diff(previous_file, filename)
     if not difference:
         return "Jet is sorry, but there was an error in processing the" \
@@ -268,14 +274,64 @@ def diff(file1, file2):
         return description_to_return
 
 
+def get_file_change_number(commit_number, filename):
+    file_list_file = os.path.join(get_jet_directory() + '/.jet/%s/file_log.txt'
+                                  % commit_number)
+    with open(file_list_file, 'r') as myFile:
+        file_list = myFile.read().splitlines()
+    change_number = 0
+    for file_ in file_list:
+        if file_ == filename or file_[1:] == filename:
+            return change_number
+        else:
+            change_number += 1
+    return None
+
+
+def get_last_complete_file(filename):
+    change_number = get_file_change_number(0, filename)
+    name_of_file = os.path.basename(filename)
+    modded_filename = os.path.join(get_jet_directory() + '/.jet/0/%s/%s'
+                                   % (change_number, name_of_file))
+    with open(modded_filename, 'r') as myFile:
+            current_file = myFile.read().splitlines()
+    commit_number = 0
+    return current_file, commit_number
+
+
+def get_diff_at(commit_number, filename):
+    change_number = get_file_change_number(commit_number, filename)
+    modded_filename = os.path.join(get_jet_directory() +
+                                   '/.jet/%s/%s/changes.txt'
+                                   % (commit_number, change_number))
+    with open(modded_filename, 'r') as myFile:
+        difference = myFile.read().splitlines()
+    return difference
+
+
 def get_file_at(commit_number, filename):
-    return os.path.join(get_jet_directory() + '/.jet/temp')
+    last_complete, last_full_commit = get_last_complete_file(filename)
+    commits_to_add = []
+    commit = last_full_commit + 1
+    while commit < commit_number:
+        commits_to_add.append(commit)
+        commit += 1
+    current_file = last_complete
+    for c in commits_to_add:
+        current_file = reform_file(current_file, get_diff_at(c, filename))
+        print current_file
+
+    return current_file
 
 
-def reform_file(filename, diff_list):
-    with open(filename, 'r') as file_:
-        lines = file_.read().splitlines()
-    # diff_list.reverse()
+def reform_file(_file_, diff_list):
+    if type(_file_) == list:
+        lines = _file_
+    else:
+        with open(_file_, 'r') as file_:
+            lines = file_.read().splitlines()
+    if diff_list[0] == 'No changes found':
+        return lines
     for d in diff_list:
         index = d.index(' ')
         line_number_list = d[1:index-1]
@@ -301,7 +357,7 @@ def reform_file(filename, diff_list):
         elif action == '-':
             try:
                 lines[count] = "~J/E\T DELETE ~J/E\T"
-            except Exception:
+            except IndexError:
                 pass
 
     to_return = []

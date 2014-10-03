@@ -26,7 +26,8 @@ def commit_changeset():
             os.mkdir(folder)
             counter = 0
             filename = os.path.join(hf.get_jet_directory() +
-                                    '/.jet/%s/file_log.txt' % new_commit_number)
+                                    '/.jet/%s/file_log.txt'
+                                    % new_commit_number)
             with open(filename, 'w')\
                     as file_:
                 for file_to_add in new_files_in_changeset:
@@ -49,6 +50,11 @@ def commit_changeset():
                                       '/.jet/%s/%s' % (new_commit_number,
                                                        counter))
                 os.mkdir(folder)
+                filename = os.path.join(hf.get_jet_directory() +
+                                        '/.jet/%s/%s/filename.txt'
+                                        % (new_commit_number, counter))
+                with open(filename, 'w') as myFile:
+                    myFile.write(file_)
                 filename = os.path.join(hf.get_jet_directory() +
                                         '/.jet/%s/%s/changes.txt'
                                         % (new_commit_number, counter))

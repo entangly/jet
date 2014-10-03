@@ -10,7 +10,11 @@ from jet_files import (status,
                        merge,
                        help_text,
                        local_tests,
-                       helper_functions)
+                       helper_functions,
+                       login,
+                       revert,
+                       hook,
+                       branch)
 
 
 def jet_push():
@@ -53,21 +57,21 @@ def test():
     local_tests.run()
 
 
-def login():
-    if not helper_functions.already_initialized():
-        print "Please init a jet repo before calling other commands"
-        return
-    if len(sys.argv) != 3:
-        print "To login, type: \n    $jet login <username> \nThis could be the " \
-              "username you use on www.jetvc.co.uk or one you" \
-              " wish to put with your commits"
-    else:
-        username = sys.argv[2]
-        filename = os.path.join(helper_functions.get_jet_directory()
-                                + '/.jet/username')
-        with open(filename, 'w') as file_:
-            file_.write(username)
-        print "Welcome %s" % username
+def jet_login():
+    login.run()
+
+
+def jet_hook():
+    hook.run()
+
+
+def jet_revert():
+    revert.run()
+
+
+def jet_branch():
+    branch.run()
+
 
 commands = {
     "add": jet_add,
@@ -80,7 +84,10 @@ commands = {
     "help": jet_help_text,
     "list": jet_list_commits,
     "test": test,
-    "login": login,
+    "login": jet_login,
+    "hook": jet_hook,
+    "branch": jet_branch,
+    "revert": jet_revert,
 }
 try:
     commands[sys.argv[1]]()
