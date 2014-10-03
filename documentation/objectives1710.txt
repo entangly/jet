@@ -4,3 +4,11 @@ Objectives from 03/10 to 17/10
 2 - Implement "Hooks"
 3 - Implement Commit logs better
 4 - Implement 'reverts'
+
+
+Evaluation
+
+1 - 
+2 - 
+3 - Finished
+4 - 
