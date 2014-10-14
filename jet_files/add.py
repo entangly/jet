@@ -8,7 +8,7 @@ def add():
         return
     # At the moment, adds all of the files, however will be able to choose!
     print "Added to changeset"
-    filename = os.path.join(hf.get_jet_directory() + '/.jet/changeset.txt')
+    filename = os.path.join(hf.get_branch_location() + 'changeset.txt')
     with open(filename, 'w') as file_:
         for file_to_add in hf.get_new_files():
             file_.write("+" + file_to_add + "\n")

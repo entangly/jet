@@ -21,6 +21,15 @@ def get_jet_directory():
     return jet_directory
 
 
+def get_branch_location():
+    branch = get_branch()
+    if branch == 'master':
+        return os.path.join(get_jet_directory() + '/.jet/')
+    else:
+        return os.path.join(get_jet_directory() + '/.jet/branches/%s/'
+                            % branch)
+
+
 def get_immediate_subdirectories(directory):
     return [name for name in os.listdir(directory)
             if os.path.isdir(os.path.join(directory, name))]
@@ -46,11 +55,8 @@ def get_current_files():
     return current_files
 
 
-def get_new_commit_number(branch):
-
-    commits = get_immediate_subdirectories(os.path.join(get_jet_directory()
-                                               + '/.jet/'))
-
+def get_new_commit_number():
+    commits = get_immediate_subdirectories(get_branch_location())
     try:
         commits.remove('branches')
     except ValueError:
@@ -70,7 +76,7 @@ def get_new_commit_number(branch):
 
 def get_stored_files_and_hashes():
     #~J/E\T is the keyword separating files
-    filename = os.path.join(get_jet_directory() + '/.jet/latest_saved_files')
+    filename = os.path.join(get_branch_location() + 'latest_saved_files')
     with open(filename, 'r') as myFile:
         data = myFile.read().replace('\n', '')
     word = []
@@ -127,7 +133,7 @@ def get_new_files():
 
 def get_new_files_in_changeset():
     try:
-        filename = os.path.join(get_jet_directory() + '/.jet/changeset.txt')
+        filename = os.path.join(get_branch_location() + 'changeset.txt')
         with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
@@ -141,7 +147,7 @@ def get_new_files_in_changeset():
 
 def get_deleted_files_in_changeset():
     try:
-        filename = os.path.join(get_jet_directory() + '/.jet/changeset.txt')
+        filename = os.path.join(get_branch_location() + 'changeset.txt')
         with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
@@ -155,7 +161,7 @@ def get_deleted_files_in_changeset():
 
 def get_changed_files_in_changeset():
     try:
-        filename = os.path.join(get_jet_directory() + '/.jet/changeset.txt')
+        filename = os.path.join(get_branch_location() + 'changeset.txt')
         with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
@@ -284,7 +290,7 @@ def diff(file1, file2):
 
 
 def get_file_change_number(commit_number, filename):
-    file_list_file = os.path.join(get_jet_directory() + '/.jet/%s/file_log.txt'
+    file_list_file = os.path.join(get_branch_location() + '/%s/file_log.txt'
                                   % commit_number)
     with open(file_list_file, 'r') as myFile:
         file_list = myFile.read().splitlines()
@@ -302,7 +308,7 @@ def get_last_complete_file(filename):
     if change_number is None:
         return None, None
     name_of_file = os.path.basename(filename)
-    modded_filename = os.path.join(get_jet_directory() + '/.jet/0/%s/%s'
+    modded_filename = os.path.join(get_branch_location() + '/0/%s/%s'
                                    % (change_number, name_of_file))
     with open(modded_filename, 'r') as myFile:
             current_file = myFile.read().splitlines()
@@ -312,8 +318,7 @@ def get_last_complete_file(filename):
 
 def get_diff_at(commit_number, filename):
     change_number = get_file_change_number(commit_number, filename)
-    modded_filename = os.path.join(get_jet_directory() +
-                                   '/.jet/%s/%s/changes.txt'
+    modded_filename = os.path.join(get_branch_location() + '/%s/%s/changes.txt'
                                    % (commit_number, change_number))
     with open(modded_filename, 'r') as myFile:
         difference = myFile.read().splitlines()
@@ -400,7 +405,7 @@ def logged_in():
 
 def get_commit_hook():
     try:
-        filename = (get_jet_directory() + '/.jet/hooks')
+        filename = (get_branch_location() + 'hooks')
         with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
@@ -418,7 +423,7 @@ def get_commit_hook():
 
 def get_push_hook():
     try:
-        filename = (get_jet_directory() + '/.jet/hooks')
+        filename = (get_branch_location() + 'hooks')
         with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
@@ -446,8 +451,7 @@ def run_hook(filename):
 
 
 def is_valid_commit_number(number):
-    commits = get_immediate_subdirectories(os.path.join(get_jet_directory() +
-                                                        '/.jet/'))
+    commits = get_immediate_subdirectories(get_branch_location())
     try:
         commits.remove('branches')
     except ValueError:

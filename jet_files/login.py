@@ -1,10 +1,10 @@
 import sys
 import os
-import helper_functions
+import helper_functions as hf
 
 
 def login():
-    if not helper_functions.already_initialized():
+    if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
     if len(sys.argv) != 3:
@@ -13,7 +13,7 @@ def login():
               " wish to put with your commits"
     else:
         username = sys.argv[2]
-        filename = os.path.join(helper_functions.get_jet_directory()
+        filename = os.path.join(hf.get_jet_directory()
                                 + '/.jet/username')
         with open(filename, 'w') as file_:
             file_.write(username)

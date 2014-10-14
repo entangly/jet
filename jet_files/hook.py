@@ -15,7 +15,7 @@ def hook():
               "to add a hook!"
         return
     if sys.argv[3] == 'inspect':
-        filename = (hf.get_jet_directory() + '/.jet/hooks')
+        filename = (hf.get_branch_location() + 'hooks')
         if sys.argv[2] == 'commit' or sys.argv[2] == 'push':
             try:
                 with open(filename, 'r') as file_:
@@ -40,7 +40,7 @@ def hook():
                   "commands like '$ jet hook <commit|push> inspect'"
     elif sys.argv[3] == 'remove':
         if sys.argv[2] == 'commit' or sys.argv[2] == 'push':
-            filename = (hf.get_jet_directory() + '/.jet/hooks')
+            filename = (hf.get_branch_location() + 'hooks')
             to_keep = []
             try:
                 with open(filename, 'r') as file_:
@@ -72,7 +72,7 @@ def hook():
             print "Couldn't add hook, unrecognized file!"
         else:
             if sys.argv[2] == 'commit' or sys.argv[2] == 'push':
-                filename = (hf.get_jet_directory() + '/.jet/hooks')
+                filename = (hf.get_branch_location() + 'hooks')
                 to_keep = []
                 try:
                     with open(filename, 'r') as file_:

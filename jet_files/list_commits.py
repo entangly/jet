@@ -13,7 +13,7 @@ def list_commits():
             print "Initial commit"
             return
     except IndexError:
-        folder = os.path.join(hf.get_jet_directory() + '/.jet/')
+        folder = hf.get_branch_location()
         commits = hf.get_immediate_subdirectories(folder)
         print "List of all commits. Type '$jet list <commit_number>' " \
               "to see more information"
@@ -21,14 +21,14 @@ def list_commits():
         for commit_num in commits:
             print "Commit number: %s" % commit_num
         return
-    folder = os.path.join(hf.get_jet_directory() + '/.jet/')
+    folder = hf.get_branch_location()
     commits = hf.get_immediate_subdirectories(folder)
     found = False
     for commit in commits:
         if commit == commit_number:
             found = True
-            filename = os.path.join(hf.get_jet_directory() +
-                                    '/.jet/%s/file_log.txt' % commit_number)
+            filename = os.path.join(hf.get_branch_location() +
+                                    '/%s/file_log.txt' % commit_number)
             with open(filename, 'r') as file_:
                 lines = file_.read().splitlines()
             try:
@@ -36,8 +36,8 @@ def list_commits():
                 try:
                     line = lines[int(line_number)]
                     try:
-                        filename = os.path.join(hf.get_jet_directory() +
-                                                '/.jet/%s/%s/changes.txt' %
+                        filename = os.path.join(hf.get_branch_location()
+                                                + '/%s/%s/changes.txt' %
                                                 (commit_number, line_number))
                         with open(filename, 'r') as file_:
                             to_print = file_.read().splitlines()

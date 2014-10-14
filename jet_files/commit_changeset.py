@@ -23,18 +23,18 @@ def commit_changeset():
         print "Commit commands need to be formed by typing:" \
               " $jet commit -m \"Your message here\""
     else:
-        filename = os.path.join(hf.get_jet_directory() + '/.jet/changeset.txt')
+        filename = os.path.join(hf.get_branch_location() + 'changeset.txt')
         if os.path.isfile(filename):
             new_files_in_changeset = hf.get_new_files_in_changeset()
             deleted_files_in_changeset = hf.get_deleted_files_in_changeset()
             changed_files_in_changeset = hf.get_changed_files_in_changeset()
             new_commit_number = hf.get_new_commit_number()
-            folder = os.path.join(hf.get_jet_directory() +
-                                  '/.jet/%s/' % new_commit_number)
+            folder = os.path.join(hf.get_branch_location() +
+                                  '/%s/' % new_commit_number)
             os.mkdir(folder)
             counter = 0
-            filename = os.path.join(hf.get_jet_directory() +
-                                    '/.jet/%s/file_log.txt'
+            filename = os.path.join(hf.get_branch_location()
+                                    + '/%s/file_log.txt'
                                     % new_commit_number)
             with open(filename, 'w')\
                     as file_:
@@ -47,31 +47,31 @@ def commit_changeset():
                 for file_to_add in changed_files_in_changeset:
                     file_.write("~" + file_to_add + "\n")
 
-            filename = os.path.join(hf.get_jet_directory() + '/.jet/%s/info'
+            filename = os.path.join(hf.get_branch_location() + '/%s/info'
                                     % new_commit_number)
             with open(filename, 'w') as file_:
                 file_.write(hf.get_username() + '\n')
                 file_.write(sys.argv[3])
 
             for file_ in changed_files_in_changeset:
-                folder = os.path.join(hf.get_jet_directory() +
-                                      '/.jet/%s/%s' % (new_commit_number,
-                                                       counter))
+                folder = os.path.join(hf.get_branch_location()
+                                      + '/%s/%s' % (new_commit_number,
+                                                    counter))
                 os.mkdir(folder)
-                filename = os.path.join(hf.get_jet_directory() +
-                                        '/.jet/%s/%s/filename.txt'
+                filename = os.path.join(hf.get_branch_location()
+                                        + '/%s/%s/filename.txt'
                                         % (new_commit_number, counter))
                 with open(filename, 'w') as myFile:
                     myFile.write(file_)
-                filename = os.path.join(hf.get_jet_directory() +
-                                        '/.jet/%s/%s/changes.txt'
+                filename = os.path.join(hf.get_branch_location()
+                                        + '/%s/%s/changes.txt'
                                         % (new_commit_number, counter))
                 with open(filename, 'w') as myFile:
                     myFile.write(hf.get_change_description(file_))
                     counter += 1
 
-            filename = os.path.join(hf.get_jet_directory() +
-                                    '/.jet/changeset.txt')
+            filename = os.path.join(hf.get_branch_location()
+                                    + 'changeset.txt')
             os.remove(filename)
 
             lines = hf.get_stored_files()
@@ -80,8 +80,8 @@ def commit_changeset():
             for line in lines:
                 if line not in deleted_files_in_changeset:
                     to_keep.append(line)
-            filename = os.path.join(hf.get_jet_directory() +
-                                    '/.jet/latest_saved_files')
+            filename = os.path.join(hf.get_branch_location()
+                                    + 'latest_saved_files')
             os.remove(filename)
             with open(filename, 'w') as file_:
                 for file_to_add in to_keep:
