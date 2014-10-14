@@ -1,6 +1,7 @@
 import os
 from os import walk
 import hashlib
+import subprocess
 
 
 def get_jet_directory():
@@ -45,9 +46,15 @@ def get_current_files():
     return current_files
 
 
-def get_new_commit_number():
-    commits = get_immediate_subdirectories(os.path.join(get_jet_directory() +
-                                                        '/.jet/'))
+def get_new_commit_number(branch):
+
+    commits = get_immediate_subdirectories(os.path.join(get_jet_directory()
+                                               + '/.jet/'))
+
+    try:
+        commits.remove('branches')
+    except ValueError:
+        pass
     biggest = 0
     for commit in commits:
         try:
@@ -195,6 +202,8 @@ def get_changed_files():
 def get_change_description(filename):
     commit_number = get_new_commit_number() - 1
     previous_file = get_file_at(commit_number, filename)
+    if previous_file is None:
+        return "File was added at this point"
     difference = diff(previous_file, filename)
     if not difference:
         return "Jet is sorry, but there was an error in processing the" \
@@ -290,6 +299,8 @@ def get_file_change_number(commit_number, filename):
 
 def get_last_complete_file(filename):
     change_number = get_file_change_number(0, filename)
+    if change_number is None:
+        return None, None
     name_of_file = os.path.basename(filename)
     modded_filename = os.path.join(get_jet_directory() + '/.jet/0/%s/%s'
                                    % (change_number, name_of_file))
@@ -311,6 +322,8 @@ def get_diff_at(commit_number, filename):
 
 def get_file_at(commit_number, filename):
     last_complete, last_full_commit = get_last_complete_file(filename)
+    if last_complete is None:
+        return None
     commits_to_add = []
     commit = last_full_commit + 1
     while commit < commit_number:
@@ -383,3 +396,79 @@ def get_username():
 
 def logged_in():
     return not get_username() == ''
+
+
+def get_commit_hook():
+    try:
+        filename = (get_jet_directory() + '/.jet/hooks')
+        with open(filename, 'r') as myFile:
+            lines = myFile.read().splitlines()
+    except IOError:
+        return False
+    try:
+        if lines[0] == 'commit':
+            return lines[1]
+        elif lines[2] == 'commit':
+            return lines[3]
+        else:
+            return False
+    except IndexError:
+        return False
+
+
+def get_push_hook():
+    try:
+        filename = (get_jet_directory() + '/.jet/hooks')
+        with open(filename, 'r') as myFile:
+            lines = myFile.read().splitlines()
+    except IOError:
+        return False
+    try:
+        if lines[0] == 'push':
+            return lines[1]
+        elif lines[2] == 'push':
+            return lines[3]
+        else:
+            return False
+    except IndexError:
+        return False
+
+
+def run_hook(filename):
+    try:
+        return_code = subprocess.call("python %s" % filename, shell=True)
+    except Exception:
+        return False
+    if return_code == 0:
+        return True
+    else:
+        return False
+
+
+def is_valid_commit_number(number):
+    commits = get_immediate_subdirectories(os.path.join(get_jet_directory() +
+                                                        '/.jet/'))
+    try:
+        commits.remove('branches')
+    except ValueError:
+        pass
+
+    if number in commits:
+        return True
+    else:
+        return False
+
+
+def revert(commit_number):
+    print "Revert finished. You are now at the state of commit number %s"\
+          % commit_number
+
+
+def get_branch():
+    filename = os.path.join(get_jet_directory() + '/.jet/branch')
+    with open(filename, 'r') as myFile:
+        lines = myFile.read().splitlines()
+    return lines[0]
+
+
+

@@ -38,7 +38,9 @@ def init():
             filename = filenames_list[count]
             copyfile(file_to_add, '.jet/0/%s/%s' % (count, filename))
             count += 1
-
+        filename = '.jet/branch'
+        with open(filename, 'w') as file_:
+            file_.write("master")
         print "Initializing Jet repository in %s" % os.getcwd()
 
 

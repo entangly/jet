@@ -5,6 +5,7 @@ def status():
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
+    print "You are working on branch %s" % hf.get_branch()
     if len(hf.get_current_files()) == len(hf.get_stored_files()) and len(
             hf.get_changed_files()) == 0:
         print "Nothing has changed!"

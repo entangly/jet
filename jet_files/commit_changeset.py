@@ -1,4 +1,4 @@
-from jet_files import helper_functions as hf
+import helper_functions as hf
 import sys
 import os
 
@@ -11,6 +11,14 @@ def commit_changeset():
         print "You must login before commiting! To do this type:" \
               " $jet login <username>"
         return
+    hook = hf.get_commit_hook()
+    if hook:
+        result = hf.run_hook(hook)
+        if result:
+            print "Hook passed."
+        else:
+            print "Hook Failed. Not commiting"
+            return
     if len(sys.argv) != 4 or sys.argv[2] != "-m":
         print "Commit commands need to be formed by typing:" \
               " $jet commit -m \"Your message here\""
