@@ -450,8 +450,12 @@ def run_hook(filename):
         return False
 
 
-def is_valid_commit_number(number):
-    commits = get_immediate_subdirectories(get_branch_location())
+def is_valid_commit_number(number, branch):
+    if branch is None:
+        commits = get_immediate_subdirectories(get_branch_location())
+    else:
+        commits = get_immediate_subdirectories(
+            os.path.join(get_jet_directory() + '/.jet/branches/%s' % branch))
     try:
         commits.remove('branches')
     except ValueError:
@@ -463,9 +467,13 @@ def is_valid_commit_number(number):
         return False
 
 
-def revert(commit_number):
-    print "Revert finished. You are now at the state of commit number %s"\
-          % commit_number
+def revert(branch, commit_number):
+    #find out which files were there
+    #remove files which weren't
+    #reform files which were.
+
+    print "Revert finished. You are now at the state of commit number %s " \
+          "in branch %s" % (commit_number, branch)
 
 
 def get_branch():

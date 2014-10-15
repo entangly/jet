@@ -8,7 +8,9 @@ Objectives from 03/10 to 17/10
 
 Evaluation
 
-1 - 
+1 - Finished
 2 - Finished - works for python however extend in future?
 3 - Finished
-4 - 
+4 - Needs a few more days work - complications arising with previous implementation
+
+Extension - Be able to switch between branches (complete)

@@ -32,6 +32,7 @@ commands = {
     "hook": hook.run,
     "branch": branch.run,
     "revert": revert.run,
+    "switch": branch.switch,
 }
 try:
     commands[sys.argv[1]]()

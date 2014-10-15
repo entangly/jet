@@ -84,3 +84,30 @@ def branch():
 
 def run():
     branch()
+
+
+def switch():
+    if len(sys.argv) != 3:
+        print "Please form your switch commands $jet switch <branch_name>"
+        return
+    filename = os.path.join(hf.get_jet_directory() + '/.jet/changeset.txt')
+    changed_files = False
+    if os.path.isfile(filename):
+        changed_files = True
+    if len(hf.get_changed_files()) > 0:
+        changed_files = True
+    if changed_files:
+        print "You can't switch branch until you commit...."
+        return
+    branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
+    if os.path.exists(branches_path):
+        if os.path.exists(os.path.join(branches_path + sys.argv[2])):
+            filename = '.jet/branch'
+            with open(filename, 'w') as file_:
+                file_.write(sys.argv[2])
+            hf.revert(sys.argv[2], 0)
+            print "Successfully switched to branch %s" % sys.argv[2]
+        else:
+            print "Invalid branch name"
+    else:
+        print "Invalid branch name"
