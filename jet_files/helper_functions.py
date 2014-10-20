@@ -453,6 +453,9 @@ def run_hook(filename):
 def is_valid_commit_number(number, branch):
     if branch is None:
         commits = get_immediate_subdirectories(get_branch_location())
+    elif branch == 'master':
+        commits = get_immediate_subdirectories(
+            os.path.join(get_jet_directory() + '/.jet/'))
     else:
         commits = get_immediate_subdirectories(
             os.path.join(get_jet_directory() + '/.jet/branches/%s' % branch))
@@ -467,11 +470,78 @@ def is_valid_commit_number(number, branch):
         return False
 
 
+def edit_commit_list(branch, commit_number, current_list):
+    if branch == 'master':
+        filename = os.path.join(get_jet_directory() + '/.jet/%s')
+    else:
+        filename = os.path.join(get_jet_directory() + '/.jet/branches')
+    if commit_number == 0:
+        raise AttributeError
+    with open(filename, 'r') as myFile:
+        edits = myFile.read().splitlines()
+    for edit in edits:
+        if edit.startswith('+'):
+            current_list.append(edit[1:])
+        elif edit.startswith('-'):
+            try:
+                current_list.remove(edit[1:])
+            except ValueError:
+                pass
+        else:
+            pass
+    return current_list
+
+
+def get_highest_commit(branch):
+    if branch != 'master':
+        directories = get_immediate_subdirectories(os.path.join(
+            get_jet_directory() + '/.jet/branches/%s' % branch))
+    else:
+        directories = get_immediate_subdirectories(
+            os.path.join(get_jet_directory() + '/.jet/'))
+    highest = 0
+    for directory in directories:
+        if directory > highest:
+            highest = directory
+    return highest
+
+
+def get_parent(branch):
+    if branch == 'master':
+        raise AttributeError
+    filename = os.path.join(get_jet_directory()
+                            + '/.jet/branches/%s/parent' % branch)
+    with open(filename, 'r') as myFile:
+        lines = myFile.read().splitlines()
+    return lines[0]
+
+
+def get_file_list_at(branch, commit_number):
+    if branch == 'master':
+        filename = os.path.join(get_jet_directory() + '/.jet/0/file_log.txt')
+    else:
+        filename = os.path.join(get_jet_directory()
+                                + '/.jet/branches/%s/0/file_log.txt' % branch)
+    with open(filename, 'r') as myFile_:
+        branch_file_list = myFile_.read().splitlines()
+
+    if commit_number > 0:
+        commit_int = int(commit_number)
+        for i in range(1, commit_int + 1):
+            branch_file_list = edit_commit_list(branch, i, branch_file_list)
+    return branch_file_list
+
+
 def revert(branch, commit_number):
-    #find out which files were there
+    current_files = get_current_files()
+    files_at_revert_point = get_file_list_at(branch, commit_number)
+    print current_files
+    print files_at_revert_point
     #remove files which weren't
     #reform files which were.
-
+    filename = '.jet/branch'
+    with open(filename, 'w') as file_:
+        file_.write(branch)
     print "Revert finished. You are now at the state of commit number %s " \
           "in branch %s" % (commit_number, branch)
 

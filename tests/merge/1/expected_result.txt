@@ -1,0 +1,5 @@
+def test_method():
+    print test
+
+def test_method_two():
+    print test_two

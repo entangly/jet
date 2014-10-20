@@ -15,14 +15,15 @@ def revert():
 
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
     if os.path.exists(branches_path):
-        if not os.path.exists(os.path.join(branches_path + sys.argv[2])):
-            print "Invalid branch name, aborting revert"
-            print "Please form revert commands by typing" \
-                  " '$jet revert <branch_name> <commit_number>' \n" \
-                  "Remember the default branch is called 'master'"
-            return
+        if not sys.argv[2] == 'master':
+            if not os.path.exists(os.path.join(branches_path + sys.argv[2])):
+                print "Invalid branch name, aborting revert"
+                print "Please form revert commands by typing" \
+                      " '$jet revert <branch_name> <commit_number>' \n" \
+                      "Remember the default branch is called 'master'"
+                return
 
-    if hf.is_valid_commit_number(sys.argv[3]):
+    if hf.is_valid_commit_number(sys.argv[3], sys.argv[2]):
         response = raw_input("Revert changes all your files back to the "
                              "point they were in at the commit number "
                              "specified. Any changes that are not committed"

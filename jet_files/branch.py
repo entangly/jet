@@ -76,6 +76,11 @@ def branch():
         count += 1
 
     print "Branch %s made" % sys.argv[2]
+    filename = os.path.join(hf.get_jet_directory()
+                            + '/.jet/branches/%s/parent' % sys.argv[2])
+    old_branch = hf.get_branch()
+    with open(filename, 'w') as file_:
+        file_.write(old_branch)
     filename = '.jet/branch'
     with open(filename, 'w') as file_:
         file_.write(sys.argv[2])
