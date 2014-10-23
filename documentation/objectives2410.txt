@@ -2,4 +2,4 @@ Objectives from 17/10 to 24/10
 
 1 - Finish off reverting
 2 - Write unit tests for the merge algorithm
-3 - Add jet diff <filename> <commit_number>
+3 - Add jet diff <filename> <branch> <commit_number>
