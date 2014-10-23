@@ -14,7 +14,8 @@ from jet_files import (status,
                        login,
                        revert,
                        hook,
-                       branch)
+                       branch,
+                       diff)
 
 
 commands = {
@@ -33,6 +34,8 @@ commands = {
     "branch": branch.run,
     "revert": revert.run,
     "switch": branch.switch,
+    "branches": branch.display,
+    "diff": diff.run,
 }
 try:
     commands[sys.argv[1]]()

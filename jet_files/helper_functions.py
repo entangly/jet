@@ -207,7 +207,7 @@ def get_changed_files():
 
 def get_change_description(filename):
     commit_number = get_new_commit_number() - 1
-    previous_file = get_file_at(commit_number, filename)
+    previous_file = get_file_at(get_branch(), commit_number, filename)
     if previous_file is None:
         return "File was added at this point"
     difference = diff(previous_file, filename)
@@ -289,9 +289,14 @@ def diff(file1, file2):
         return description_to_return
 
 
-def get_file_change_number(commit_number, filename):
-    file_list_file = os.path.join(get_branch_location() + '/%s/file_log.txt'
-                                  % commit_number)
+def get_file_change_number(branch, commit_number, filename):
+    if not branch == 'master':
+        file_list_file = os.path.join(get_jet_directory() +
+                                      '/.jet/branches/%s/%s/file_log.txt'
+                                      % (branch, commit_number))
+    else:
+        file_list_file = os.path.join(get_jet_directory() +
+                                      '/.jet/%s/file_log.txt' % commit_number)
     with open(file_list_file, 'r') as myFile:
         file_list = myFile.read().splitlines()
     change_number = 0
@@ -303,40 +308,56 @@ def get_file_change_number(commit_number, filename):
     return None
 
 
-def get_last_complete_file(filename):
-    change_number = get_file_change_number(0, filename)
+def get_last_complete_file(branch, filename):
+    change_number = get_file_change_number(branch, 0, filename)
     if change_number is None:
         return None, None
     name_of_file = os.path.basename(filename)
-    modded_filename = os.path.join(get_branch_location() + '/0/%s/%s'
-                                   % (change_number, name_of_file))
+    if not branch == 'master':
+        modded_filename = os.path.join(get_jet_directory()
+                                       + '/.jet/branches/%s/0/%s/%s'
+                                       % (branch, change_number, name_of_file))
+    else:
+        modded_filename = os.path.join(get_jet_directory() + '/.jet/0/%s/%s'
+                                       % (change_number, name_of_file))
     with open(modded_filename, 'r') as myFile:
             current_file = myFile.read().splitlines()
     commit_number = 0
     return current_file, commit_number
 
 
-def get_diff_at(commit_number, filename):
-    change_number = get_file_change_number(commit_number, filename)
-    modded_filename = os.path.join(get_branch_location() + '/%s/%s/changes.txt'
-                                   % (commit_number, change_number))
+def get_diff_at(branch, commit_number, filename):
+    change_num = get_file_change_number(branch, commit_number, filename)
+    if not branch == 'master':
+        modded_filename = os.path.join(get_jet_directory()
+                                       + '/.jet/branches/%s/%s/%s/changes.txt'
+                                       % (branch, commit_number, change_num))
+    else:
+        modded_filename = os.path.join(get_jet_directory()
+                                       + '/jet/%s/%s/changes.txt'
+                                       % (commit_number, change_num))
     with open(modded_filename, 'r') as myFile:
         difference = myFile.read().splitlines()
     return difference
 
 
-def get_file_at(commit_number, filename):
-    last_complete, last_full_commit = get_last_complete_file(filename)
+def get_file_at(branch, commit_number, filename):
+    last_complete, last_full_commit = get_last_complete_file(branch, filename)
     if last_complete is None:
         return None
     commits_to_add = []
     commit = last_full_commit + 1
+    if commit_number == '0':
+        return last_complete
     while commit < commit_number:
         commits_to_add.append(commit)
         commit += 1
+
     current_file = last_complete
     for c in commits_to_add:
-        current_file = reform_file(current_file, get_diff_at(c, filename))
+        current_file = reform_file(current_file, get_diff_at(branch,
+                                                             c,
+                                                             filename))
         print current_file
 
     return current_file
@@ -535,10 +556,16 @@ def get_file_list_at(branch, commit_number):
 def revert(branch, commit_number):
     current_files = get_current_files()
     files_at_revert_point = get_file_list_at(branch, commit_number)
-    print current_files
-    print files_at_revert_point
-    #remove files which weren't
-    #reform files which were.
+    files_to_delete = [x for x in current_files
+                       if not x in files_at_revert_point]
+    for file_ in files_to_delete:
+        os.remove(file_)
+    for file_ in files_at_revert_point:
+        new_contents = get_file_at(branch, commit_number, file_)
+        with open(file_, 'w') as myFile:
+            for content in new_contents:
+                myFile.write(content)
+
     filename = '.jet/branch'
     with open(filename, 'w') as file_:
         file_.write(branch)
@@ -551,6 +578,3 @@ def get_branch():
     with open(filename, 'r') as myFile:
         lines = myFile.read().splitlines()
     return lines[0]
-
-
-

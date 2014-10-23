@@ -92,6 +92,9 @@ def run():
 
 
 def switch():
+    if not hf.already_initialized():
+        print "Please init a jet repo before calling other commands"
+        return
     if len(sys.argv) != 3:
         print "Please form your switch commands $jet switch <branch_name>"
         return
@@ -116,3 +119,18 @@ def switch():
             print "Invalid branch name"
     else:
         print "Invalid branch name"
+
+
+def display():
+    if not hf.already_initialized():
+        print "Please init a jet repo before calling other commands"
+        return
+    print "Branch name (parent)"
+    print "Master(root)"
+    branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
+    if os.path.exists(branches_path):
+        branches = hf.get_immediate_subdirectories(branches_path)
+        for b in branches:
+            print "%s (%s)" % (b, hf.get_parent(b))
+
+    print "You are currently on branch %s" % hf.get_branch()
