@@ -1,4 +1,3 @@
-import os
 import sys
 from jet_files import (status,
                        push,
@@ -10,7 +9,6 @@ from jet_files import (status,
                        merge,
                        help_text,
                        local_tests,
-                       helper_functions,
                        login,
                        revert,
                        hook,
@@ -40,7 +38,7 @@ commands = {
 try:
     commands[sys.argv[1]]()
 except KeyError:
-    print "Invalid Command - Please set www.jetvc.co.uk/commands for more info!"
+    print "Invalid Command - Please see www.jetvc.co.uk/commands for more info!"
 except IndexError:
     print "Not enough arguments"
 
