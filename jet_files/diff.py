@@ -11,7 +11,7 @@ def diff():
         print "Please form diff commands " \
               "'$jet diff <filename> <branch> <commit_number>'"
     if os.path.exists(sys.argv[2]):
-        full_file_name = os.path.join(os.getcwd() + '/' +  sys.argv[2])
+        full_file_name = os.path.join(os.getcwd() + '/' + sys.argv[2])
         old_file = hf.get_file_at(sys.argv[3], sys.argv[4], full_file_name)
         if old_file is None:
             print "File could not be found at the point specified"
