@@ -209,7 +209,7 @@ def get_change_description(filename):
     commit_number = get_new_commit_number() - 1
     previous_file = get_file_at(get_branch(), commit_number, filename)
     if previous_file is None:
-        return "File was added at this point"
+        return None
     difference = diff(previous_file, filename)
     if not difference:
         return "Jet is sorry, but there was an error in processing the" \
@@ -253,8 +253,6 @@ def diff(file1, file2):
                             line +
                             "\n")
             continue
-        #print "Comparing %s and %s" % (line, current_lines[count])
-        #print "Old count is %s, count is %s" % (old_count, count)
 
         if not current_lines[count] == line:
             if line == "":
@@ -309,19 +307,29 @@ def get_file_change_number(branch, commit_number, filename):
 
 
 def get_last_complete_file(branch, filename):
-    change_number = get_file_change_number(branch, 0, filename)
-    if change_number is None:
-        return None, None
-    name_of_file = os.path.basename(filename)
+    change_number = None
+    count = 0
+    while change_number is None and count <= get_highest_commit(branch):
+        change_number = get_file_change_number(branch, count, filename)
+        count += 1
+    count -= 1
+    if count > 0:
+        name_of_file = 'changes.txt'
+    else:
+        name_of_file = os.path.basename(filename)
     if not branch == 'master':
         modded_filename = os.path.join(get_jet_directory()
-                                       + '/.jet/branches/%s/0/%s/%s'
-                                       % (branch, change_number, name_of_file))
+                                       + '/.jet/branches/%s/%s/%s/%s'
+                                       % (branch, count,
+                                          change_number, name_of_file))
     else:
-        modded_filename = os.path.join(get_jet_directory() + '/.jet/0/%s/%s'
-                                       % (change_number, name_of_file))
-    with open(modded_filename, 'r') as myFile:
-            current_file = myFile.read().splitlines()
+        modded_filename = os.path.join(get_jet_directory() + '/.jet/%s/%s/%s'
+                                       % (count, change_number, name_of_file))
+    try:
+        with open(modded_filename, 'r') as myFile:
+                current_file = myFile.read().splitlines()
+    except IOError:
+        return None, None
     commit_number = 0
     return current_file, commit_number
 
@@ -334,7 +342,7 @@ def get_diff_at(branch, commit_number, filename):
                                        % (branch, commit_number, change_num))
     else:
         modded_filename = os.path.join(get_jet_directory()
-                                       + '/jet/%s/%s/changes.txt'
+                                       + '/.jet/%s/%s/changes.txt'
                                        % (commit_number, change_num))
     with open(modded_filename, 'r') as myFile:
         difference = myFile.read().splitlines()
@@ -347,9 +355,9 @@ def get_file_at(branch, commit_number, filename):
         return None
     commits_to_add = []
     commit = last_full_commit + 1
-    if commit_number == '0':
+    if commit_number == '0' or commit_number == 0:
         return last_complete
-    while commit < commit_number:
+    while int(commit) < int(commit_number):
         commits_to_add.append(commit)
         commit += 1
 
@@ -493,9 +501,13 @@ def is_valid_commit_number(number, branch):
 
 def edit_commit_list(branch, commit_number, current_list):
     if branch == 'master':
-        filename = os.path.join(get_jet_directory() + '/.jet/%s')
+        filename = os.path.join(get_jet_directory()
+                                + '/.jet/%s/file_log.txt'
+                                % commit_number)
     else:
-        filename = os.path.join(get_jet_directory() + '/.jet/branches')
+        filename = os.path.join(get_jet_directory()
+                                + '/.jet/branches/%s/%s/file_log.txt'
+                                % (branch, commit_number))
     if commit_number == 0:
         raise AttributeError
     with open(filename, 'r') as myFile:
@@ -520,6 +532,10 @@ def get_highest_commit(branch):
     else:
         directories = get_immediate_subdirectories(
             os.path.join(get_jet_directory() + '/.jet/'))
+        try:
+            directories.remove("branches")
+        except ValueError:
+            pass
     highest = 0
     for directory in directories:
         if directory > highest:
@@ -535,6 +551,16 @@ def get_parent(branch):
     with open(filename, 'r') as myFile:
         lines = myFile.read().splitlines()
     return lines[0]
+
+
+def get_parent_commit(branch):
+    if branch == 'master':
+        raise AttributeError
+    filename = os.path.join(get_jet_directory()
+                            + '/.jet/branches/%s/parent' % branch)
+    with open(filename, 'r') as myFile:
+        lines = myFile.read().splitlines()
+    return lines[1]
 
 
 def get_file_list_at(branch, commit_number):
@@ -566,9 +592,12 @@ def revert(branch, commit_number):
             for content in new_contents:
                 myFile.write(content)
 
-    filename = '.jet/branch'
+    filename = os.path.join(get_jet_directory() + '/.jet/branch')
     with open(filename, 'w') as file_:
         file_.write(branch)
+    filename = os.path.join(get_jet_directory() + '/.jet/current_commit')
+    with open(filename, 'w') as file_:
+        file_.write(str(commit_number))
     print "Revert finished. You are now at the state of commit number %s " \
           "in branch %s" % (commit_number, branch)
 
@@ -578,3 +607,103 @@ def get_branch():
     with open(filename, 'r') as myFile:
         lines = myFile.read().splitlines()
     return lines[0]
+
+
+def get_commit():
+    filename = os.path.join(get_jet_directory() + '/.jet/current_commit')
+    with open(filename, 'r') as myFile:
+        lines = myFile.read().splitlines()
+    return lines[0]
+
+
+def get_joint_parent(b1, b2):
+    mutual_branch = 'master'
+    branch_1 = b1
+    b1_branch_list = []
+    while not branch_1 == 'master':
+        b1_branch_list.append(branch_1)
+        branch_1 = get_parent(branch_1)
+    branch_2 = b2
+    b2_branch_list = []
+    while not branch_2 == 'master':
+        b2_branch_list.append(branch_2)
+        branch_2 = get_parent(branch_2)
+    found = False
+    for branch in b1_branch_list:
+        if found:
+            continue
+        for b in b2_branch_list:
+            if branch == b:
+                mutual_branch = b
+                found = True
+                continue
+
+    return mutual_branch, 0
+
+
+def merge(branch_to_merge):
+    current_branch = get_branch()
+    current_files = get_current_files()
+    other_files = get_file_list_at(branch_to_merge,
+                                   get_highest_commit(branch_to_merge))
+
+    joint_parent_branch,\
+        joint_parent_commit_number = get_joint_parent(current_branch,
+                                                      branch_to_merge)
+    parent_files = get_file_list_at(joint_parent_branch,
+                                    joint_parent_commit_number)
+
+    files_to_merge = []
+    files_to_ask_about = []
+
+    for file_ in current_files:
+        if file_ in other_files:
+            files_to_merge.append(file_)
+        else:
+            files_to_ask_about.append(file_)
+    files_to_ask_about += [x for x in other_files if x not in current_files]
+
+    for f in files_to_ask_about:
+        answer = ask(f)
+        if not answer:
+            os.remove(f)
+        else:
+            if f not in current_files:
+                file_conts = get_file_at(branch_to_merge,
+                                         get_highest_commit(branch_to_merge),
+                                         f)
+                if file_conts:
+                    with open(f, 'w') as myFile:
+                        for line in file_conts:
+                            myFile.write(line)
+    for f in files_to_merge:
+        if f in parent_files:
+            parent_file = get_file_at(joint_parent_branch,
+                                      joint_parent_commit_number,
+                                      f)
+        else:
+            parent_file = []
+
+        file1 = get_file_at(current_branch,
+                            get_highest_commit(current_branch),
+                            f)
+        file2 = get_file_at(branch_to_merge,
+                            get_highest_commit(branch_to_merge),
+                            f)
+        print file2
+        merge_files(f, parent_file, file1, file2)
+
+
+def ask(filename):
+    response = raw_input("Would you like to keep the file: %s? (yes/no) "
+                         % filename)
+
+    if response == "yes" or response == "y" or response == "Yes":
+        return True
+    else:
+        return False
+
+
+def merge_files(filename, parent, file1, file2):
+    with open(filename, 'w') as myFile:
+        myFile.write("Merged")

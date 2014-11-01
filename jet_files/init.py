@@ -41,6 +41,9 @@ def init():
         filename = '.jet/branch'
         with open(filename, 'w') as file_:
             file_.write("master")
+        filename = '.jet/current_commit'
+        with open(filename, 'w') as file_:
+            file_.write("0")
         print "Initializing Jet repository in %s" % os.getcwd()
 
 
