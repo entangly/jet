@@ -1,0 +1,11 @@
+Objectives from 31/10 to 14/11
+
+1 - Setup the data structures behind merging
+2 - Get merging working with the unix algorithm
+3 - Get my algorithm to do merge conflicts on everything....
+
+Evaluation 
+
+1 - 
+2 - 
+3 -
