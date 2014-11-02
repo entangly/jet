@@ -336,6 +336,8 @@ def get_last_complete_file(branch, filename):
 
 def get_diff_at(branch, commit_number, filename):
     change_num = get_file_change_number(branch, commit_number, filename)
+    if change_num is None:
+        return []
     if not branch == 'master':
         modded_filename = os.path.join(get_jet_directory()
                                        + '/.jet/branches/%s/%s/%s/changes.txt'
@@ -357,7 +359,7 @@ def get_file_at(branch, commit_number, filename):
     commit = last_full_commit + 1
     if commit_number == '0' or commit_number == 0:
         return last_complete
-    while int(commit) < int(commit_number):
+    while int(commit) == int(commit_number):
         commits_to_add.append(commit)
         commit += 1
 
@@ -366,7 +368,6 @@ def get_file_at(branch, commit_number, filename):
         current_file = reform_file(current_file, get_diff_at(branch,
                                                              c,
                                                              filename))
-        print current_file
 
     return current_file
 
@@ -377,10 +378,20 @@ def reform_file(_file_, diff_list):
     else:
         with open(_file_, 'r') as file_:
             lines = file_.read().splitlines()
+    if len(diff_list) == 0:
+        return lines
     if diff_list[0] == 'No changes found':
         return lines
     for d in diff_list:
-        index = d.index(' ')
+        try:
+            index = d.index(' ')
+        except ValueError:
+            if type(_file_) == list:
+                lines = _file_
+            else:
+                with open(_file_, 'r') as file_:
+                    lines = file_.read().splitlines()
+            return lines
         line_number_list = d[1:index-1]
         line_number = ''
         for number in line_number_list:
@@ -690,7 +701,6 @@ def merge(branch_to_merge):
         file2 = get_file_at(branch_to_merge,
                             get_highest_commit(branch_to_merge),
                             f)
-        print file2
         merge_files(f, parent_file, file1, file2)
 
 

@@ -39,6 +39,5 @@ try:
     commands[sys.argv[1]]()
 except KeyError:
     print "Invalid Command - Please see www.jetvc.co.uk/commands for more info!"
-except IndexError:
+except IndexError, e:
     print "Not enough arguments"
-
