@@ -206,7 +206,7 @@ def get_changed_files():
 
 
 def get_change_description(filename):
-    commit_number = get_new_commit_number() - 1
+    commit_number = get_new_commit_number() - 2
     previous_file = get_file_at(get_branch(), commit_number, filename)
     if previous_file is None:
         return None
@@ -385,6 +385,11 @@ def reform_file(_file_, diff_list):
     for d in diff_list:
         try:
             index = d.index(' ')
+            line_number_list = d[1:index-1]
+            line_number = ''
+            for number in line_number_list:
+                line_number += number
+            count = int(line_number)
         except ValueError:
             if type(_file_) == list:
                 lines = _file_
@@ -392,11 +397,6 @@ def reform_file(_file_, diff_list):
                 with open(_file_, 'r') as file_:
                     lines = file_.read().splitlines()
             return lines
-        line_number_list = d[1:index-1]
-        line_number = ''
-        for number in line_number_list:
-            line_number += number
-        count = int(line_number)
         action = d[index + 1]
         content = d[index + 3:]
         if action == '~':
@@ -627,29 +627,37 @@ def get_commit():
     return lines[0]
 
 
-def get_joint_parent(b1, b2):
+def get_joint_parent(branch_1, branch_2):
     mutual_branch = 'master'
-    branch_1 = b1
     b1_branch_list = []
     while not branch_1 == 'master':
         b1_branch_list.append(branch_1)
         branch_1 = get_parent(branch_1)
-    branch_2 = b2
     b2_branch_list = []
     while not branch_2 == 'master':
         b2_branch_list.append(branch_2)
         branch_2 = get_parent(branch_2)
+    b1_branch_list.append('master')
+    b2_branch_list.append('master')
     found = False
-    for branch in b1_branch_list:
+    for b1 in b1_branch_list:
         if found:
             continue
-        for b in b2_branch_list:
-            if branch == b:
-                mutual_branch = b
+        for b2 in b2_branch_list:
+            if b1 == b2:
+                mutual_branch = b2
                 found = True
                 continue
 
-    return mutual_branch, 0
+    mutual_commit = 0
+    index = b2_branch_list.index(mutual_branch)
+    index_of_child = index - 1
+    try:
+        mutual_commit = get_parent_commit(b2_branch_list[index_of_child])
+    except IndexError:
+        pass
+
+    return mutual_branch, mutual_commit
 
 
 def merge(branch_to_merge):
@@ -680,13 +688,15 @@ def merge(branch_to_merge):
             os.remove(f)
         else:
             if f not in current_files:
-                file_conts = get_file_at(branch_to_merge,
-                                         get_highest_commit(branch_to_merge),
-                                         f)
-                if file_conts:
+                file_contents = get_file_at(branch_to_merge,
+                                            get_highest_commit
+                                            (branch_to_merge),
+                                            f)
+                if file_contents:
                     with open(f, 'w') as myFile:
-                        for line in file_conts:
+                        for line in file_contents:
                             myFile.write(line)
+
     for f in files_to_merge:
         if f in parent_files:
             parent_file = get_file_at(joint_parent_branch,
@@ -715,5 +725,57 @@ def ask(filename):
 
 
 def merge_files(filename, parent, file1, file2):
+    # base case
+    if file1 == file2:
+        new_file = file1
+    else:
+        # merge conflict has happened
+        new_file = file1 + ['@@@@@@@@@@@@@@'] + file2
+        add_conflict(filename)
+
     with open(filename, 'w') as myFile:
-        myFile.write("Merged")
+        for line in new_file:
+            myFile.write(line)
+
+
+def is_conflicts():
+    return not len(get_conflicts()) == 0
+
+
+def get_conflicts():
+    file_ = os.path.join(get_branch_location() + 'conflicts')
+    try:
+        with open(file_, 'r') as myFile:
+            lines = myFile.read().splitlines()
+    except IOError:
+        lines = []
+    return lines
+
+
+def add_conflict(filename):
+    conflicts = get_conflicts()
+    conflicts.append(filename)
+
+    file_ = os.path.join(get_branch_location() + 'conflicts')
+
+    print "Merge conflict for file %s" % filename
+
+    with open(file_, 'w') as myFile:
+        for line in conflicts:
+            myFile.write(line)
+
+
+def resolve_conflict(filename):
+    conflicts = get_conflicts()
+    if filename in conflicts:
+        conflicts.remove(filename)
+    else:
+        return -1
+
+    file_ = os.path.join(get_branch_location() + 'conflicts')
+
+    with (file_, 'w') as myFile:
+        for line in conflicts:
+            myFile.write(line)
+
+    return len(conflicts)

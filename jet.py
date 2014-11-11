@@ -1,19 +1,22 @@
 import sys
-from jet_files import (status,
-                       push,
-                       pull,
-                       list_commits,
-                       commit_changeset,
-                       init,
-                       add,
-                       merge,
-                       help_text,
-                       local_tests,
-                       login,
-                       revert,
-                       hook,
-                       branch,
-                       diff)
+from jet_files import (
+    status,
+    push,
+    pull,
+    list_commits,
+    commit_changeset,
+    init,
+    add,
+    merge,
+    help_text,
+    local_tests,
+    login,
+    revert,
+    hook,
+    branch,
+    diff,
+    conflicts
+)
 
 
 commands = {
@@ -34,6 +37,9 @@ commands = {
     "switch": branch.switch,
     "branches": branch.display,
     "diff": diff.run,
+    "delete": branch.delete_branch,
+    "resolve": conflicts.resolve,
+    "conflicts": conflicts.list_conflicts,
 }
 try:
     commands[sys.argv[1]]()

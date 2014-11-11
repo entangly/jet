@@ -8,6 +8,9 @@ def commit_changeset():
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
+    if hf.is_conflicts():
+        print "You can't commit with outstanding conflicts..."
+        return
     if not hf.logged_in():
         print "You must login before commiting! To do this type:" \
               " $jet login <username>"
@@ -43,14 +46,14 @@ def commit(message):
                                 % new_commit_number)
         with open(filename, 'w')\
                 as file_:
+            for file_to_add in changed_files_in_changeset:
+                file_.write("~" + file_to_add + "\n")
             for file_to_add in new_files_in_changeset:
                 file_.write("+" + file_to_add + "\n")
                 #counter += 1
             for file_to_add in deleted_files_in_changeset:
                 file_.write("-" + file_to_add + "\n")
                 #counter += 1
-            for file_to_add in changed_files_in_changeset:
-                file_.write("~" + file_to_add + "\n")
 
         filename = os.path.join(hf.get_branch_location() + '/%s/info'
                                 % new_commit_number)
