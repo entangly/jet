@@ -1,3 +1,4 @@
+import os
 import sys
 from jet_files import helper_functions as hf
 
@@ -8,7 +9,9 @@ def resolve():
         return
     if not len(sys.argv) == 3:
         print "Please form resolve statements '$jet resolve <filename>'"
-    result = hf.resolve_conflict(sys.argv[2])
+    file_to_resolve = os.path.join(os.getcwd() + '/' + sys.argv[2])
+    import ipdb; ipdb.set_trace()
+    result = hf.resolve_conflict(file_to_resolve)
     if result == -1:
         print "That file does not need resolving"
         return

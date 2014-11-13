@@ -724,13 +724,31 @@ def ask(filename):
         return False
 
 
+def fix_file(parent, file1, file2):
+    _file_ = []
+    return _file_
+
+
+class FixError(Exception):
+    pass
+
+
 def merge_files(filename, parent, file1, file2):
     # base case
     if file1 == file2:
         new_file = file1
     else:
-        # merge conflict has happened
-        new_file = file1 + ['@@@@@@@@@@@@@@'] + file2
+        # merging is required
+        try:
+            new_file = fix_file(parent, file1, file2)
+        except FixError:
+            # error has happened. Apply worst case scenario.
+            new_file = \
+                ['@@@@@@@@@@HEAD@@@@@@@@@@'] \
+                + file1 \
+                + ['@@@@@@@@@@SEPARATOR@@@@@@@@@@'] \
+                + file2 \
+                + ['@@@@@@@@@@END@@@@@@@@@@']
         add_conflict(filename)
 
     with open(filename, 'w') as myFile:
@@ -754,7 +772,8 @@ def get_conflicts():
 
 def add_conflict(filename):
     conflicts = get_conflicts()
-    conflicts.append(filename)
+    if filename not in conflicts:
+        conflicts.append(filename)
 
     file_ = os.path.join(get_branch_location() + 'conflicts')
 
@@ -762,7 +781,7 @@ def add_conflict(filename):
 
     with open(file_, 'w') as myFile:
         for line in conflicts:
-            myFile.write(line)
+            myFile.write('%s\n') % line
 
 
 def resolve_conflict(filename):
@@ -774,7 +793,7 @@ def resolve_conflict(filename):
 
     file_ = os.path.join(get_branch_location() + 'conflicts')
 
-    with (file_, 'w') as myFile:
+    with open(file_, 'w') as myFile:
         for line in conflicts:
             myFile.write(line)
 
