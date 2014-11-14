@@ -480,6 +480,7 @@ def get_push_hook():
 
 
 def run_hook(filename):
+    # noinspection PyBroadException
     try:
         return_code = subprocess.call("python %s" % filename, shell=True)
     except Exception:
@@ -601,7 +602,7 @@ def revert(branch, commit_number):
         new_contents = get_file_at(branch, commit_number, file_)
         with open(file_, 'w') as myFile:
             for content in new_contents:
-                myFile.write(content)
+                myFile.write("%s\n" % content)
 
     filename = os.path.join(get_jet_directory() + '/.jet/branch')
     with open(filename, 'w') as file_:
@@ -724,13 +725,70 @@ def ask(filename):
         return False
 
 
-def fix_file(parent, file1, file2):
+def fix_file(filename, parent, file1, file2, test=False):
     _file_ = []
+    conflict = False
+    parent_pointer = 0
+    file1_pointer = 0
+    file2_pointer = 0
+    total_length = max(len(parent), len(file1), len(file2))
+    for i in range(len(parent), total_length):
+        parent.append("")
+    for i in range(len(file1), total_length):
+        file1.append("")
+    for i in range(len(file2), total_length):
+        file2.append("")
+    while parent_pointer < total_length:
+        # if two versions are the same
+        if file2[file2_pointer] == file1[file1_pointer]:
+            # append the line to the final file
+            _file_.append(file1[file1_pointer])
+            # increment all pointers
+            parent_pointer += 1
+            file1_pointer += 1
+            file2_pointer += 1
+        # if file2 was changed, but not file1
+        elif file1[file1_pointer] == parent[parent_pointer] and \
+                not file2[file2_pointer] == parent[parent_pointer]:
+            # append the line to the final file
+            _file_.append(file2[file2_pointer])
+            # increment all pointers - SHOULD I?!?!?
+            parent_pointer += 1
+            file1_pointer += 1
+            file2_pointer += 1
+        # if file1 was changed, but not file2
+        elif file2[file2_pointer] == parent[parent_pointer] and \
+                not file1[file1_pointer] == parent[parent_pointer]:
+            # append the line to the final file
+            _file_.append(file1[file1_pointer])
+            # increment all pointers - SHOULD I?!?!?
+            parent_pointer += 1
+            file1_pointer += 1
+            file2_pointer += 1
+        else:
+            _file_.append('%s\n%s\n%s\n%s\n%s' % ('@@@@@@@@@@HEAD@@@@@@@@@@',
+                                                  file1[file1_pointer],
+                                                  '@@@@@@@@@@'
+                                                  'SEPARATOR'
+                                                  '@@@@@@@@@@',
+                                                  file2[file2_pointer],
+                                                  '@@@@@@@@@@END@@@@@@@@@@'))
+            conflict = True
+            parent_pointer += 1
+            file1_pointer += 1
+            file2_pointer += 1
+    if conflict and not test:
+        add_conflict(filename)
+
+    count = 0
+    for f in reversed(_file_):
+        if not f == '':
+            continue
+        else:
+            count += 1
+    if count > 0:
+        del _file_[-count:]
     return _file_
-
-
-class FixError(Exception):
-    pass
 
 
 def merge_files(filename, parent, file1, file2):
@@ -740,20 +798,20 @@ def merge_files(filename, parent, file1, file2):
     else:
         # merging is required
         try:
-            new_file = fix_file(parent, file1, file2)
-        except FixError:
+            new_file = fix_file(filename, parent, file1, file2)
+        except IndexError:
             # error has happened. Apply worst case scenario.
             new_file = \
-                ['@@@@@@@@@@HEAD@@@@@@@@@@'] \
+                ['@@@@@@@@@@HEAD@@@@@@@@@@\n'] \
                 + file1 \
-                + ['@@@@@@@@@@SEPARATOR@@@@@@@@@@'] \
+                + ['\n@@@@@@@@@@SEPARATOR@@@@@@@@@@\n'] \
                 + file2 \
-                + ['@@@@@@@@@@END@@@@@@@@@@']
-        add_conflict(filename)
+                + ['\n@@@@@@@@@@END@@@@@@@@@@']
+            add_conflict(filename)
 
     with open(filename, 'w') as myFile:
         for line in new_file:
-            myFile.write(line)
+            myFile.write('%s\n' % line)
 
 
 def is_conflicts():
@@ -781,7 +839,7 @@ def add_conflict(filename):
 
     with open(file_, 'w') as myFile:
         for line in conflicts:
-            myFile.write('%s\n') % line
+            myFile.write('%s\n' % line)
 
 
 def resolve_conflict(filename):
@@ -795,6 +853,6 @@ def resolve_conflict(filename):
 
     with open(file_, 'w') as myFile:
         for line in conflicts:
-            myFile.write(line)
+            myFile.write('%s\n' % line)
 
     return len(conflicts)

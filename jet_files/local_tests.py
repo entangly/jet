@@ -73,15 +73,51 @@ def test_diff_algorithm():
         test_same_files()
     except Exception, e:
         print e
+        RESULTS.append('FAILED DIFF')
     try:
         test_different_files()
     except Exception, e:
+        print e
+        RESULTS.append('FAILED DIFF')
+
+
+def test_one_liners():
+    number_of_tests = 4
+    for i in range(1, number_of_tests + 1):
+        parent_filename = 'tests/merge/%s/parent.txt' % i
+        with open(parent_filename, 'r') as myFile:
+            parent = myFile.read().splitlines()
+        file1_filename = 'tests/merge/%s/file1.txt' % i
+        with open(file1_filename, 'r') as myFile:
+            file1 = myFile.read().splitlines()
+        file2_filename = 'tests/merge/%s/file2.txt' % i
+        with open(file2_filename, 'r') as myFile:
+            file2 = myFile.read().splitlines()
+        result_filename = 'tests/merge/%s/expected_result.txt' % i
+        with open(result_filename, 'r') as myFile:
+            expected_result = myFile.read().splitlines()
+        result = helper_functions.fix_file("irrelevant",
+                                           parent, file1, file2, test=True)
+        split_result = result[0].splitlines()
+        if helper_functions.diff(split_result, expected_result) == EXPECTED_RESULT:
+            RESULTS.append('Passed')
+        else:
+            RESULTS.append("Merging Test '%s' Failed" % i)
+
+
+def test_merging():
+    print "Testing merging algorithm"
+    try:
+        test_one_liners()
+    except Exception, e:
+        RESULTS.append('FAILED MERGING')
         print e
 
 
 def run():
     print "Beginning tests..."
     test_diff_algorithm()
+    test_merging()
     number_of_tests = len(RESULTS)
     passed = 0
     for result in RESULTS:
