@@ -1,0 +1,32 @@
+Decisions for merging
+
+Numbers represent contents of the file
+
+Parent            A                 B               Result
+1                 1                 1                 1
+1                 1                 2                 2
+1                 2                 1                 2
+1                 2                 2                 2
+1                 1                 3                 3
+1                 3                 1                 3
+1                 3                 3                 3
+1                 3                 2                 CONFLICT
+1                 2                 3                 CONFLICT
+2                 1                 1                 1
+2                 1                 2                 1
+2                 2                 1                 1
+2                 2                 2                 2
+2                 1                 3                 CONFLICT
+2                 3                 1                 CONFLICT
+2                 3                 3                 3
+2                 3                 2                 3
+2                 2                 3                 3
+3                 1                 1                 1
+3                 1                 2                 CONFLICT
+3                 2                 1                 CONFLICT
+3                 2                 2                 2
+3                 1                 3                 1
+3                 3                 1                 1
+3                 3                 3                 3
+3                 3                 2                 2
+3                 2                 3                 2
