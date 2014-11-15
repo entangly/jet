@@ -81,8 +81,8 @@ def test_diff_algorithm():
         RESULTS.append('FAILED DIFF')
 
 
-def test_one_liners():
-    number_of_tests = 4
+def test_merges():
+    number_of_tests = 9
     for i in range(1, number_of_tests + 1):
         parent_filename = 'tests/merge/%s/parent.txt' % i
         with open(parent_filename, 'r') as myFile:
@@ -99,7 +99,10 @@ def test_one_liners():
         result = helper_functions.fix_file("irrelevant",
                                            parent, file1, file2, test=True)
         split_result = result[0].splitlines()
-        if helper_functions.diff(split_result, expected_result) == EXPECTED_RESULT:
+        if helper_functions.diff(split_result, expected_result) \
+                == EXPECTED_RESULT \
+                or helper_functions.diff(result, expected_result)\
+                == EXPECTED_RESULT:
             RESULTS.append('Passed')
         else:
             RESULTS.append("Merging Test '%s' Failed" % i)
@@ -108,7 +111,7 @@ def test_one_liners():
 def test_merging():
     print "Testing merging algorithm"
     try:
-        test_one_liners()
+        test_merges()
     except Exception, e:
         RESULTS.append('FAILED MERGING')
         print e

@@ -783,7 +783,7 @@ def fix_file(filename, parent, file1, file2, test=False):
     count = 0
     for f in reversed(_file_):
         if not f == '':
-            continue
+            break
         else:
             count += 1
     if count > 0:
