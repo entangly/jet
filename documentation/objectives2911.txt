@@ -1,9 +1,9 @@
 Objectives from 14/11 to 29/11
 
 1 - Finish merging
-2 - Have 25 solid unit tests for merging
+2 - Have 15 solid unit tests for merging
 
 Evaluation
 
 1 - Complete
-2 - 
+2 - Complete
