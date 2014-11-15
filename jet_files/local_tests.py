@@ -82,7 +82,7 @@ def test_diff_algorithm():
 
 
 def test_merges():
-    number_of_tests = 9
+    number_of_tests = 12
     for i in range(1, number_of_tests + 1):
         parent_filename = 'tests/merge/%s/parent.txt' % i
         with open(parent_filename, 'r') as myFile:
@@ -98,6 +98,8 @@ def test_merges():
             expected_result = myFile.read().splitlines()
         result = helper_functions.fix_file("irrelevant",
                                            parent, file1, file2, test=True)
+        if i == 12:
+            import ipdb; ipdb.set_trace()
         split_result = result[0].splitlines()
         if helper_functions.diff(split_result, expected_result) \
                 == EXPECTED_RESULT \

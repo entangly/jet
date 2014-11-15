@@ -766,13 +766,12 @@ def fix_file(filename, parent, file1, file2, test=False):
             file1_pointer += 1
             file2_pointer += 1
         else:
-            _file_.append('%s\n%s\n%s\n%s\n%s' % ('@@@@@@@@@@HEAD@@@@@@@@@@',
-                                                  file1[file1_pointer],
-                                                  '@@@@@@@@@@'
-                                                  'SEPARATOR'
-                                                  '@@@@@@@@@@',
-                                                  file2[file2_pointer],
-                                                  '@@@@@@@@@@END@@@@@@@@@@'))
+            _file_.append('@@@@@@@@@@HEAD@@@@@@@@@@')
+            _file_.append(file1[file1_pointer])
+            _file_.append('@@@@@@@@@@SEPARATOR@@@@@@@@@@')
+            _file_.append(file2[file2_pointer])
+            _file_.append('@@@@@@@@@@END@@@@@@@@@@')
+
             conflict = True
             parent_pointer += 1
             file1_pointer += 1
