@@ -124,11 +124,7 @@ def get_stored_hash(filename):
 def get_new_files():
     current_files = get_current_files()
     stored_files = get_stored_files()
-    new_files = []
-    for current_file in current_files:
-        if current_file not in stored_files:
-            new_files.append(current_file)
-    return new_files
+    return [x for x in current_files if x not in stored_files]
 
 
 def get_new_files_in_changeset():
@@ -352,6 +348,8 @@ def get_diff_at(branch, commit_number, filename):
 
 
 def get_file_at(branch, commit_number, filename):
+    if not is_valid_commit_number(commit_number, branch):
+        return None
     last_complete, last_full_commit = get_last_complete_file(branch, filename)
     if last_complete is None:
         return None
@@ -359,9 +357,10 @@ def get_file_at(branch, commit_number, filename):
     commit = last_full_commit + 1
     if commit_number == '0' or commit_number == 0:
         return last_complete
-    while int(commit) == int(commit_number):
+    while not int(commit) == int(commit_number):
         commits_to_add.append(commit)
         commit += 1
+    commits_to_add.append(commit)
 
     current_file = last_complete
     for c in commits_to_add:
