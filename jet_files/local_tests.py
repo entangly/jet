@@ -1,7 +1,7 @@
 #Purpose of this file is to test the local version of the version control
 import os
 import shutil
-from jet_files import helper_functions, init
+from jet_files import helper_functions, init, add, commit_changeset
 
 RESULTS = []
 EXPECTED_RESULT = "No changes found"
@@ -227,6 +227,79 @@ def test_get_changed_files_in_changeset(expected_result):
         RESULTS.append("Passed")
 
 
+def test_get_deleted_files(expected_result):
+    deleted_files = helper_functions.get_deleted_files()
+    if len(deleted_files) == expected_result:
+        RESULTS.append('Passed')
+    else:
+        RESULTS.append('Failed deleted files test')
+
+
+def test_get_changed_files(changed_file):
+    changed_files = helper_functions.get_changed_files()
+    if changed_file == 0:
+        if len(changed_files) == 0:
+            RESULTS.append("Passed")
+        else:
+            RESULTS.append("Failed amount of changed files")
+    else:
+        if len(changed_files) == 1:
+            RESULTS.append("Passed")
+        else:
+            RESULTS.append("Failed amount of changed files")
+        if changed_files[0] == changed_file:
+            RESULTS.append("Passed")
+        else:
+            RESULTS.append("Failed which file was changed")
+
+
+def test_get_change_description(filename):
+    pass
+    #Working out way to test.....
+
+
+def test_get_file_change_number(filename):
+    result = helper_functions.get_file_change_number('master', 1, filename)
+    expected_result = 0
+
+    if result == expected_result:
+        RESULTS.append('Passed')
+    else:
+        RESULTS.append('Incorrect file change number')
+
+
+def test_get_last_complete_file():
+    result, commit = helper_functions.get_last_complete_file('master', file7)
+    expected_result, commit_number = [file7], 0
+
+    if result == expected_result:
+        RESULTS.append('Passed')
+    else:
+        RESULTS.append('Failed last complete file. Received %s' % result)
+
+    if commit == commit_number:
+        RESULTS.append('Passed')
+    else:
+        RESULTS.append('Failed last complete file. Received %s' % commit)
+
+
+def test_get_file_at(commit, expected_result):
+    result = helper_functions.get_file_at('master', commit, file7)
+    if result == expected_result:
+        RESULTS.append('Passed')
+    else:
+        RESULTS.append("Failed 'get file at' test")
+
+
+def test_get_highest_commit(expected_result):
+    result = helper_functions.get_highest_commit('master')
+    if result == expected_result:
+        RESULTS.append('Passed')
+    else:
+        RESULTS.append('Get highest commit failed. Got %s, expected %s'
+                       % (result, expected_result))
+
+
 def test_common_functions():
     print "Testing common functions"
     setup()
@@ -239,6 +312,35 @@ def test_common_functions():
         test_get_new_files_in_changeset(0)
         test_get_deleted_files_in_changeset(0)
         test_get_changed_files_in_changeset(0)
+        test_get_deleted_files(0)
+        test_get_changed_files(0)
+        test_get_last_complete_file()
+        test_get_file_at('0', [file7])
+
+        os.remove(file7)
+        test_get_deleted_files(1)
+
+        new_contents1 = ["", "", "", "", file7, "", "", file7, "", ""]
+        with open(file7, 'w') as myFile:
+            for line in new_contents1:
+                myFile.write("%s\n" % line)
+        test_get_changed_files(file7)
+        test_get_highest_commit("0")
+
+        add.add(False)
+        test_get_changed_files_in_changeset(1)
+        test_get_change_description(file7)
+        commit_changeset.commit("This is a test message", verbose=False)
+        test_get_highest_commit("1")
+        test_get_changed_files(0)
+        test_get_file_change_number(file7)
+        test_get_last_complete_file()
+        test_get_file_at('1', expected_result=new_contents1)
+
+
+
+
+
     except Exception, e:
         RESULTS.append('FAILED')
         print e

@@ -491,6 +491,7 @@ def run_hook(filename):
 
 
 def is_valid_commit_number(number, branch):
+    number = '%s' % number
     if branch is None:
         commits = get_immediate_subdirectories(get_branch_location())
     elif branch == 'master':
@@ -503,7 +504,6 @@ def is_valid_commit_number(number, branch):
         commits.remove('branches')
     except ValueError:
         pass
-
     if number in commits:
         return True
     else:
@@ -551,7 +551,7 @@ def get_highest_commit(branch):
     for directory in directories:
         if directory > highest:
             highest = directory
-    return highest
+    return "%s" % highest
 
 
 def get_parent(branch):
@@ -649,13 +649,12 @@ def get_joint_parent(branch_1, branch_2):
                 found = True
                 continue
 
-    mutual_commit = 0
     index = b2_branch_list.index(mutual_branch)
     index_of_child = index - 1
     try:
         mutual_commit = get_parent_commit(b2_branch_list[index_of_child])
     except IndexError:
-        pass
+        mutual_commit = 0
 
     return mutual_branch, mutual_commit
 

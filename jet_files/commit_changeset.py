@@ -27,10 +27,10 @@ def commit_changeset():
         print "Commit commands need to be formed by typing:" \
               " $jet commit -m \"Your message here\""
     else:
-        commit(sys.argv[3])
+        commit(sys.argv[3], verbose=True)
 
 
-def commit(message):
+def commit(message, verbose):
     filename = os.path.join(hf.get_branch_location() + 'changeset.txt')
     if os.path.isfile(filename):
         new_files_in_changeset = hf.get_new_files_in_changeset()
@@ -60,7 +60,8 @@ def commit(message):
         with open(filename, 'w') as file_:
             file_.write(hf.get_username() + '\n')
             file_.write(message)
-        filename = os.path.join(hf.get_jet_directory() + '/.jet/current_commit')
+        filename = os.path.join(hf.get_jet_directory()
+                                + '/.jet/current_commit')
         with open(filename, 'w') as file_:
             file_.write(str(new_commit_number))
 
@@ -102,9 +103,11 @@ def commit(message):
             for file_to_add in to_keep:
                 file_.write(file_to_add + "~J/ET")
                 file_.write(hf.checksum_md5(file_to_add) + "~J/ET")
-        print "Commiting"
+        if verbose:
+            print "Commiting"
     else:
-        print "Please add files to commit using jet add before commiting!"
+        if verbose:
+            print "Please add files to commit using jet add before commiting!"
 
 
 def run():

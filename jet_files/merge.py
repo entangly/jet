@@ -35,7 +35,7 @@ def merge():
     hf.merge(branch)
     add.add(verbose=False)
     commit_changeset.commit("Merged branch %s into branch %s."
-                            % (branch, hf.get_branch()))
+                            % (branch, hf.get_branch()), verbose=False)
     commit_number_used = hf.get_new_commit_number() - 1
     print "Merged branch %s into branch current branch %s." \
           "\nCommitted merge with commit number %s." % (hf.get_branch(),
