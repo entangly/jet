@@ -253,11 +253,6 @@ def test_get_changed_files(changed_file):
             RESULTS.append("Failed which file was changed")
 
 
-def test_get_change_description(filename):
-    pass
-    #Working out way to test.....
-
-
 def test_get_file_change_number(filename):
     result = helper_functions.get_file_change_number('master', 1, filename)
     expected_result = 0
@@ -300,6 +295,29 @@ def test_get_highest_commit(expected_result):
                        % (result, expected_result))
 
 
+def test_hashing_algorithm_is_unique():
+    # Used to debug, not really needed anymore...
+    tests = [
+        ["", "", "", "", "", ""],
+        ["", "", "", "", ""],
+        [""],
+        []
+    ]
+    checksums = []
+    for i in range(0, len(tests)):
+        filename = os.path.join(directory + 'test%s' % i)
+        with open(filename, 'w') as myFile:
+            for line in tests[i]:
+                myFile.write("%s\n" % line)
+        checksums.append(helper_functions.checksum_md5(filename))
+        os.remove(filename)
+
+    if len(checksums) > len(set(checksums)):
+        RESULTS.append("Checksum has a bug")
+    else:
+        RESULTS.append("Passed")
+
+
 def test_common_functions():
     print "Testing common functions"
     setup()
@@ -315,7 +333,7 @@ def test_common_functions():
         test_get_deleted_files(0)
         test_get_changed_files(0)
         test_get_last_complete_file()
-        test_get_file_at('0', [file7])
+        test_get_file_at('0', expected_result=[file7])
 
         os.remove(file7)
         test_get_deleted_files(1)
@@ -327,9 +345,8 @@ def test_common_functions():
         test_get_changed_files(file7)
         test_get_highest_commit("0")
 
-        add.add(False)
+        add.add(verbose=False)
         test_get_changed_files_in_changeset(1)
-        test_get_change_description(file7)
         commit_changeset.commit("This is a test message", verbose=False)
         test_get_highest_commit("1")
         test_get_changed_files(0)
@@ -337,9 +354,33 @@ def test_common_functions():
         test_get_last_complete_file()
         test_get_file_at('1', expected_result=new_contents1)
 
+        os.remove(file6)
+        random_new_file = os.path.join(directory + 'random')
+        with open(random_new_file, 'w') as myFile:
+            myFile.write("lol")
+        helper_functions.revert('master', '0')
+        test_get_file_at('0', [file7])
+        test_stored_files()
 
+        new_contents2 = ["", "", "", "", "", ""]
+        with open(file7, 'w') as myFile:
+            for line in new_contents2:
+                myFile.write("%s\n" % line)
 
+        add.add(verbose=False)
+        commit_changeset.commit("This is a test message", verbose=False)
 
+        test_get_file_at("2", expected_result=new_contents2)
+        test_get_file_at('1', expected_result=new_contents1)
+        test_get_file_at('0', expected_result=[file7])
+
+        test_get_changed_files(0)
+        test_get_deleted_files(0)
+        test_get_new_commit_number(3)
+
+        test_hashing_algorithm_is_unique()
+        # Completed non-branching tests
+        # test get joint parent?!?
 
     except Exception, e:
         RESULTS.append('FAILED')

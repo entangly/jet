@@ -78,7 +78,7 @@ def get_stored_files_and_hashes():
     #~J/E\T is the keyword separating files
     filename = os.path.join(get_branch_location() + 'latest_saved_files')
     with open(filename, 'r') as myFile:
-        data = myFile.read().replace('\n', '')
+        data = myFile.read()
     word = []
     lines = []
     code = []
@@ -609,8 +609,6 @@ def revert(branch, commit_number):
     filename = os.path.join(get_jet_directory() + '/.jet/current_commit')
     with open(filename, 'w') as file_:
         file_.write(str(commit_number))
-    print "Revert finished. You are now at the state of commit number %s " \
-          "in branch %s" % (commit_number, branch)
 
 
 def get_branch():
