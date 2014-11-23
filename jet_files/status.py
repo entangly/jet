@@ -1,7 +1,9 @@
+import os
 from jet_files import helper_functions as hf
 
 
 def status():
+    cwd = os.getcwd()
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
@@ -22,13 +24,17 @@ def status():
                         unadded_new.append(new_file)
                 print "New files in changeset:"
                 for new_file_in_changeset in new_files_in_changeset:
-                    print "    %s" % new_file_in_changeset
+                    print hf.bcolors.GREEN + \
+                        "    %s" % hf.relative(new_file_in_changeset, cwd) +\
+                        hf.bcolors.ENDC
             else:
                 unadded_new = new_files
             if unadded_new:
                 print "New files:"
                 for new_file in unadded_new:
-                    print "    %s" % new_file
+                    print hf.bcolors.GREEN + \
+                        "    %s" % hf.relative(new_file, cwd) + \
+                        hf.bcolors.ENDC
         deleted_files = hf.get_deleted_files()
     if deleted_files:
         deleted_files_in_changeset = hf.get_deleted_files_in_changeset()
@@ -39,13 +45,17 @@ def status():
                     unadded_deleted.append(deleted_file)
             print "Deleted files in changeset:"
             for deleted_file_in_changeset in deleted_files_in_changeset:
-                print "    %s" % deleted_file_in_changeset
+                print hf.bcolors.RED + \
+                    "    %s" % hf.relative(deleted_file_in_changeset, cwd) +\
+                hf.bcolors.ENDC
         else:
             unadded_deleted = deleted_files
         if unadded_deleted:
             print "Deleted files:"
             for deleted_file in unadded_deleted:
-                print "    %s" % deleted_file
+                print hf.bcolors.RED + \
+                    "    %s" % hf.relative(deleted_file, cwd) +\
+                    hf.bcolors.ENDC
 
     changed_files = hf.get_changed_files()
     if changed_files:
@@ -57,13 +67,17 @@ def status():
                     unadded.append(file_)
             print "Changed files in changeset:"
             for changed_file_in_changeset in changed_files_in_changeset:
-                print "    %s" % changed_file_in_changeset
+                print hf.bcolors.YELLOW + \
+                    "    %s" % hf.relative(changed_file_in_changeset, cwd) +\
+                    hf.bcolors.YELLOW
         else:
             unadded = changed_files
         if unadded:
             print "Changed files:"
             for changed_file in unadded:
-                print "    %s" % changed_file
+                print hf.bcolors.YELLOW +\
+                    "    %s" % hf.relative(changed_file, cwd) +\
+                    hf.bcolors.ENDC
 
 
 def run():

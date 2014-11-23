@@ -323,6 +323,8 @@ def test_filtering_files_by_jet_ignore():
         'one.py',
         'one.py~',
         'one.pyc',
+        '/home/connor/development/project/jet/tests/test_directory/'
+        'nope/one.py',
     ]
     expected_result = [
         'one.py'
@@ -330,6 +332,7 @@ def test_filtering_files_by_jet_ignore():
     filters = [
         '*~',
         '*.pyc',
+        'nope/',
     ]
     with open(os.path.join(directory + '/.jet_ignore'), 'w') as myFile:
         for line in filters:
@@ -344,6 +347,33 @@ def test_filtering_files_by_jet_ignore():
         RESULTS.append('Passed')
     else:
         RESULTS.append('Failed length test for jet ignore')
+
+
+def test_relative():
+    currentwd = '/home/connor/development/project/jet/tests/test_directory/'
+    filename = [
+        '/home/connor/development/project/jet/tests/test_directory/one',
+        '/home/connor/development/project/jet/tests/other/one',
+        '/home/connor/development/project/jet/other/other2/one',
+        '/home/connor/development/project/jet/tests/test_directory/folder/one',
+        '/home/connor/development/project/jet/tests/one',
+    ]
+    expected_answer = [
+        'one',
+        '../other/one',
+        '../../other/other2/one',
+        'folder/one',
+        '../one',
+    ]
+    for i in range(0, len(filename)):
+        if helper_functions.relative(filename[i],
+                                     currentwd) == expected_answer[i]:
+            RESULTS.append("Passed")
+        else:
+            RESULTS.append("Failed relative. Got '%s', expected '%s'"
+                           % (helper_functions.relative(filename[i],
+                                                        currentwd),
+                              expected_answer[i]))
 
 
 def test_common_functions():
@@ -408,8 +438,7 @@ def test_common_functions():
         test_current_files()
 
         test_filtering_files_by_jet_ignore()
-
-
+        test_relative()
         test_hashing_algorithm_is_unique()
         # Completed non-branching tests
         # test get joint parent?!?
@@ -433,5 +462,10 @@ def run():
     for result in RESULTS:
         if result == 'Passed':
             passed += 1
-        print "    %s" % result
+            print helper_functions.bcolors.GREEN + \
+                "    Passed" + helper_functions.bcolors.ENDC
+        else:
+            print helper_functions.bcolors.RED +\
+                "    %s" % result + helper_functions.bcolors.ENDC
+
     print "Passed %s out of %s tests" % (passed, number_of_tests)

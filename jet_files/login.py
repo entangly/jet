@@ -17,7 +17,7 @@ def login():
                                 + '/.jet/username')
         with open(filename, 'w') as file_:
             file_.write(username)
-        print "Welcome %s" % username
+        print hf.bcolors.GREEN + "Welcome %s" % username + hf.bcolors.ENDC
 
 
 def run():

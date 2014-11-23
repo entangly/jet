@@ -4,6 +4,18 @@ import hashlib
 import subprocess
 
 
+class bcolors:
+    def __init__(self):
+        pass
+
+    PINK = '\033[95m'
+    BLUE = '\033[94m'
+    GREEN = '\033[92m'
+    YELLOW = '\033[93m'
+    RED = '\033[91m'
+    ENDC = '\033[0m'
+
+
 def get_jet_directory():
     directory = os.getcwd()
     parent = os.path.abspath(os.path.join(directory, os.pardir))
@@ -721,6 +733,27 @@ def ask(filename):
         return False
 
 
+def optimize_conflicts(_file_):
+    START = '@@@@@@@@@@HEAD@@@@@@@@@@'
+    SEPERATOR = '@@@@@@@@@@SEPARATOR@@@@@@@@@@'
+    END = '@@@@@@@@@@END@@@@@@@@@@'
+    for i in range(0, len(_file_)):
+        try:
+            if _file_[i] == END and _file_[i+1] == START:
+                for n in range(i, len(_file_)):
+                    if _file_[n] == SEPERATOR:
+                        _file_.pop(n)
+                _file_[i] = SEPERATOR
+                _file_.pop(i+1)
+                for n in range(i-1, -1, -1):
+                    if _file_[n] == SEPERATOR:
+                        _file_.pop(n)
+                return optimize_conflicts(_file_)
+        except IndexError:
+            pass
+    return _file_
+
+
 def fix_file(filename, parent, file1, file2, test=False):
     _file_ = []
     conflict = False
@@ -830,7 +863,7 @@ def add_conflict(filename):
 
     file_ = os.path.join(get_branch_location() + 'conflicts')
 
-    print "Merge conflict for file %s" % filename
+    print bcolors.RED + "Merge conflict for file %s" % filename + bcolors.ENDC
 
     with open(file_, 'w') as myFile:
         for line in conflicts:
@@ -874,8 +907,15 @@ def filter_file_by_ignore(filename, lines):
                 return False
         if line == filename:
             return False
+        cwd = os.getcwd()
+        relative_filename = filename[len(cwd):]
+        if relative_filename.startswith('/'):
+            relative_filename = relative_filename[1:]
+        if relative_filename.startswith(line):
+            return False
     if filename.endswith("~"):
         return False
+
     # if none of it matches
     return True
 
@@ -888,3 +928,32 @@ def filter_files_by_ignore(filenames):
     except IOError:
         return [x for x in filenames if (filter_file_by_ignore(x, []))]
     return [x for x in filenames if (filter_file_by_ignore(x, lines))]
+
+
+def relative(filename, cwd):
+    if cwd in filename:
+        to_return = filename[len(cwd):]
+        if to_return.startswith('/'):
+            return to_return[1:]
+        else:
+            return to_return
+    else:
+        h, t = os.path.split(filename)
+        if h in cwd:
+            return '../%s' % t
+        head = filename
+        to_append = []
+        count = 0
+        while head not in cwd:
+            head, tail = os.path.split(head)
+            count += 1
+            to_append.append(tail)
+        back_slashes = []
+        count -= 1
+        while count > 0:
+            back_slashes.append('../')
+            count -= 1
+        to_append.reverse()
+        relative_name = "%s%s" % (''.join(back_slashes),
+                                  '/'.join(to_append))
+        return relative_name
