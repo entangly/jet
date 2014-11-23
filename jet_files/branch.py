@@ -36,7 +36,7 @@ def branch():
     filenames_list = []
     for (dirpath, dirnames, filenames) in os.walk(hf.get_jet_directory()):
         for filename in filenames:
-            if not filename.endswith("~"):
+            if hf.filter_one_file_by_ignore(filename):
                 if not '.jet' in dirpath:
                     filenames_list.append(filename)
                     f.append(os.path.join(dirpath, filename))

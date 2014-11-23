@@ -318,6 +318,34 @@ def test_hashing_algorithm_is_unique():
         RESULTS.append("Passed")
 
 
+def test_filtering_files_by_jet_ignore():
+    test_filenames = [
+        'one.py',
+        'one.py~',
+        'one.pyc',
+    ]
+    expected_result = [
+        'one.py'
+    ]
+    filters = [
+        '*~',
+        '*.pyc',
+    ]
+    with open(os.path.join(directory + '/.jet_ignore'), 'w') as myFile:
+        for line in filters:
+            myFile.write("%s\n" % line)
+    result = helper_functions.filter_files_by_ignore(test_filenames)
+    for f in expected_result:
+        if f in result:
+            RESULTS.append('Passed')
+        else:
+            RESULTS.append('Failed jet ignore')
+    if len(expected_result) == len(result):
+        RESULTS.append('Passed')
+    else:
+        RESULTS.append('Failed length test for jet ignore')
+
+
 def test_common_functions():
     print "Testing common functions"
     setup()
@@ -377,6 +405,10 @@ def test_common_functions():
         test_get_changed_files(0)
         test_get_deleted_files(0)
         test_get_new_commit_number(3)
+        test_current_files()
+
+        test_filtering_files_by_jet_ignore()
+
 
         test_hashing_algorithm_is_unique()
         # Completed non-branching tests

@@ -49,10 +49,10 @@ def get_current_files():
 
     current_files = []
     for file_to_check in file_list:
-        if file_to_check not in jet_files_stored and not\
-                file_to_check.endswith("~"):
+        if file_to_check not in jet_files_stored:
             current_files.append(file_to_check)
-    return current_files
+
+    return filter_files_by_ignore(current_files)
 
 
 def get_new_commit_number():
@@ -851,3 +851,40 @@ def resolve_conflict(filename):
             myFile.write('%s\n' % line)
 
     return len(conflicts)
+
+
+def filter_one_file_by_ignore(filename):
+    try:
+        name_of_jet_ignore = os.path.join(get_jet_directory() + '/.jet_ignore')
+        with open(name_of_jet_ignore, 'r') as myFile:
+            lines = myFile.read().splitlines()
+    except IOError:
+        return filter_file_by_ignore(filename, [])
+    return filter_file_by_ignore(filename, lines)
+
+
+# True for passed, false for ignore
+def filter_file_by_ignore(filename, lines):
+    for line in lines:
+        if line.startswith('*'):
+            if filename.endswith(line[1:]):
+                return False
+        if line.endswith('*'):
+            if filename.startswith(line[:1]):
+                return False
+        if line == filename:
+            return False
+    if filename.endswith("~"):
+        return False
+    # if none of it matches
+    return True
+
+
+def filter_files_by_ignore(filenames):
+    try:
+        name_of_jet_ignore = os.path.join(get_jet_directory() + '/.jet_ignore')
+        with open(name_of_jet_ignore, 'r') as myFile:
+            lines = myFile.read().splitlines()
+    except IOError:
+        return [x for x in filenames if (filter_file_by_ignore(x, []))]
+    return [x for x in filenames if (filter_file_by_ignore(x, lines))]

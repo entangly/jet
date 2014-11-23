@@ -13,7 +13,7 @@ def init():
         filenames_list = []
         for (dirpath, dirnames, filenames) in walk(os.getcwd()):
             for filename in filenames:
-                if not filename.endswith("~"):
+                if hf.filter_one_file_by_ignore(filename):
                     filenames_list.append(filename)
                     f.append(os.path.join(dirpath, filename))
         with open('.jet/latest_saved_files', 'w') as file_:
