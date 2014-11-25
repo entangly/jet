@@ -734,19 +734,19 @@ def ask(filename):
 
 
 def optimize_conflicts(_file_):
-    START = '@@@@@@@@@@HEAD@@@@@@@@@@'
-    SEPERATOR = '@@@@@@@@@@SEPARATOR@@@@@@@@@@'
-    END = '@@@@@@@@@@END@@@@@@@@@@'
+    start = '@@@@@@@@@@HEAD@@@@@@@@@@'
+    separator = '@@@@@@@@@@SEPARATOR@@@@@@@@@@'
+    end = '@@@@@@@@@@END@@@@@@@@@@'
     for i in range(0, len(_file_)):
         try:
-            if _file_[i] == END and _file_[i+1] == START:
+            if _file_[i] == end and _file_[i+1] == start:
                 for n in range(i, len(_file_)):
-                    if _file_[n] == SEPERATOR:
+                    if _file_[n] == separator:
                         _file_.pop(n)
-                _file_[i] = SEPERATOR
+                _file_[i] = separator
                 _file_.pop(i+1)
                 for n in range(i-1, -1, -1):
-                    if _file_[n] == SEPERATOR:
+                    if _file_[n] == separator:
                         _file_.pop(n)
                 return optimize_conflicts(_file_)
         except IndexError:

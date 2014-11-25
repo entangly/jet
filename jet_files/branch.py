@@ -4,14 +4,7 @@ import helper_functions as hf
 import sys
 
 
-def branch():
-    if not hf.already_initialized():
-        print "Please init a jet repo before calling other commands"
-        return
-    if len(sys.argv) != 3:
-        print "Please form branch commands by typing" \
-              " $jet branch <branch_name>"
-        return
+def branch(branch_name):
     filename = os.path.join(hf.get_jet_directory() + '/.jet/changeset.txt')
     changed_files = False
     if os.path.isfile(filename):
@@ -23,14 +16,14 @@ def branch():
         return
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
     if os.path.exists(branches_path):
-        if os.path.exists(os.path.join(branches_path + sys.argv[2])):
+        if os.path.exists(os.path.join(branches_path + branch_name)):
             print "Already a branch with that name... please try another!"
             return
         else:
-            os.mkdir(os.path.join(branches_path + sys.argv[2]))
+            os.mkdir(os.path.join(branches_path + branch_name))
     else:
         os.mkdir(os.path.join(hf.get_jet_directory() + '/.jet/branches/'))
-        os.mkdir(os.path.join(branches_path + sys.argv[2]))
+        os.mkdir(os.path.join(branches_path + branch_name))
 
     f = []
     filenames_list = []
@@ -42,15 +35,15 @@ def branch():
                     f.append(os.path.join(dirpath, filename))
     file_name = os.path.join(hf.get_jet_directory()
                              + '/.jet/branches/%s/latest_saved_files'
-                             % sys.argv[2])
+                             % branch_name)
     with open(file_name, 'w') as file_:
         for file_to_add in f:
             file_.write(file_to_add + "~J/ET")
             file_.write(hf.checksum_md5(file_to_add) + "~J/ET")
-    os.mkdir('.jet/branches/%s/0/' % sys.argv[2])
+    os.mkdir('.jet/branches/%s/0/' % branch_name)
     file_name = os.path.join(hf.get_jet_directory()
                              + '/.jet/branches/%s/0/file_log.txt'
-                             % sys.argv[2])
+                             % branch_name)
     with open(file_name, 'w') as file_:
         for file_to_add in f:
             file_.write(file_to_add + "\n")
@@ -58,26 +51,26 @@ def branch():
     count = 0
     for file_to_add in f:
         folder = os.path.join(hf.get_jet_directory() +
-                              '/.jet/branches/%s/%s/%s' % (sys.argv[2],
+                              '/.jet/branches/%s/%s/%s' % (branch_name,
                                                            0,
                                                            count))
         os.mkdir(folder)
         filename = os.path.join(hf.get_jet_directory() +
                                 '/.jet/branches/%s/%s/%s/filename.txt'
-                                % (sys.argv[2], 0, count))
+                                % (branch_name, 0, count))
         with open(filename, 'w') as myFile:
                 myFile.write(file_to_add)
         filename = filenames_list[count]
         copyfile(file_to_add, os.path.join(hf.get_jet_directory()
                                            + '/.jet/branches/%s/0/%s/%s'
-                                           % (sys.argv[2],
+                                           % (branch_name,
                                               count,
                                               filename)))
         count += 1
 
-    print "Branch %s made" % sys.argv[2]
+    print "Branch %s made" % branch_name
     filename = os.path.join(hf.get_jet_directory()
-                            + '/.jet/branches/%s/parent' % sys.argv[2])
+                            + '/.jet/branches/%s/parent' % branch_name)
     old_branch = hf.get_branch()
     old_commit = hf.get_commit()
     with open(filename, 'w') as file_:
@@ -86,15 +79,23 @@ def branch():
         file_.write(old_commit)
     filename = os.path.join(hf.get_jet_directory() + '/.jet/branch')
     with open(filename, 'w') as file_:
-        file_.write(sys.argv[2])
+        file_.write(branch_name)
     filename = os.path.join(hf.get_jet_directory() + '/.jet/current_commit')
     with open(filename, 'w') as file_:
         file_.write("0")
-    print "You are now working in branch %s" % sys.argv[2]
+    print "You are now working in branch %s" % branch_name
 
 
 def run():
-    branch()
+    if not hf.already_initialized():
+        print "Please init a jet repo before calling other commands"
+        return
+    if len(sys.argv) != 3:
+        print "Please form branch commands by typing" \
+              " $jet branch <branch_name>"
+        return
+    branch_name = sys.argv[2]
+    branch(branch_name)
 
 
 def switch():

@@ -2,6 +2,7 @@
 import os
 import shutil
 from jet_files import helper_functions, init, add, commit_changeset
+from jet_files import branch as b
 
 RESULTS = []
 EXPECTED_RESULT = "No changes found"
@@ -253,8 +254,8 @@ def test_get_changed_files(changed_file):
             RESULTS.append("Failed which file was changed")
 
 
-def test_get_file_change_number(filename):
-    result = helper_functions.get_file_change_number('master', 1, filename)
+def test_get_file_change_number(filename, branch):
+    result = helper_functions.get_file_change_number(branch, 1, filename)
     expected_result = 0
 
     if result == expected_result:
@@ -263,8 +264,8 @@ def test_get_file_change_number(filename):
         RESULTS.append('Incorrect file change number')
 
 
-def test_get_last_complete_file():
-    result, commit = helper_functions.get_last_complete_file('master', file7)
+def test_get_last_complete_file(branch):
+    result, commit = helper_functions.get_last_complete_file(branch, file7)
     expected_result, commit_number = [file7], 0
 
     if result == expected_result:
@@ -278,16 +279,16 @@ def test_get_last_complete_file():
         RESULTS.append('Failed last complete file. Received %s' % commit)
 
 
-def test_get_file_at(commit, expected_result):
-    result = helper_functions.get_file_at('master', commit, file7)
+def test_get_file_at(commit, expected_result, branch):
+    result = helper_functions.get_file_at(branch, commit, file7)
     if result == expected_result:
         RESULTS.append('Passed')
     else:
         RESULTS.append("Failed 'get file at' test")
 
 
-def test_get_highest_commit(expected_result):
-    result = helper_functions.get_highest_commit('master')
+def test_get_highest_commit(expected_result, branch):
+    result = helper_functions.get_highest_commit(branch)
     if result == expected_result:
         RESULTS.append('Passed')
     else:
@@ -376,73 +377,85 @@ def test_relative():
                               expected_answer[i]))
 
 
+def test_branch(branch):
+    test_get_jet_directory()
+    test_current_files()
+    test_stored_files()
+    test_get_new_commit_number(1)
+    test_get_stored_hash()
+    test_get_new_files_in_changeset(0)
+    test_get_deleted_files_in_changeset(0)
+    test_get_changed_files_in_changeset(0)
+    test_get_deleted_files(0)
+    test_get_changed_files(0)
+    test_get_last_complete_file(branch)
+    test_get_file_at('0', expected_result=[file7], branch=branch)
+
+    os.remove(file7)
+    test_get_deleted_files(1)
+
+    new_contents1 = ["", "", "", "", file7, "", "", file7, "", ""]
+    with open(file7, 'w') as myFile:
+        for line in new_contents1:
+            myFile.write("%s\n" % line)
+    test_get_changed_files(file7)
+    test_get_highest_commit("0", branch)
+
+    add.add(verbose=False)
+    test_get_changed_files_in_changeset(1)
+    commit_changeset.commit("This is a test message", verbose=False)
+    test_get_highest_commit("1", branch)
+    test_get_changed_files(0)
+    test_get_file_change_number(file7, branch)
+    test_get_last_complete_file(branch)
+    test_get_file_at('1', expected_result=new_contents1, branch=branch)
+
+    os.remove(file6)
+    random_new_file = os.path.join(directory + 'random')
+    with open(random_new_file, 'w') as myFile:
+        myFile.write("lol")
+    helper_functions.revert(branch, '0')
+    test_get_file_at('0', [file7], branch)
+    test_stored_files()
+
+    new_contents2 = ["", "", "", "", "", ""]
+    with open(file7, 'w') as myFile:
+        for line in new_contents2:
+            myFile.write("%s\n" % line)
+
+    add.add(verbose=False)
+    commit_changeset.commit("This is a test message", verbose=False)
+
+    test_get_file_at("2", expected_result=new_contents2, branch=branch)
+    test_get_file_at('1', expected_result=new_contents1, branch=branch)
+    test_get_file_at('0', expected_result=[file7], branch=branch)
+
+    test_get_changed_files(0)
+    test_get_deleted_files(0)
+    test_get_new_commit_number(3)
+    test_current_files()
+
+
 def test_common_functions():
     print "Testing common functions"
     setup()
     try:
-        test_get_jet_directory()
-        test_current_files()
-        test_stored_files()
-        test_get_new_commit_number(1)
-        test_get_stored_hash()
-        test_get_new_files_in_changeset(0)
-        test_get_deleted_files_in_changeset(0)
-        test_get_changed_files_in_changeset(0)
-        test_get_deleted_files(0)
-        test_get_changed_files(0)
-        test_get_last_complete_file()
-        test_get_file_at('0', expected_result=[file7])
+        test_branch('master')
 
-        os.remove(file7)
-        test_get_deleted_files(1)
+        clear_up()
+        setup()
+        b.branch('test_branch')
+        test_branch('test_branch')
 
-        new_contents1 = ["", "", "", "", file7, "", "", file7, "", ""]
-        with open(file7, 'w') as myFile:
-            for line in new_contents1:
-                myFile.write("%s\n" % line)
-        test_get_changed_files(file7)
-        test_get_highest_commit("0")
-
-        add.add(verbose=False)
-        test_get_changed_files_in_changeset(1)
-        commit_changeset.commit("This is a test message", verbose=False)
-        test_get_highest_commit("1")
-        test_get_changed_files(0)
-        test_get_file_change_number(file7)
-        test_get_last_complete_file()
-        test_get_file_at('1', expected_result=new_contents1)
-
-        os.remove(file6)
-        random_new_file = os.path.join(directory + 'random')
-        with open(random_new_file, 'w') as myFile:
-            myFile.write("lol")
-        helper_functions.revert('master', '0')
-        test_get_file_at('0', [file7])
-        test_stored_files()
-
-        new_contents2 = ["", "", "", "", "", ""]
-        with open(file7, 'w') as myFile:
-            for line in new_contents2:
-                myFile.write("%s\n" % line)
-
-        add.add(verbose=False)
-        commit_changeset.commit("This is a test message", verbose=False)
-
-        test_get_file_at("2", expected_result=new_contents2)
-        test_get_file_at('1', expected_result=new_contents1)
-        test_get_file_at('0', expected_result=[file7])
-
-        test_get_changed_files(0)
-        test_get_deleted_files(0)
-        test_get_new_commit_number(3)
-        test_current_files()
+        clear_up()
+        setup()
+        b.branch('test_branch')
+        b.branch('second_test_branch')
+        test_branch('second_test_branch')
 
         test_filtering_files_by_jet_ignore()
         test_relative()
         test_hashing_algorithm_is_unique()
-        # Completed non-branching tests
-        # test get joint parent?!?
-
     except Exception, e:
         RESULTS.append('FAILED')
         print e
