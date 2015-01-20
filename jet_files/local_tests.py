@@ -324,8 +324,7 @@ def test_filtering_files_by_jet_ignore():
         'one.py',
         'one.py~',
         'one.pyc',
-        '/home/connor/development/project/jet/tests/test_directory/'
-        'nope/one.py',
+        os.getcwd() + 'nope/one.py',
     ]
     expected_result = [
         'one.py'

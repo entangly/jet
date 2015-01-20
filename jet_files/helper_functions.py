@@ -87,7 +87,7 @@ def get_new_commit_number():
 
 
 def get_stored_files_and_hashes():
-    #~J/E\T is the keyword separating files
+    #~J/ET is the keyword separating files
     filename = os.path.join(get_branch_location() + 'latest_saved_files')
     with open(filename, 'r') as myFile:
         data = myFile.read()
@@ -111,9 +111,11 @@ def get_stored_files_and_hashes():
             code = []
         else:
             word.extend(code)
-            code = []
-            word.append(char)
-
+            if not char == "~":
+                code = []
+                word.append(char)
+    if len(word) > 0:
+        lines.append(''.join(word[:-5]))
     return lines
 
 

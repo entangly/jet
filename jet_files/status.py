@@ -69,7 +69,7 @@ def status():
             for changed_file_in_changeset in changed_files_in_changeset:
                 print hf.bcolors.YELLOW + \
                     "    %s" % hf.relative(changed_file_in_changeset, cwd) +\
-                    hf.bcolors.YELLOW
+                    hf.bcolors.ENDC
         else:
             unadded = changed_files
         if unadded:

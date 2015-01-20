@@ -15,7 +15,7 @@ def branch(branch_name):
         print "You can't branch until you commit...."
         return
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
-    if os.path.exists(branches_path):
+    if os.path.exists(branches_path) or branch_name == "master":
         if os.path.exists(os.path.join(branches_path + branch_name)):
             print "Already a branch with that name... please try another!"
             return
@@ -106,6 +106,8 @@ def switch():
         print "Please form your switch commands $jet switch <branch_name>"
         return
     filename = os.path.join(hf.get_jet_directory() + '/.jet/changeset.txt')
+
+    # Checks for any changed files, as you must have committed first!!!
     changed_files = False
     if os.path.isfile(filename):
         changed_files = True
@@ -114,6 +116,7 @@ def switch():
     if changed_files:
         print "You can't switch branch until you commit...."
         return
+
     if sys.argv[2] == 'master':
         filename = '.jet/branch'
         with open(filename, 'w') as file_:
