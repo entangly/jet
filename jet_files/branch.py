@@ -137,6 +137,7 @@ def switch():
             filename = '.jet/branch'
             with open(filename, 'w') as file_:
                 file_.write(sys.argv[2])
+            hf.revert(sys.argv[2], hf.get_highest_commit(sys.argv[2]))
             filename = os.path.join(hf.get_branch_location()
                                     + 'latest_saved_files')
             os.remove(filename)
@@ -144,7 +145,6 @@ def switch():
                 for file_to_add in hf.get_current_files():
                     file_.write(file_to_add + "~J/ET")
                     file_.write(hf.checksum_md5(file_to_add) + "~J/ET")
-            hf.revert(sys.argv[2], hf.get_highest_commit(sys.argv[2]))
             print "Successfully switched to branch %s" % sys.argv[2]
         else:
             print "Invalid branch name"
