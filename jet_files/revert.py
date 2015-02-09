@@ -33,7 +33,7 @@ def revert():
             print "Reverting....please wait..."
             hf.revert(sys.argv[2], sys.argv[3])
             print "Revert finished. You are now at the state of " \
-                  "commit number %s in branch %s" % (sys.argv[2], sys.argv[3])
+                  "commit number %s in branch %s" % (sys.argv[3], sys.argv[2])
         elif response == 'no' or response == 'n':
             print "Cancelling revert"
         else:

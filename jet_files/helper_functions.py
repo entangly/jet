@@ -4,7 +4,7 @@ import hashlib
 import subprocess
 
 
-class bcolors:
+class BColors:
     def __init__(self):
         pass
 
@@ -196,6 +196,12 @@ def already_initialized():
 
 
 def checksum_md5(filename):
+    with open(filename, 'r') as f:
+        contents = f.read()
+    return hashlib.md5(contents).hexdigest()
+
+
+def old_checksum_md5(filename):
     md5 = hashlib.md5()
     with open(filename, 'rb') as f:
         for chunk in iter(lambda: f.read(8192), b''): 
@@ -863,7 +869,7 @@ def add_conflict(filename):
 
     file_ = os.path.join(get_branch_location() + 'conflicts')
 
-    print bcolors.RED + "Merge conflict for file %s" % filename + bcolors.ENDC
+    print BColors.RED + "Merge conflict for file %s" % filename + BColors.ENDC
 
     with open(file_, 'w') as myFile:
         for line in conflicts:
@@ -957,3 +963,19 @@ def relative(filename, cwd):
         relative_name = "%s%s" % (''.join(back_slashes),
                                   '/'.join(to_append))
         return relative_name
+
+
+def get_user_id():
+    return 1
+
+
+def get_repo_id():
+    return 2
+
+
+def get_last_server_pull(branch):
+    return 1
+
+
+def save_last_pull(branch, new_number):
+    pass

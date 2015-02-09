@@ -475,10 +475,10 @@ def run():
     for result in RESULTS:
         if result == 'Passed':
             passed += 1
-            print helper_functions.bcolors.GREEN + \
-                "    Passed" + helper_functions.bcolors.ENDC
+            print helper_functions.BColors.GREEN + \
+                "    Passed" + helper_functions.BColors.ENDC
         else:
-            print helper_functions.bcolors.RED +\
-                "    %s" % result + helper_functions.bcolors.ENDC
+            print helper_functions.BColors.RED +\
+                "    %s" % result + helper_functions.BColors.ENDC
 
     print "Passed %s out of %s tests" % (passed, number_of_tests)
