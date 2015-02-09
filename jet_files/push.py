@@ -2,8 +2,6 @@ from jet_files import helper_functions as hf
 import requests
 import json
 
-BRANCH = hf.get_branch()
-JET_DIRECTORY = hf.get_jet_directory()
 DOMAIN = 'http://0.0.0.0:8000/'
 
 
@@ -11,9 +9,11 @@ def push():
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
-    if not hf.logged_in():
-        print "You must login before pushing! To do this type:" \
-              " $jet login <username>"
+    jet_directory = hf.get_jet_directory()
+    branch = hf.get_branch()
+    if not hf.is_setup():
+        print "You must setup before pushing! To do this type:" \
+              " $jet setup"
         return
     hook = hf.get_push_hook()
     if hook:
@@ -27,7 +27,7 @@ def push():
     print "Connecting...."
     url = "%scurrent_file_list/%s/%s/" % (DOMAIN,
                                           hf.get_repo_id(),
-                                          BRANCH)
+                                          branch)
     try:
         response = requests.get(url)
         content = json.loads(response.content)
@@ -36,20 +36,20 @@ def push():
         print "Error - %s" % e
         return
     # Change to only commited files
-    current_files = hf.get_file_list_at(BRANCH, hf.get_commit())
+    current_files = hf.get_file_list_at(branch, hf.get_commit())
     # Send commit POST
     print "Creating commit on server..."
     url = "%screate_commit/" % DOMAIN
     data = {
         'message': "Pushed from local servers",
         'user_id': hf.get_user_id(),
-        'branch_name': BRANCH,
+        'branch_name': branch,
         'repo_id': hf.get_repo_id(),
     }
     response = requests.post(url, data=data)
     commit_id = response.headers['commit_id']
     for _file in content['files']:
-        filename = JET_DIRECTORY + '/' + _file['filename']
+        filename = jet_directory + '/' + _file['filename']
         try:
             current_files.remove(filename)
         except ValueError:
@@ -64,13 +64,13 @@ def push():
         with open(filename, 'r') as myFile:
             contents = myFile.read()
         print "Uploading file %s..." % filename
-        stripped_filename = filename[len(JET_DIRECTORY):]
+        stripped_filename = filename[len(jet_directory):]
         if stripped_filename.startswith('/'):
             stripped_filename = stripped_filename[1:]
         url = "%supdate_file/" % DOMAIN
         data = {
             'filename': stripped_filename,
-            'branch_name': BRANCH,
+            'branch_name': branch,
             'repo_id': hf.get_repo_id(),
             'contents': contents,
             'commit_id': commit_id,
@@ -82,13 +82,13 @@ def push():
         with open(filename, 'r') as myFile:
             contents = myFile.read()
         print "Uploading file %s..." % filename
-        stripped_filename = filename[len(JET_DIRECTORY):]
+        stripped_filename = filename[len(jet_directory):]
         if stripped_filename.startswith('/'):
             stripped_filename = stripped_filename[1:]
         url = "%supdate_file/" % DOMAIN
         data = {
             'filename': stripped_filename,
-            'branch_name': BRANCH,
+            'branch_name': branch,
             'repo_id': hf.get_repo_id(),
             'contents': contents,
             'commit_id': commit_id,

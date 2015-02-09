@@ -968,11 +968,31 @@ def relative(filename, cwd):
 
 
 def get_user_id():
-    return 1
+    filename = os.path.join(get_jet_directory() + '/.jet/username')
+    try:
+        with open(filename, 'r') as file_:
+                    lines = file_.read().splitlines()
+        user_id = lines[1]
+    except IOError:
+        user_id = None
+    except IndexError:
+        user_id = None
+    return user_id
 
 
 def get_repo_id():
-    return 2
+    filename = os.path.join(get_jet_directory() + '/.jet/repo_id')
+    try:
+        with open(filename, 'r') as file_:
+                    lines = file_.read().splitlines()
+        repo_id = lines[0]
+    except IOError:
+        repo_id = None
+    return repo_id
+
+
+def is_setup():
+    return get_user_id() and get_repo_id()
 
 
 def get_last_server_pull(branch):

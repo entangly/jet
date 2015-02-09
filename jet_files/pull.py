@@ -4,8 +4,6 @@ from jet_files import helper_functions as hf
 import requests
 
 
-BRANCH = hf.get_branch()
-JET_DIRECTORY = hf.get_jet_directory()
 DOMAIN = 'http://0.0.0.0:8000/'
 
 
@@ -13,10 +11,12 @@ def pull():
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
+    branch = hf.get_branch()
+    jet_directory = hf.get_jet_directory()
     print "Connecting...."
     url = "%shighest_commit/%s/%s/" % (DOMAIN,
                                        hf.get_repo_id(),
-                                       BRANCH)
+                                       branch)
     try:
         response = requests.get(url)
         content = json.loads(response.content)
@@ -26,19 +26,19 @@ def pull():
         return
     server_commit = content['commit_number']
     print "Connected."
-    last_server_pull = hf.get_last_server_pull(BRANCH)
+    last_server_pull = hf.get_last_server_pull(branch)
     if server_commit == last_server_pull:
         print "You are already upto date."
         return
 
     url = "%scurrent_file_list/%s/%s/" % (DOMAIN,
                                           hf.get_repo_id(),
-                                          BRANCH)
+                                          branch)
     response = requests.get(url)
     content = json.loads(response.content)
     current_files = hf.get_current_files()
     for _file in content['files']:
-        filename = JET_DIRECTORY + '/' + _file['filename']
+        filename = jet_directory + '/' + _file['filename']
         current_files.remove(filename)
         try:
             current_hash = hf.checksum_md5(filename)
@@ -59,7 +59,7 @@ def pull():
     for file_to_delete in current_files:
         os.remove(file_to_delete)
 
-    hf.save_last_pull(BRANCH, server_commit)
+    hf.save_last_pull(branch, server_commit)
     print hf.BColors.GREEN + "Pulled" + hf.BColors.ENDC
 
 
