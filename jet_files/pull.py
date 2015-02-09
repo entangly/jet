@@ -4,7 +4,8 @@ from jet_files import helper_functions as hf
 import requests
 
 
-DOMAIN = 'http://0.0.0.0:8000/'
+#DOMAIN = 'http://0.0.0.0:8000/'
+DOMAIN = 'http://www.jetvc.co.uk/'
 
 
 def pull():
@@ -39,7 +40,11 @@ def pull():
     current_files = hf.get_current_files()
     for _file in content['files']:
         filename = jet_directory + '/' + _file['filename']
-        current_files.remove(filename)
+        try:
+            current_files.remove(filename)
+            new = False
+        except ValueError:
+            new = True
         try:
             current_hash = hf.checksum_md5(filename)
         except IOError:
@@ -53,6 +58,8 @@ def pull():
         response = requests.get(url)
         content = json.loads(response.content)
         new_contents = content['contents']
+        if new:
+            hf.make_directories(filename)
         with open(filename, 'w') as new_file:
             new_file.write(new_contents)
 

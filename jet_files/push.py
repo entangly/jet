@@ -2,7 +2,8 @@ from jet_files import helper_functions as hf
 import requests
 import json
 
-DOMAIN = 'http://0.0.0.0:8000/'
+#DOMAIN = 'http://0.0.0.0:8000/'
+DOMAIN = 'http://www.jetvc.co.uk/'
 
 
 def push():

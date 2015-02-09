@@ -995,8 +995,20 @@ def is_setup():
     return get_user_id() and get_repo_id()
 
 
+def make_directories(filename):
+    stripped_filename = filename[len(get_jet_directory()):]
+    if stripped_filename.startswith('/'):
+        stripped_filename = stripped_filename[1:]
+    fname = os.path.basename(stripped_filename)
+    folders = stripped_filename[:-len(fname)]
+    try:
+        os.makedirs(folders)
+    except OSError:
+        pass
+
+
 def get_last_server_pull(branch):
-    return 1
+    return 0
 
 
 def save_last_pull(branch, new_number):
