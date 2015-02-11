@@ -461,8 +461,17 @@ def test_common_functions():
     clear_up()
 
 
+def test_dependencies():
+    try:
+        import requests
+        RESULTS.append('Passed')
+    except Exception:
+        RESULTS.append('Failed importing requests')
+
+
 def run():
     print "Beginning tests..."
+    test_dependencies()
 
     test_diff_algorithm()
     test_merging()

@@ -995,8 +995,12 @@ def is_setup():
     return get_user_id() and get_repo_id()
 
 
-def make_directories(filename):
-    stripped_filename = filename[len(get_jet_directory()):]
+def make_directories(filename, clone):
+    if clone:
+        jet_directory = os.getcwd()
+    else:
+        jet_directory = get_jet_directory()
+    stripped_filename = filename[len(jet_directory):]
     if stripped_filename.startswith('/'):
         stripped_filename = stripped_filename[1:]
     fname = os.path.basename(stripped_filename)

@@ -42,6 +42,7 @@ commands = {
     "resolve": conflicts.resolve,
     "conflicts": conflicts.list_conflicts,
     "setup": setup.run,
+    "clone": pull.clone,
 }
 try:
     commands[sys.argv[1]]()
