@@ -42,6 +42,14 @@ def get_branch_location():
                             % branch)
 
 
+def get_branch_location_param(branch):
+    if branch == 'master':
+        return os.path.join(get_jet_directory() + '/.jet/')
+    else:
+        return os.path.join(get_jet_directory() + '/.jet/branches/%s/'
+                            % branch)
+
+
 def get_immediate_subdirectories(directory):
     return [name for name in os.listdir(directory)
             if os.path.isdir(os.path.join(directory, name))]
@@ -742,6 +750,7 @@ def ask(filename):
 
 
 def optimize_conflicts(_file_):
+    # TODO - make this work and use it.
     start = '@@@@@@@@@@HEAD@@@@@@@@@@'
     separator = '@@@@@@@@@@SEPARATOR@@@@@@@@@@'
     end = '@@@@@@@@@@END@@@@@@@@@@'
@@ -984,7 +993,7 @@ def get_repo_id():
     filename = os.path.join(get_jet_directory() + '/.jet/repo_id')
     try:
         with open(filename, 'r') as file_:
-                    lines = file_.read().splitlines()
+            lines = file_.read().splitlines()
         repo_id = lines[0]
     except IOError:
         repo_id = None
@@ -1012,8 +1021,34 @@ def make_directories(filename, clone):
 
 
 def get_last_server_pull(branch):
-    return 0
+    filename = os.path.join(get_branch_location_param(branch) + 'last_pull')
+    try:
+        with open(filename, 'r') as file_:
+            lines = file_.read().splitlines()
+        last_pull = int(lines[0])
+    except IOError:
+        last_pull = -1
+    return last_pull
 
 
 def save_last_pull(branch, new_number):
-    pass
+    filename = os.path.join(get_branch_location_param(branch) + 'last_pull')
+    with open(filename, 'w') as file_:
+        file_.write(str(new_number))
+
+
+def get_last_update(branch):
+    filename = os.path.join(get_branch_location_param(branch) + 'last_update')
+    try:
+        with open(filename, 'r') as file_:
+            lines = file_.read().splitlines()
+        commit_number = int(lines[0])
+    except IOError:
+        commit_number = 0
+    return branch, commit_number
+
+
+def add_update(branch, commit):
+    filename = os.path.join(get_branch_location_param(branch) + 'last_update')
+    with open(filename, 'w') as file_:
+        file_.write(str(commit))

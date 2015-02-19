@@ -1,3 +1,4 @@
+import os
 from jet_files import helper_functions as hf
 import requests
 import json
@@ -24,6 +25,12 @@ def push():
         else:
             print "Hook Failed. Not pushing"
             return
+
+    branch, last_update = hf.get_last_update(branch)
+    current_commit = hf.get_commit()
+    if int(last_update) == int(current_commit):
+        print "No changes to push"
+        return
 
     print "Connecting...."
     url = "%scurrent_file_list/%s/%s/" % (DOMAIN,
@@ -82,7 +89,7 @@ def push():
         filename = new_file
         with open(filename, 'r') as myFile:
             contents = myFile.read()
-        print "Uploading file %s..." % filename
+        print "Uploading file %s..." % hf.relative(filename, os.getcwd())
         stripped_filename = filename[len(jet_directory):]
         if stripped_filename.startswith('/'):
             stripped_filename = stripped_filename[1:]
@@ -96,6 +103,9 @@ def push():
         }
         requests.post(url, data=data)
 
+    hf.add_update(branch, hf.get_commit())
+    last_server_pull = hf.get_last_server_pull(branch)
+    hf.save_last_pull(branch, last_server_pull + 1)
     print hf.BColors.GREEN + "Pushed" + hf.BColors.ENDC
 
 
