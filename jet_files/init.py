@@ -37,7 +37,8 @@ def init():
         # Going through each file storing their initial contents
         count = 0
         for file_to_add in f:
-            # A folder for each file, to store filename and contents seperartely.
+            # A folder for each file, to store filename
+            # and contents separately.
             folder = os.path.join(hf.get_jet_directory() +
                                   '/.jet/%s/%s' % (0, count))
             os.mkdir(folder)

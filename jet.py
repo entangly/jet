@@ -16,7 +16,8 @@ from jet_files import (
     branch,
     diff,
     conflicts,
-    setup
+    setup,
+    stash
 )
 
 
@@ -43,6 +44,8 @@ commands = {
     "conflicts": conflicts.list_conflicts,
     "setup": setup.run,
     "clone": pull.clone,
+    "stash": stash.run,
+    "unstash": stash.unstash,
 }
 try:
     commands[sys.argv[1]]()
