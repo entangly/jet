@@ -750,25 +750,55 @@ def ask(filename):
 
 
 def optimize_conflicts(_file_):
-    # TODO - make this work and use it.
+    optimized = False
     start = '@@@@@@@@@@HEAD@@@@@@@@@@'
     separator = '@@@@@@@@@@SEPARATOR@@@@@@@@@@'
     end = '@@@@@@@@@@END@@@@@@@@@@'
+    optimized_file = _file_
     for i in range(0, len(_file_)):
         try:
-            if _file_[i] == end and _file_[i+1] == start:
-                for n in range(i, len(_file_)):
-                    if _file_[n] == separator:
-                        _file_.pop(n)
-                _file_[i] = separator
-                _file_.pop(i+1)
-                for n in range(i-1, -1, -1):
-                    if _file_[n] == separator:
-                        _file_.pop(n)
-                return optimize_conflicts(_file_)
+            if _file_[i] == end:
+                if _file_[i+1] == start:
+                    end_of_set = None
+                    for j in range(i+1, len(_file_)):
+                        if _file_[j] == end:
+                            end_of_set = j
+                            break
+                    start_of_set = None
+                    for k in range(i-1, -1, -1):
+                        if _file_[k] == start:
+                            start_of_set = k
+                            break
+                    if not start_of_set and end_of_set:
+                        continue
+                    first_contents = []
+                    second_contents = []
+                    for y in range(start_of_set + 1, i):
+                        if _file_[y] == separator:
+                            for z in range(y+1, i):
+                                second_contents.append(_file_[z])
+                            break
+                        first_contents.append(_file_[y])
+                    for y in range(i+2, end_of_set):
+                        if _file_[y] == separator:
+                            for z in range(y+1, end_of_set):
+                                second_contents.append(_file_[z])
+                            break
+                        first_contents.append(_file_[y])
+                    optimized_file = _file_[:start_of_set] +\
+                        [start] +\
+                        first_contents +\
+                        [separator] +\
+                        second_contents +\
+                        [end] +\
+                        _file_[end_of_set+1:]
+                    optimized = True
+                    break
         except IndexError:
-            pass
-    return _file_
+            continue
+    if optimized:
+        optimized_file = optimize_conflicts(optimized_file)
+    return optimized_file
 
 
 def fix_file(filename, parent, file1, file2, test=False):
@@ -833,7 +863,7 @@ def fix_file(filename, parent, file1, file2, test=False):
             count += 1
     if count > 0:
         del _file_[-count:]
-    return _file_
+    return optimize_conflicts(_file_)
 
 
 def merge_files(filename, parent, file1, file2):
