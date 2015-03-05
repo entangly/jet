@@ -78,6 +78,7 @@ def push():
         url = "%supdate_file/" % DOMAIN
         data = {
             'filename': stripped_filename,
+            'api_key': hf.get_user_id(),
             'branch_name': branch,
             'repo_id': hf.get_repo_id(),
             'contents': contents,
@@ -97,6 +98,7 @@ def push():
         data = {
             'filename': stripped_filename,
             'branch_name': branch,
+            'api_key': hf.get_user_id(),
             'repo_id': hf.get_repo_id(),
             'contents': contents,
             'commit_id': commit_id,

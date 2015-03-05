@@ -35,7 +35,9 @@ def force_pull():
             continue
         # File is either new or edited
         print "Updating file %s..." % hf.relative(filename, os.getcwd())
-        url = "%sapi/v1/file/%s" % (DOMAIN, _file['file_id'])
+        url = "%sapi/v1/file/%s/?api_key=%s" % (DOMAIN,
+                                                _file['file_id'],
+                                                hf.get_user_id())
         response = requests.get(url)
         content = json.loads(response.content)
         new_contents = content['contents']
@@ -76,7 +78,9 @@ def clone():
     for _file in content['files']:
         filename = directory + '/' + _file['filename']
         print "Adding file %s..." % hf.relative(filename, directory)
-        url = "%sapi/v1/file/%s" % (DOMAIN, _file['file_id'])
+        url = "%sapi/v1/file/%s/?api_key=%s" % (DOMAIN,
+                                                _file['file_id'],
+                                                hf.get_user_id())
         response = requests.get(url)
         content = json.loads(response.content)
         new_contents = content['contents']
@@ -119,8 +123,10 @@ def pull():
         else:
             if f not in current_files:
                 print "Downloading file %s..." % hf.relative(f, os.getcwd())
-                url = "%sapi/v1/file/%s" % (DOMAIN,
-                                            server_ids[server_files.index(f)])
+                url = "%sapi/v1/file/%s/?api_key=%s" \
+                      % (DOMAIN,
+                         server_ids[server_files.index(f)],
+                         hf.get_user_id())
                 response = requests.get(url)
                 content = json.loads(response.content)
                 new_contents = content['contents']
@@ -138,8 +144,10 @@ def pull():
         with open(f, 'r') as myFile:
             local_file = myFile.read().splitlines()
 
-        url = "%sapi/v1/file/%s" % (DOMAIN,
-                                    server_ids[server_files.index(f)])
+        url = "%sapi/v1/file/%s/?api_key=%s"\
+              % (DOMAIN,
+                 server_ids[server_files.index(f)],
+                 hf.get_user_id())
         response = requests.get(url)
         content = json.loads(response.content)
         new_contents = content['contents']
