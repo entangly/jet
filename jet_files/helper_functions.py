@@ -946,6 +946,9 @@ def filter_one_file_by_ignore(filename):
 # True for passed, false for ignore
 def filter_file_by_ignore(filename, lines):
     for line in lines:
+        if line.startswith('*') and line.endswith('*'):
+            if filename.contains(line[1:-1]):
+                return False
         if line.startswith('*'):
             if filename.endswith(line[1:]):
                 return False

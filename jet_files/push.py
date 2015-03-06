@@ -1,4 +1,5 @@
 import os
+import sys
 from jet_files import helper_functions as hf
 import requests
 import json
@@ -25,7 +26,6 @@ def push():
         else:
             print "Hook Failed. Not pushing"
             return
-
     branch, last_update = hf.get_last_update(branch)
     current_commit = hf.get_commit()
     if int(last_update) == int(current_commit):
@@ -48,8 +48,12 @@ def push():
     # Send commit POST
     print "Creating commit on server..."
     url = "%screate_commit/" % DOMAIN
+    if sys.argv[2] == "-m" and len(sys.argv) == 4:
+        message = sys.argv[3]
+    else:
+        message = "Pushed from local servers"
     data = {
-        'message': "Pushed from local servers",
+        'message': message,
         'user_id': hf.get_user_id(),
         'branch_name': branch,
         'repo_id': hf.get_repo_id(),

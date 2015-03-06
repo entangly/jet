@@ -7,7 +7,7 @@ from jet_files import branch as b
 RESULTS = []
 EXPECTED_RESULT = "No changes found"
 cwd = os.getcwd()
-directory = os.path.join(cwd + '/tests/test_directory/')
+directory = os.path.join(cwd + '/tests_test_directory/')
 file1 = os.path.join(directory + 'one.py')
 file2 = os.path.join(directory + 'one/two.py')
 file3 = os.path.join(directory + 'one/one.py')
