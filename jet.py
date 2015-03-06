@@ -49,11 +49,11 @@ commands = {
 }
 
 
-def run():
-    try:
-        commands[sys.argv[1]]()
-    except KeyError:
-        print "Invalid Command - Please see www.jetvc.co.uk/documentation/ " \
-            "for more info!"
-    except IndexError, e:
-        print "Not enough arguments"
+
+try:
+    commands[sys.argv[1]]()
+except KeyError:
+    print "Invalid Command - Please see www.jetvc.co.uk/documentation/ " \
+          "for more info!"
+except IndexError, e:
+    print "Not enough arguments"

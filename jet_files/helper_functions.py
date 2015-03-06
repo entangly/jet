@@ -759,6 +759,7 @@ def optimize_conflicts(_file_):
         try:
             if _file_[i] == end:
                 if _file_[i+1] == start:
+                    optimized = True
                     end_of_set = None
                     for j in range(i+1, len(_file_)):
                         if _file_[j] == end:
@@ -769,7 +770,7 @@ def optimize_conflicts(_file_):
                         if _file_[k] == start:
                             start_of_set = k
                             break
-                    if not start_of_set and end_of_set:
+                    if start_of_set is None and end_of_set is None:
                         continue
                     first_contents = []
                     second_contents = []
@@ -792,7 +793,6 @@ def optimize_conflicts(_file_):
                         second_contents +\
                         [end] +\
                         _file_[end_of_set+1:]
-                    optimized = True
                     break
         except IndexError:
             continue

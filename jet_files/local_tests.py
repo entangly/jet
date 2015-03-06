@@ -7,6 +7,8 @@ from jet_files import branch as b
 RESULTS = []
 EXPECTED_RESULT = "No changes found"
 cwd = os.getcwd()
+base_tests_path = os.path.join(os.path.dirname(os.path.realpath(__file__))
+                               + '/../')
 directory = os.path.join(cwd + '/tests_test_directory/')
 file1 = os.path.join(directory + 'one.py')
 file2 = os.path.join(directory + 'one/two.py')
@@ -24,9 +26,10 @@ def test_same_files():
                  '4',
                  '5']
     for test in test_list:
-        #RESULTS.append("Testing where the file is the same, number %s" % test)
-        diff = helper_functions.diff('tests/diff/same/%s/before.txt' % test,
-                                     "tests/diff/same/%s/after.txt" % test)
+        diff = helper_functions.diff(os.path.join(base_tests_path
+                                     + 'tests/diff/same/%s/before.txt' % test),
+                                     os.path.join(base_tests_path
+                                     + "tests/diff/same/%s/after.txt" % test))
 
         if diff == EXPECTED_RESULT:
             RESULTS.append("Passed")
@@ -39,17 +42,22 @@ def test_same_files():
 def test_different_files():
     number_of_tests = 20
     for test in range(0, number_of_tests + 1):
-        diff = helper_functions.diff('tests/diff/different/%s/before.txt'
-                                     % test,
-                                     "tests/diff/different/%s/after.txt"
-                                     % test)
+        diff = helper_functions.diff(os.path.join(base_tests_path
+                                     + 'tests/diff/different/%s/before.txt'
+                                     % test),
+                                     os.path.join(base_tests_path
+                                     + "tests/diff/different/%s/after.txt"
+                                     % test))
 
-        answer = helper_functions.reform_file('tests/diff/different/'
-                                              '%s/before.txt' % test,
+        answer = helper_functions.reform_file(os.path.join(base_tests_path
+                                              + 'tests/diff/different/'
+                                              '%s/before.txt' % test),
                                               diff.splitlines())
 
-        difference = helper_functions.diff('tests/diff/different/%s/after.txt'
-                                           % test,
+        difference = helper_functions.diff(os.path.join(base_tests_path
+                                           + 'tests/diff/different'
+                                             '/%s/after.txt'
+                                           % test),
                                            answer)
 
         if difference == EXPECTED_RESULT:
@@ -75,16 +83,21 @@ def test_diff_algorithm():
 def test_merges():
     number_of_tests = 15
     for i in range(1, number_of_tests + 1):
-        parent_filename = 'tests/merge/%s/parent.txt' % i
+        parent_filename = os.path.join(base_tests_path
+                                       + 'tests/merge/%s/parent.txt' % i)
         with open(parent_filename, 'r') as myFile:
             parent = myFile.read().splitlines()
-        file1_filename = 'tests/merge/%s/file1.txt' % i
+        file1_filename = os.path.join(base_tests_path
+                                      + 'tests/merge/%s/file1.txt' % i)
         with open(file1_filename, 'r') as myFile:
             fileone = myFile.read().splitlines()
-        file2_filename = 'tests/merge/%s/file2.txt' % i
+        file2_filename = os.path.join(base_tests_path
+                                      + 'tests/merge/%s/file2.txt' % i)
         with open(file2_filename, 'r') as myFile:
             filetwo = myFile.read().splitlines()
-        result_filename = 'tests/merge/%s/expected_result.txt' % i
+        result_filename = os.path.join(base_tests_path
+                                       + 'tests/merge/'
+                                         '%s/expected_result.txt' % i)
         with open(result_filename, 'r') as myFile:
             expected_result = myFile.read().splitlines()
         result = helper_functions.fix_file("irrelevant",
@@ -109,7 +122,7 @@ def test_merging():
 
 
 def test_get_jet_directory():
-    expected_jet_directory = os.path.join(cwd + '/tests/test_directory')
+    expected_jet_directory = os.path.join(cwd + '/tests_test_directory')
     jet_directory = helper_functions.get_jet_directory()
     if jet_directory == expected_jet_directory:
         RESULTS.append("Passed")
@@ -465,8 +478,9 @@ def test_dependencies():
     try:
         import requests
         RESULTS.append('Passed')
-    except Exception:
+    except Exception, e:
         RESULTS.append('Failed importing requests')
+        print e
 
 
 def run():
