@@ -25,7 +25,7 @@ def commit_changeset():
         else:
             print "Hook Failed. Not commiting"
             return
-    # Must have the -m and all arguements present
+    # Must have the -m and all arguments present
     if len(sys.argv) != 4 or sys.argv[2] != "-m":
         print "Commit commands need to be formed by typing:" \
               " $jet commit -m \"Your message here\""
@@ -37,9 +37,13 @@ def commit(message, verbose):
     filename = os.path.join(hf.get_branch_location() + 'changeset.txt')
     # Checks to see if there are any files in the changeset at all...
     if os.path.isfile(filename):
-        new_files_in_changeset = hf.get_new_files_in_changeset()
-        deleted_files_in_changeset = hf.get_deleted_files_in_changeset()
-        changed_files_in_changeset = hf.get_changed_files_in_changeset()
+        files_in_changeset = hf.get_files_in_changeset(None)
+        new_files_in_changeset\
+            = hf.get_new_files_in_changeset(files_in_changeset)
+        deleted_files_in_changeset\
+            = hf.get_deleted_files_in_changeset(files_in_changeset)
+        changed_files_in_changeset\
+            = hf.get_changed_files_in_changeset(files_in_changeset)
         new_commit_number = hf.get_new_commit_number()
         folder = os.path.join(hf.get_branch_location() +
                               '/%s/' % new_commit_number)
@@ -107,7 +111,7 @@ def commit(message, verbose):
         # Section that updates the latest stored files
 
         # Gets all previous files
-        lines = hf.get_stored_files()
+        lines = hf.get_stored_files(None)
         # Adds newly saved files
         lines.extend(new_files_in_changeset)
         to_keep = []
@@ -121,9 +125,9 @@ def commit(message, verbose):
         os.remove(filename)
         with open(filename, 'w') as file_:
             for file_to_add in to_keep:
-                file_.write(file_to_add + "~J/ET")
+                file_.write(file_to_add + "\n")
                 # Including new checksum of file, for status/diff checks
-                file_.write(hf.checksum_md5(file_to_add) + "~J/ET")
+                file_.write(hf.checksum_md5(file_to_add) + "\n")
         if verbose:
             # Done!
             print "Commiting"

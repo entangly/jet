@@ -13,7 +13,7 @@ def branch(branch_name):
     if os.path.isfile(filename):
         changed_files = True
     # If any hashes don't match up
-    if len(hf.get_changed_files()) > 0:
+    if len(hf.get_changed_files(None, None)) > 0:
         changed_files = True
     # Error if there are uncommitted changed files...
     if changed_files:
@@ -24,7 +24,8 @@ def branch(branch_name):
     # Checking that the given branch name is ok
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
     if os.path.exists(branches_path):
-        if os.path.exists(os.path.join(branches_path + branch_name)) or branch_name == 'master':
+        if os.path.exists(os.path.join(branches_path + branch_name))\
+                or branch_name == 'master':
             # Name exists, error 
             print "Already a branch with that name... please try another!"
             return
@@ -57,8 +58,8 @@ def branch(branch_name):
                              % branch_name)
     with open(file_name, 'w') as file_:
         for file_to_add in f:
-            file_.write(file_to_add + "~J/ET")
-            file_.write(hf.checksum_md5(file_to_add) + "~J/ET")
+            file_.write(file_to_add + "\n")
+            file_.write(hf.checksum_md5(file_to_add) + "\n")
     # Make a folder for the init commit of the branch
     os.mkdir('.jet/branches/%s/0/' % branch_name)
     # Store the files that are in the branch at the first commit
@@ -102,7 +103,8 @@ def branch(branch_name):
     with open(filename, 'w') as file_:
         file_.write(old_branch)  # Old branch name
         file_.write('\n')
-        file_.write(old_commit)  # Old branch commit number from where branched off
+        file_.write(old_commit)  # Old branch commit number
+                                 # from where branched off
 
     # Now storing which is the current branch
     filename = os.path.join(hf.get_jet_directory() + '/.jet/branch')
@@ -144,14 +146,14 @@ def switch():
     if os.path.isfile(filename):
         changed_files = True
     # If any hashes don't match up...
-    if len(hf.get_changed_files()) > 0:
+    if len(hf.get_changed_files(None, None)) > 0:
         changed_files = True
     # Error if anything changed!! 
     if changed_files:
         print "You can't switch branch until you commit...."
         return
 
-    # Master info stored seprately, hence the if statement
+    # Master info stored separately, hence the if statement
     if sys.argv[2] == 'master':
         # Record master as the branch currently on
         filename = os.path.join(hf.get_jet_directory() + '.jet/branch')
@@ -165,9 +167,9 @@ def switch():
         # Delete previous save
         os.remove(filename)
         with open(filename, 'w') as file_:
-            for file_to_add in hf.get_current_files():
-                file_.write(file_to_add + "~J/ET")
-                file_.write(hf.checksum_md5(file_to_add) + "~J/ET")
+            for file_to_add in hf.get_current_files(None):
+                file_.write(file_to_add + "\n")
+                file_.write(hf.checksum_md5(file_to_add) + "\n")
         # All done!
         print "Successfully switched to branch %s" % sys.argv[2]
         return
@@ -184,9 +186,9 @@ def switch():
                                     + 'latest_saved_files')
             os.remove(filename)
             with open(filename, 'w') as file_:
-                for file_to_add in hf.get_current_files():
-                    file_.write(file_to_add + "~J/ET")
-                    file_.write(hf.checksum_md5(file_to_add) + "~J/ET")
+                for file_to_add in hf.get_current_files(None):
+                    file_.write(file_to_add + "\n")
+                    file_.write(hf.checksum_md5(file_to_add) + "\n")
             print "Successfully switched to branch %s" % sys.argv[2]
         else:
             print "Invalid branch name"

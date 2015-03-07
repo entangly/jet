@@ -55,24 +55,17 @@ def get_immediate_subdirectories(directory):
             if os.path.isdir(os.path.join(directory, name))]
 
 
-def get_current_files():
+def get_current_files(jet_directory):
+    if jet_directory is None:
+        jet_directory = get_jet_directory()
     file_list = []
-    for (dirpath, dirnames, filenames) in walk(get_jet_directory()):
+    for (dirpath, dirnames, filenames) in walk(jet_directory):
+        if '.jet' in dirpath:
+            continue
         for filename in filenames:
             file_list.append(os.path.join(dirpath, filename))
 
-    jet_files_stored = []
-    for (path, dirnames, filenames) in walk(os.path.join
-                                           (get_jet_directory() + '/.jet/')):
-        for filename in filenames:
-            jet_files_stored.append(os.path.join(path, filename))
-
-    current_files = []
-    for file_to_check in file_list:
-        if file_to_check not in jet_files_stored:
-            current_files.append(file_to_check)
-
-    return filter_files_by_ignore(current_files)
+    return filter_files_by_ignore(file_list)
 
 
 def get_new_commit_number():
@@ -95,67 +88,85 @@ def get_new_commit_number():
 
 
 def get_stored_files_and_hashes():
-    #~J/ET is the keyword separating files
+    # TODO - change this to split by lines
     filename = os.path.join(get_branch_location() + 'latest_saved_files')
     with open(filename, 'r') as myFile:
-        data = myFile.read()
-    word = []
-    lines = []
-    code = []
-    for char in data:
-        if char == "~" and len(code) == 0:
-            code.append(char)
-        elif char == "J" and len(code) == 1:
-            code.append(char)
-        elif char == "/" and len(code) == 2:
-            code.append(char)
-        elif char == "E" and len(code) == 3:
-            code.append(char)
-        elif char == "T" and len(code) == 4:
-            code.append(char)
-            new_line = ''.join(word)
-            lines.append(new_line)
-            word = []
-            code = []
-        else:
-            word.extend(code)
-            if not char == "~":
-                code = []
-                word.append(char)
-    if len(word) > 0:
-        lines.append(''.join(word[:-5]))
-    return lines
+        data = myFile.read().splitlines()
+    return data
+    # word = []
+    # lines = []
+    # code = []
+    # for char in data:
+    #     if char == "~" and len(code) == 0:
+    #         code.append(char)
+    #     elif char == "J" and len(code) == 1:
+    #         code.append(char)
+    #     elif char == "/" and len(code) == 2:
+    #         code.append(char)
+    #     elif char == "E" and len(code) == 3:
+    #         code.append(char)
+    #     elif char == "T" and len(code) == 4:
+    #         code.append(char)
+    #         new_line = ''.join(word)
+    #         lines.append(new_line)
+    #         word = []
+    #         code = []
+    #     else:
+    #         word.extend(code)
+    #         if not char == "~":
+    #             code = []
+    #             word.append(char)
+    # if len(word) > 0:
+    #     lines.append(''.join(word[:-5]))
+    # return lines
 
 
-def get_stored_files():
-    lines = get_stored_files_and_hashes()
+def get_stored_files(lines):
+    if lines is None:
+        lines = get_stored_files_and_hashes()
     return lines[::2]
 
 
-def get_stored_hash(filename):
-    stored_files = get_stored_files_and_hashes()
+def get_stored_hash(filename, stored_files_and_hashes):
+    if not stored_files_and_hashes:
+        stored_files_and_hashes = get_stored_files_and_hashes()
     return_next = False
-    for stored_file in stored_files:
+    for line in stored_files_and_hashes:
         if return_next:
-            return stored_file
-        if stored_file == filename:
+            return line
+        if line == filename:
             return_next = True
     return False
 
 
-def get_new_files():
-    current_files = get_current_files()
-    stored_files = get_stored_files()
+def get_new_files(current_files, stored_files):
+    if current_files is None:
+        current_files = get_current_files(None)
+    if stored_files is None:
+        stored_files = get_stored_files(None)
     return [x for x in current_files if x not in stored_files]
 
 
-def get_new_files_in_changeset():
+def get_files_in_changeset(branch_location):
+    if branch_location is None:
+        branch_location = get_branch_location()
     try:
-        filename = os.path.join(get_branch_location() + 'changeset.txt')
+        filename = os.path.join(branch_location + 'changeset.txt')
         with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
         return []
+    return lines
+
+
+def get_new_files_in_changeset(lines):
+    if lines is None:
+        try:
+            filename = os.path.join(get_branch_location() + 'changeset.txt')
+            with open(filename, 'r') as myFile:
+                lines = myFile.read().splitlines()
+        except IOError:
+            return []
     new_files = []
     for line in lines:
         if line.startswith('+'):
@@ -163,13 +174,14 @@ def get_new_files_in_changeset():
     return new_files
 
 
-def get_deleted_files_in_changeset():
-    try:
-        filename = os.path.join(get_branch_location() + 'changeset.txt')
-        with open(filename, 'r') as myFile:
-            lines = myFile.read().splitlines()
-    except IOError:
-        return []
+def get_deleted_files_in_changeset(lines):
+    if lines is None:
+        try:
+            filename = os.path.join(get_branch_location() + 'changeset.txt')
+            with open(filename, 'r') as myFile:
+                lines = myFile.read().splitlines()
+        except IOError:
+            return []
     deleted_files = []
     for line in lines:
         if line.startswith('-'):
@@ -177,13 +189,14 @@ def get_deleted_files_in_changeset():
     return deleted_files
 
 
-def get_changed_files_in_changeset():
-    try:
-        filename = os.path.join(get_branch_location() + 'changeset.txt')
-        with open(filename, 'r') as myFile:
-            lines = myFile.read().splitlines()
-    except IOError:
-        return []
+def get_changed_files_in_changeset(lines):
+    if lines is None:
+        try:
+            filename = os.path.join(get_branch_location() + 'changeset.txt')
+            with open(filename, 'r') as myFile:
+                lines = myFile.read().splitlines()
+        except IOError:
+            return []
     changed_files = []
     for line in lines:
         if line.startswith('~'):
@@ -191,9 +204,11 @@ def get_changed_files_in_changeset():
     return changed_files
 
 
-def get_deleted_files():
-    current_files = get_current_files()
-    stored_files = get_stored_files()
+def get_deleted_files(current_files, stored_files):
+    if current_files is None:
+        current_files = get_current_files(None)
+    if stored_files is None:
+        stored_files = get_stored_files(None)
     deleted_files = []
     for stored_file in stored_files:
         if stored_file not in current_files:
@@ -219,12 +234,13 @@ def old_checksum_md5(filename):
     return md5.digest()
 
 
-def get_changed_files():
-    current_files = get_current_files()
+def get_changed_files(current_files, stored_files_and_hashes):
+    if current_files is None:
+        current_files = get_current_files(None)
     changed_files = []
     for file_to_compare in current_files:
         if not checksum_md5(file_to_compare) ==\
-                get_stored_hash(file_to_compare):
+                get_stored_hash(file_to_compare, stored_files_and_hashes):
             changed_files.append(file_to_compare)
     return changed_files
 
@@ -619,7 +635,7 @@ def get_file_list_at(branch, commit_number):
 
 
 def revert(branch, commit_number):
-    current_files = get_current_files()
+    current_files = get_current_files(None)
     files_at_revert_point = get_file_list_at(branch, commit_number)
     files_to_delete = [x for x in current_files
                        if not x in files_at_revert_point]
@@ -687,7 +703,7 @@ def get_joint_parent(branch_1, branch_2):
 
 def merge(branch_to_merge):
     current_branch = get_branch()
-    current_files = get_current_files()
+    current_files = get_current_files(None)
     other_files = get_file_list_at(branch_to_merge,
                                    get_highest_commit(branch_to_merge))
 

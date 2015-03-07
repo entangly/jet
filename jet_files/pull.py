@@ -18,7 +18,7 @@ def force_pull():
                                           branch)
     response = requests.get(url)
     content = json.loads(response.content)
-    current_files = hf.get_current_files()
+    current_files = hf.get_current_files(None)
     for _file in content['files']:
         filename = jet_directory + '/' + _file['filename']
         try:
@@ -99,7 +99,7 @@ def pull():
                                           branch)
     response = requests.get(url)
     content = json.loads(response.content)
-    current_files = hf.get_current_files()
+    current_files = hf.get_current_files(None)
     server_files = [jet_directory + '/' + _file['filename']
                     for _file in content['files']]
     server_ids = [_file['file_id'] for _file in content['files']]

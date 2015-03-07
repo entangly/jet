@@ -172,7 +172,7 @@ def clear_up():
 
 def test_current_files():
     expected_files = [file1, file2, file3, file4, file5, file6, file7]
-    current_files = helper_functions.get_current_files()
+    current_files = helper_functions.get_current_files(None)
     for f in expected_files:
         if f not in current_files:
             RESULTS.append("Failed current files")
@@ -194,7 +194,7 @@ def test_get_new_commit_number(expected_result):
 
 def test_stored_files():
     expected_files = [file1, file2, file3, file4, file5, file6, file7]
-    stored_files = helper_functions.get_stored_files()
+    stored_files = helper_functions.get_stored_files(None)
     for f in expected_files:
         if f not in stored_files:
             RESULTS.append("Failed stored files")
@@ -210,7 +210,7 @@ def test_get_stored_hash():
     files = [file1, file2, file3, file4, file5, file6, file7]
     for f in files:
         file1hash = helper_functions.checksum_md5(f)
-        stored_hash = helper_functions.get_stored_hash(f)
+        stored_hash = helper_functions.get_stored_hash(f, None)
         if not file1hash == stored_hash:
             RESULTS.append("Failed stored hash")
         else:
@@ -218,7 +218,7 @@ def test_get_stored_hash():
 
 
 def test_get_new_files_in_changeset(expected_result):
-    new_files = helper_functions.get_new_files_in_changeset()
+    new_files = helper_functions.get_new_files_in_changeset(None)
     if not len(new_files) == expected_result:
         RESULTS.append("Failed new files in changeset")
     else:
@@ -226,7 +226,7 @@ def test_get_new_files_in_changeset(expected_result):
 
 
 def test_get_deleted_files_in_changeset(expected_result):
-    deleted_files = helper_functions.get_deleted_files_in_changeset()
+    deleted_files = helper_functions.get_deleted_files_in_changeset(None)
     if not len(deleted_files) == expected_result:
         RESULTS.append("Failed deleted files in changeset")
     else:
@@ -234,7 +234,7 @@ def test_get_deleted_files_in_changeset(expected_result):
 
 
 def test_get_changed_files_in_changeset(expected_result):
-    changed_files = helper_functions.get_changed_files_in_changeset()
+    changed_files = helper_functions.get_changed_files_in_changeset(None)
     if not len(changed_files) == expected_result:
         RESULTS.append("Failed changed files in changeset")
     else:
@@ -242,7 +242,7 @@ def test_get_changed_files_in_changeset(expected_result):
 
 
 def test_get_deleted_files(expected_result):
-    deleted_files = helper_functions.get_deleted_files()
+    deleted_files = helper_functions.get_deleted_files(None, None)
     if len(deleted_files) == expected_result:
         RESULTS.append('Passed')
     else:
@@ -250,7 +250,7 @@ def test_get_deleted_files(expected_result):
 
 
 def test_get_changed_files(changed_file):
-    changed_files = helper_functions.get_changed_files()
+    changed_files = helper_functions.get_changed_files(None, None)
     if changed_file == 0:
         if len(changed_files) == 0:
             RESULTS.append("Passed")

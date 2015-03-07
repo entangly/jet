@@ -58,7 +58,7 @@ def unstash():
         print "Cancelling..."
         return
 
-    current_files = hf.get_current_files()
+    current_files = hf.get_current_files(None)
     files = os.listdir(stash_path)
     for _file in files:
         stored_filename_filename = os.path.join(stash_path

@@ -20,7 +20,7 @@ def merge():
     changed_files = False
     if os.path.isfile(filename):
         changed_files = True
-    if len(hf.get_changed_files()) > 0:
+    if len(hf.get_changed_files(None)) > 0:
         changed_files = True
     if changed_files:
         print "You can't merge until you commit...."

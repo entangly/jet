@@ -9,7 +9,7 @@ here = path.abspath(path.dirname(__file__))
 setup(
     name='jet',
             
-    version='0.0.5',
+    version='0.0.7',
             
     description='A simple to user, yet powerful version control system',
             

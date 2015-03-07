@@ -24,9 +24,9 @@ def init():
         with open('.jet/latest_saved_files', 'w') as file_:
             for file_to_add in f:
                 # Storing full filename
-                file_.write(file_to_add + "~J/ET")
+                file_.write(file_to_add + "\n")
                 # Storing hash of the file contents
-                file_.write(hf.checksum_md5(file_to_add) + "~J/ET")
+                file_.write(hf.checksum_md5(file_to_add) + "\n")
         # Making an initial commit 
         os.mkdir('.jet/0/')
         # Storing the files being saved in the commit
