@@ -54,6 +54,9 @@ def clone():
     if hf.already_initialized():
         print "Already a repo here, can't clone into this directory."
         return
+    if not len(sys.argv) == 4:
+        print "Please form clone commands '$jet clone <repo_id> <branch_name>'"
+        return
     branch = sys.argv[3]
     repo_id = sys.argv[2]
     directory = os.getcwd()
