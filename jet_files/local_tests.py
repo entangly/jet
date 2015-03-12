@@ -337,6 +337,9 @@ def test_filtering_files_by_jet_ignore():
         'one.py',
         'one.py~',
         'one.pyc',
+        '/home/.jet/test',
+        '.jet/test',
+        '/home/.jet',
         os.getcwd() + 'nope/one.py',
     ]
     expected_result = [
@@ -346,6 +349,7 @@ def test_filtering_files_by_jet_ignore():
         '*~',
         '*.pyc',
         'nope/',
+        '*.jet*',
     ]
     with open(os.path.join(directory + '/.jet_ignore'), 'w') as myFile:
         for line in filters:
@@ -369,14 +373,18 @@ def test_relative():
         '/home/connor/development/project/jet/tests/other/one',
         '/home/connor/development/project/jet/other/other2/one',
         '/home/connor/development/project/jet/tests/test_directory/folder/one',
+        '/home/connor/development/project/jet/tests/test_directory/f/a/b/one',
         '/home/connor/development/project/jet/tests/one',
+        'one',
     ]
     expected_answer = [
         'one',
         '../other/one',
         '../../other/other2/one',
         'folder/one',
+        'f/a/b/one',
         '../one',
+        '../../../../../../../one'
     ]
     for i in range(0, len(filename)):
         if helper_functions.relative(filename[i],
@@ -464,6 +472,13 @@ def test_common_functions():
         b.branch('test_branch')
         b.branch('second_test_branch')
         test_branch('second_test_branch')
+
+        clear_up()
+        setup()
+        b.branch('test_branch')
+        b.branch('second_test_branch')
+        b.branch('third_test_branch')
+        test_branch('third_test_branch')
 
         test_filtering_files_by_jet_ignore()
         test_relative()

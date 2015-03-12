@@ -963,7 +963,7 @@ def filter_one_file_by_ignore(filename):
 def filter_file_by_ignore(filename, lines):
     for line in lines:
         if line.startswith('*') and line.endswith('*'):
-            if filename.contains(line[1:-1]):
+            if line[1:-1] in filename:
                 return False
         if line.startswith('*'):
             if filename.endswith(line[1:]):
@@ -1005,15 +1005,21 @@ def relative(filename, cwd):
             return to_return
     else:
         h, t = os.path.split(filename)
+        count = 0
+        if h == '':
+            h = '~J/E\T'
+            count = len(cwd.split('/')) - 2
         if h in cwd:
             return '../%s' % t
         head = filename
         to_append = []
-        count = 0
+
         while head not in cwd:
             head, tail = os.path.split(head)
             count += 1
             to_append.append(tail)
+            if head == '':
+                break
         back_slashes = []
         count -= 1
         while count > 0:
