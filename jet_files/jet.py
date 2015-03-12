@@ -20,6 +20,8 @@ from jet_files import (
     stash
 )
 
+# Possible commands people could type
+# Matched up with the appropriate function call
 
 commands = {
     "add": add.run,

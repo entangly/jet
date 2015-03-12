@@ -197,6 +197,7 @@ def switch():
 
 
 def display():
+    # This method shows all the branches and their parents and prints to the console
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
@@ -205,9 +206,11 @@ def display():
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
     if os.path.exists(branches_path):
         branches = hf.get_immediate_subdirectories(branches_path)
+        # Directories are named after the branch, so grab names from here.
         for b in branches:
             print "%s (%s)" % (b, hf.get_parent(b))
 
+    # Friendly reminder what branch is the current one.
     print "You are currently on branch %s" % hf.get_branch()
 
 
@@ -216,6 +219,7 @@ def delete_branch():
         print "Please form your delete commands $jet delete <branch_name>"
         return
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
+    # Check that the branches directory is there
     if os.path.exists(branches_path):
         if not os.path.exists(os.path.join(branches_path + sys.argv[2])):
             print "Invalid branch name, please try again."
@@ -224,12 +228,14 @@ def delete_branch():
         print "Invalid branch name, please try again"
         return
     if sys.argv[2] == 'master':
+        # Master cannot be deleted because every other branch is a child of it.
         print "Cannot delete master"
         return
     delete(sys.argv[2])
 
 
 def delete(branch_name):
+    # This method deletes the branch and all records of it from the repository.
     directory = os.path.join(hf.get_jet_directory()
                              + '/.jet/branches/%s/' % branch_name)
     rmtree(directory)
