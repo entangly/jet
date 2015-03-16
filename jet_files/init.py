@@ -61,7 +61,7 @@ def init():
         filename = '.jet/current_commit'
         with open(filename, 'w') as file_:
             file_.write("0")
-        # Init is all done, inform user.
+        # Init is all done, inform user with nice green text.
         print hf.BColors.GREEN + \
             "Initializing Jet repository in %s" % os.getcwd() + hf.BColors.ENDC
 
