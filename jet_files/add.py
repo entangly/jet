@@ -13,10 +13,13 @@ def add(verbose):
     stored_files_and_hashes = hf.get_stored_files_and_hashes()
     stored_files = hf.get_stored_files(stored_files_and_hashes)
     with open(filename, 'w') as file_:
+        # Adds all new files
         for file_to_add in hf.get_new_files(current_files, stored_files):
             file_.write("+" + file_to_add + "\n")
+        # Adds all deleted files
         for file_to_add in hf.get_deleted_files(current_files, stored_files):
             file_.write("-" + file_to_add + "\n")
+        # Adds all changed files
         for file_to_add in hf.get_changed_files(current_files,
                                                 stored_files_and_hashes):
             file_.write("~" + file_to_add + "\n")
