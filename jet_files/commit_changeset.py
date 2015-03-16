@@ -18,6 +18,7 @@ def commit_changeset():
         return
 
     hook = hf.get_commit_hook()
+    # The hook will be null of it doesn't exist
     if hook:
         result = hf.run_hook(hook)
         if result:
