@@ -1,1 +1,1 @@
-__author__ = 'connor'
+# Declares folder as python package
