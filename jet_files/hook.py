@@ -7,6 +7,7 @@ def hook():
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
+    # Chceks the command was well formed
     if len(sys.argv) != 4:
         print "Sorry, but that is not a recognized Jet command. Please" \
               " either type '$ jet hook <commit|push> inspect' to see " \
