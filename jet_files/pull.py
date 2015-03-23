@@ -155,51 +155,73 @@ def pull():
     files_to_ask_about = []
 
     for file_ in current_files:
+        # If the file is in both the current ones and the server ones, merge it!
         if file_ in server_files:
             files_to_merge.append(file_)
         else:
+            # Otherwise, ask if it should be deleted or not
             files_to_ask_about.append(file_)
+    # Add all files not looped through
     files_to_ask_about += [x for x in server_files if x not in current_files]
 
     for f in files_to_ask_about:
+        # Actually ask about the file
         answer = hf.ask(f)
         if not answer:
+            # If answer is false (they don't want the file)
             os.remove(f)
         else:
             if f not in current_files:
+                # Fetch it from ths server
                 print "Downloading file %s..." % hf.relative(f, os.getcwd())
+                # REST url of the files contents
                 url = "%sapi/v1/file/%s/?api_key=%s" \
                       % (DOMAIN,
                          server_ids[server_files.index(f)],
                          hf.get_user_id())
+                # Code to execute the request
                 response = requests.get(url)
                 content = json.loads(response.content)
+                # Contents stored as json
                 new_contents = content['contents']
+                # Write the new contents to a file after making directories for it
+                hf.make_directories(f, clone=False)
                 with open(f, 'w') as myFile:
                     myFile.write(new_contents)
+    # Now..merge the files! 
     print "Checking for changes / merges"
     for f in files_to_merge:
         if f in parent_files:
+            # Gets the parent, if there is one...
             parent_file = hf.get_file_at(parent_branch,
                                          parent_commit_number,
                                          f)
         else:
+            # If there is no parent file, blank file will work.
             parent_file = []
 
+        # Gets the local version of the file
         with open(f, 'r') as myFile:
             local_file = myFile.read().splitlines()
 
+        # Gets the server version of the file
+        # REST api endpoint with files contents
         url = "%sapi/v1/file/%s/?api_key=%s"\
               % (DOMAIN,
                  server_ids[server_files.index(f)],
                  hf.get_user_id())
+        # Process the request
         response = requests.get(url)
         content = json.loads(response.content)
         new_contents = content['contents']
         server_file = new_contents.splitlines()
 
+        # Now we have the 3 copies of the file..
+
+        # Check that they are not equal, as if they are that would save processing.
         if not local_file == server_file:
             try:
+                # Attempt to do the merge on the file.
                 new_file = hf.fix_file(f, parent_file, local_file, server_file)
             except IndexError:
                 # error has happened. Apply worst case scenario.
@@ -209,7 +231,9 @@ def pull():
                     + ['\n@@@@@@@@@@SEPARATOR@@@@@@@@@@\n'] \
                     + server_file \
                     + ['\n@@@@@@@@@@END@@@@@@@@@@']
+                # Add a conflict to say error happened
                 hf.add_conflict(f)
+            # Write the new file and its contents to disk.
             with open(f, 'w') as myFile:
                 for line in new_file:
                     myFile.write('%s\n' % line)
@@ -219,35 +243,47 @@ def run():
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
+    # Only get the branch once...
     branch = hf.get_branch()
     print "Connecting...."
+    # Url to get the highest commit number - to see if there are any updates.
     url = "%shighest_commit/%s/%s/" % (DOMAIN,
                                        hf.get_repo_id(),
                                        branch)
     try:
+        # Does the request to the servers
         response = requests.get(url)
         content = json.loads(response.content)
     except Exception, e:
+        # First request, so check servers are up and running
         print "Failed to connect to Jets servers."
         print "Error - %s" % e
         return
+    
     server_commit = content['commit_number']
     print "Connected."
     last_server_pull = hf.get_last_server_pull(branch)
+    # If the last pull and latest commit are the same, no need to update! 
     if server_commit == last_server_pull:
         print "You are already upto date."
         return
     try:
+        # If -f is included, they wish to do a force pull.
         if sys.argv[2] == '-f':
             force_pull()
         else:
             print "Invalid argument."
             return
     except IndexError:
+        # Index error means no sys argv was included, so just normal pull! 
         pull()
+    # Once pulled, add the new file changes to a changeset
     add.add(verbose=False)
+    # Commit the new files with custom message
     commit_changeset.commit("Merged branch %s with servers changes."
                             % branch, verbose=False)
+    # Store a new last pull, for update reasons
     hf.save_last_pull(branch, server_commit)
+    # Alert user all was completed.
     print "Committed merges"
     print hf.BColors.GREEN + "Pulled" + hf.BColors.ENDC
