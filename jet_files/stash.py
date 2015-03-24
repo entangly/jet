@@ -3,16 +3,25 @@ import shutil
 import helper_functions as hf
 
 
+# This operation takes a copy of the current codebase and stores it.
 def stash():
+    # Getting jet directory and stash path to avoid refetching later
     jet_directory = hf.get_jet_directory()
     stash_path = os.path.join(jet_directory + '/.jet/stash/')
+    # If there is a stash being currently stored.
     if os.path.exists(stash_path):
+        # Ask if they're ok overwriting it
         response = raw_input("Are you sure you wish to overwrite your"
-                             " previous stash? (y/n) ")
+                             " previous stash? (yes/no) ")
+        # Accept y as shorthand for yes
         if not response == "y" or response == "yes":
+            # If they said anything else, cancel the operation.
             print "Cancelling...."
             return
+        # completely remove all trace of it 
         shutil.rmtree(stash_path)
+        
+    # Make the directory that will store the stash
     os.mkdir(stash_path)
     f = []  # Full filenames
     filenames_list = []  # Names of the files
@@ -25,6 +34,8 @@ def stash():
                         .startswith(os.path.join(jet_directory + '/.jet')):
                     filenames_list.append(filename)
                     f.append(os.path.join(dirpath, filename))
+    
+    # Counter to loop through folder names with
     count = 0
     for file_to_add in f:
         # A folder for each file, to store filename and contents separately.
@@ -38,22 +49,28 @@ def stash():
         # Copying the contents over, to enable diffs to work
         new_filename = os.path.join(stash_path + '/%s/%s' % (count, filename))
         shutil.copyfile(file_to_add, new_filename)
+        # Increment the counter
         count += 1
+    # Alert user all went well! 
     print "Successfully stashed the code"
 
 
+# This command takes the currently stashed code and restores it. 
 def unstash():
     jet_directory = hf.get_jet_directory()
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
+    # Ensures there is actually some content stashed... 
     stash_path = os.path.join(jet_directory + '/.jet/stash/')
     if not os.path.exists(stash_path):
         print "Cannot unstash as there is no stashed content"
         return
+    # Double check they wish to do this, as it's irreversible 
     print "Are you sure you wish to restore the code that is stashed?" \
           " Any un-committed changes will be lost."
-    response = raw_input("This action is irreversible. (y/n) ")
+    # Get response from user
+    response = raw_input("This action is irreversible. (yes/no) ")
     if not response == "y" or response == "yes":
         print "Cancelling..."
         return
@@ -93,6 +110,7 @@ def unstash():
     for file_to_delete in current_files:
         os.remove(file_to_delete)
 
+    # Alert user it all worked! 
     print "Loaded in the code from the stash"
 
 
