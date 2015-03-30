@@ -71,42 +71,58 @@ def unstash():
           " Any un-committed changes will be lost."
     # Get response from user
     response = raw_input("This action is irreversible. (yes/no) ")
+    # Allow y as well as yes
     if not response == "y" or response == "yes":
         print "Cancelling..."
         return
 
+    # Get the current files in the repo
     current_files = hf.get_current_files(None)
+    # Get the stored files folders in the stash
     files = os.listdir(stash_path)
     for _file in files:
+        # Get the actual filename
         stored_filename_filename = os.path.join(stash_path
                                                 + '/%s/filename.txt' % _file)
+        # Read the file
         with open(stored_filename_filename, 'r') as myFile:
             filename = myFile.read()
         try:
+            # Check to see if the file is new by trying to remove
             current_files.remove(filename)
             new = False
         except ValueError:
+            # New if error removing
             new = True
         try:
+            # Attempt to hash the files contents
             current_hash = hf.checksum_md5(filename)
         except IOError:
+            # Give fake value if there's a problem
             current_hash = "Not a file"
+        # Get the actual filename (no path)
         head, name = os.path.split(filename)
         stored_contents_filename = os.path.join(stash_path +
                                                 '/%s/%s' % (_file, name))
+        # Get the contents from the stored version
         with open(stored_contents_filename, 'r') as myFile:
             stored_contents = myFile.read()
+        # Hash the stored version
         stored_contents_hash = hf.checksum_md5(stored_contents_filename)
         if current_hash == stored_contents_hash:
             # File is unchanged
             continue
         # File is either new or edited
         if new:
+            # Make the directories to place the file in
             hf.make_directories(filename, clone=False)
+        # Alert user the files being changed
         print "Updating %s" % hf.relative(filename, os.getcwd())
+        # Change the file
         with open(filename, 'w') as new_file:
             new_file.write(stored_contents)
 
+    # If the file needs deleting, delete it 
     for file_to_delete in current_files:
         os.remove(file_to_delete)
 
