@@ -264,69 +264,104 @@ def get_change_description(filename):
         return difference
 
 
+# This method calculates the difference between two files and returns it as a string
+# The parameters can be passed in as an array or a filename.
 def diff(file1, file2):
+    # Gets both files into list format
     try:
+        # Checks to see if it's a list
         if type(file1) == list:
             old_lines = file1
         else:
+            # If it's not a list, it's a filename, so open the file
             with open(file1, 'r') as file_:
                 old_lines = file_.read().splitlines()
+        # Checks to see if the second input is a list
         if type(file2) == list:
             current_lines = file2
         else:
+            # Otherwise, it's a filename, so open the file
             with open(file2, 'r') as file_:
                 current_lines = file_.read().splitlines()
+    # An IOError means invalid filename, so a diff can therefore not be processed
     except IOError:
+        # Return a standard error message in place of the diff.
         return "Jet is sorry, but there was an error in processing the" \
                " changes for this file"
+    # To start with, the diff is blank, so initialize to empty string
     description = ""
+    # Initialize all counters to -1, as they're incremented at the start of the loop.
     line_number = -1
     count = -1
     old_count = -1
+    # Loop until the pointer going through the old file, reaches the end of the file
     while old_count < len(old_lines):
+        # Increment all the pointers
         old_count += 1
         count += 1
         line_number += 1
+        # Get the line once - index error shouldn't happen but if it does, break the loop.
         try:
             line = old_lines[old_count]
         except IndexError:
+            # Exit the loop
             break
+        # Get the line we're comparing against in the current file
         try:
             current_lines[count]
         except IndexError:
+            # Index error would mean that the line doesn't exist in the current file
+            # Therefore, that line has been deleted, so add to the diff saying so
             description += ("(" + str(line_number) + ") " +
                             "- " +
                             line +
                             "\n")
+            # Continue to the next line in the file
             continue
-
+        
+        # Lines being the same would assume no difference, so only execute code that deals
+        # with the lines being different
         if not current_lines[count] == line:
+            # If the line in the old file is blank
             if line == "":
+                # Add to the diff that the blank line was removed.
                 description += ("(" + str(line_number) + ") " +
                                 "- blank line\n")
+                # Minus the counter, to take the missing line into account
                 count -= 1
             else:
+                # If the line is in the current file is blank
                 if current_lines[count] == "":
+                    # Add to the diff that the blank line was added.
                     description += ("(" + str(line_number) + ") " +
                                     "+ blank line\n")
+                    # Minus the counter on the old file, to take the missing line into account
                     old_count -= 1
                 else:
+                    # Add to the diff the file has changed, and the new contents
                     description += ("(" + str(line_number) + ") " +
                                     "~ " + current_lines[count] + "\n")
 
+    # While there is still content left in the current file, as the counters are different
     while count <= len(current_lines) - 1:
+        # If the line is blank
         if current_lines[count] == "":
+            # Add a blank line to the diff, as the current file has an additional one
             description += ("(" + str(line_number) + ") " +
                             "+ blank line\n")
         else:
+            # Show the new line added in the diff
             description += ("(" + str(line_number) + ") " +
                             "+ " +
                             current_lines[count] +
                             "\n")
+        # Increment the counters for the end of the current file
         line_number += 1
         count += 1
 
+    # Due to blank lines at the end of files, last new line is un-needed
     description_to_return = description[:-1]
+    # If nothing was different, change them
     if description_to_return == "":
         return "No changes found"
     else:
