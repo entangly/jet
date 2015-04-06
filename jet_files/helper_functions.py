@@ -3,7 +3,8 @@ from os import walk
 import hashlib
 import subprocess
 
-
+# This class represents the colours used to print to the command line
+# They can then be used by typing BColors.PINK etc 
 class BColors:
     def __init__(self):
         pass
@@ -16,10 +17,15 @@ class BColors:
     ENDC = '\033[0m'
 
 
+# This method gets the directory which is being version controlled. Eg: the root directory
 def get_jet_directory():
+    # Get the current directory.
     directory = os.getcwd()
+    # Gets the parent directory
     parent = os.path.abspath(os.path.join(directory, os.pardir))
+    # Set jet directory to blank, to show it's empty
     jet_directory = ""
+    # Set found to false to show not yet there
     found = False
     while not directory == parent and jet_directory == "":
         for filename in os.listdir(directory):
