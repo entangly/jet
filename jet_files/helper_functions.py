@@ -39,8 +39,11 @@ def get_jet_directory():
     return jet_directory
 
 
+# Gives the location where the data for the branch is stored
 def get_branch_location():
+    # Gets what branch you're on
     branch = get_branch()
+    # Master is stored seperately
     if branch == 'master':
         return os.path.join(get_jet_directory() + '/.jet/')
     else:
@@ -48,7 +51,9 @@ def get_branch_location():
                             % branch)
 
 
+# Gives the location where the data is stored for the passed in branch
 def get_branch_location_param(branch):
+    # Master is stored seperately
     if branch == 'master':
         return os.path.join(get_jet_directory() + '/.jet/')
     else:
@@ -56,83 +61,78 @@ def get_branch_location_param(branch):
                             % branch)
 
 
+# Gets all child directories of the parameter
 def get_immediate_subdirectories(directory):
     return [name for name in os.listdir(directory)
             if os.path.isdir(os.path.join(directory, name))]
 
 
+# Gets all the current files under the root folder
+# Jet directory is optional parameter as will fetch otherwise
 def get_current_files(jet_directory):
     if jet_directory is None:
         jet_directory = get_jet_directory()
+    # Initialize the list to empty
     file_list = []
     for (dirpath, dirnames, filenames) in walk(jet_directory):
+        # Ignore jet directory
         if '.jet' in dirpath:
+            # Go to the next directory
             continue
         for filename in filenames:
+            # Add all filenames to the list !
             file_list.append(os.path.join(dirpath, filename))
-
+    
+    # First, check none of the files are in the ignore file, as we are not interested in them
     return filter_files_by_ignore(file_list)
 
 
+# Returns the next number that should be used for making a commit in the current branch
 def get_new_commit_number():
+    # Commits are stored in folders, so get all the folders in the current branch
     commits = get_immediate_subdirectories(get_branch_location())
     try:
+        # Irrelevant folder, try to remove it
         commits.remove('branches')
     except ValueError:
         pass
+    # Current biggest starts at 0, only improve if more commits found
     biggest = 0
+    # Loop through all the folders
     for commit in commits:
         try:
+            # Get the folders name as a integer
             commit_num = int(commit)
+            # If it's larger, update the biggest variable
             if commit_num > biggest:
                 biggest = commit_num
+        # ValueError means it wasn't a commit folder, so ignore
         except ValueError:
             pass
+    # Ensure the biggest is an integer
     int_latest = int(biggest)
+    # Increment by one
     new_commit_number = int_latest + 1
     return new_commit_number
 
 
+# Returns a copy of the file which contains the last saved files and hashes as a list
 def get_stored_files_and_hashes():
-    # TODO - change this to split by lines
     filename = os.path.join(get_branch_location() + 'latest_saved_files')
     with open(filename, 'r') as myFile:
         data = myFile.read().splitlines()
     return data
-    # word = []
-    # lines = []
-    # code = []
-    # for char in data:
-    #     if char == "~" and len(code) == 0:
-    #         code.append(char)
-    #     elif char == "J" and len(code) == 1:
-    #         code.append(char)
-    #     elif char == "/" and len(code) == 2:
-    #         code.append(char)
-    #     elif char == "E" and len(code) == 3:
-    #         code.append(char)
-    #     elif char == "T" and len(code) == 4:
-    #         code.append(char)
-    #         new_line = ''.join(word)
-    #         lines.append(new_line)
-    #         word = []
-    #         code = []
-    #     else:
-    #         word.extend(code)
-    #         if not char == "~":
-    #             code = []
-    #             word.append(char)
-    # if len(word) > 0:
-    #     lines.append(''.join(word[:-5]))
-    # return lines
 
 
+# Takes the stored files and hashes, and only returns the filenames
+# The lines parameter is optional, and should be the result of get_stored_files_and_hashes()
 def get_stored_files(lines):
     if lines is None:
         lines = get_stored_files_and_hashes()
     return lines[::2]
 
 
+# Gets the hash of the 
 def get_stored_hash(filename, stored_files_and_hashes):
     if not stored_files_and_hashes:
         stored_files_and_hashes = get_stored_files_and_hashes()
