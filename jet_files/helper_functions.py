@@ -827,53 +827,86 @@ def merge(branch_to_merge):
         merge_files(f, parent_file, file1, file2)
 
 
+# Asks the user if they wish to keep a specific file or not
 def ask(filename):
+    # Get the response from the user
     response = raw_input("Would you like to keep the file: %s? (yes/no) "
                          % filename)
-
+    # Also allow y as a response
     if response == "yes" or response == "y" or response == "Yes":
+        # True means keep the file
         return True
     else:
         return False
 
 
+# This method takes a file, containing merge conflicts, and optimizes them to 
+# attempt to have as few speperate conflicts as possible
 def optimize_conflicts(_file_):
     optimized = False
+    # Set variables to show the start, middle and end of a conflict declaration. 
+    # Conflicts are formed:
+    #     Start of file
+    #     @@@@@@@@@@HEAD@@@@@@@@@@
+    #     File 1's contents
+    #     @@@@@@@@@@SEPARATOR@@@@@@@@@@
+    #     File 2's contents
+    #     @@@@@@@@@@END@@@@@@@@@@
+    #     Rest of file
     start = '@@@@@@@@@@HEAD@@@@@@@@@@'
     separator = '@@@@@@@@@@SEPARATOR@@@@@@@@@@'
     end = '@@@@@@@@@@END@@@@@@@@@@'
     optimized_file = _file_
+    # Loop through each line in the file, using i as a pointer / counter
     for i in range(0, len(_file_)):
         try:
+            # If the line is an end of conflict declaration
             if _file_[i] == end:
+                # And the next line is a start of conflict declaration
                 if _file_[i+1] == start:
+                    # Then the file can be optimized! 
                     optimized = True
                     end_of_set = None
+                    # Loop through until the end of the file to find the end of that conflict
+                    # Set the end_of_set variable to the index of end of conflict
                     for j in range(i+1, len(_file_)):
                         if _file_[j] == end:
                             end_of_set = j
+                            # Once found, exit for loop
                             break
                     start_of_set = None
+                    # Loop from the end of conflict marker until the start of that conflict is found
+                    # Set the start_of_set variable to the ends of start of that conflict
                     for k in range(i-1, -1, -1):
                         if _file_[k] == start:
                             start_of_set = k
                             break
+                    # If neither could be found, cannot optimize.
                     if start_of_set is None and end_of_set is None:
                         continue
+                    # Empty arrays that will hold the contents of the conflcit
                     first_contents = []
                     second_contents = []
+                    # Loop through from the start of first conflict, until the end of that conflcit to get the contents
                     for y in range(start_of_set + 1, i):
                         if _file_[y] == separator:
+                            # After seperator is found, it's then the other files contents
                             for z in range(y+1, i):
                                 second_contents.append(_file_[z])
                             break
+                        # Add to first contents array
                         first_contents.append(_file_[y])
+                    # Do the same for the second conflict being optimized. 
                     for y in range(i+2, end_of_set):
+                        # Loop through the second conflict.
                         if _file_[y] == separator:
+                            # After seperator is found, it's then the other files contents
                             for z in range(y+1, end_of_set):
                                 second_contents.append(_file_[z])
                             break
+                        # Add to first contents array
                         first_contents.append(_file_[y])
+                    # Optimized file is then adjusted to take into account the new contents, with one less conflcit
                     optimized_file = _file_[:start_of_set] +\
                         [start] +\
                         first_contents +\
@@ -881,27 +914,39 @@ def optimize_conflicts(_file_):
                         second_contents +\
                         [end] +\
                         _file_[end_of_set+1:]
+                    # Stop trying to optimize and restart the process.
                     break
         except IndexError:
             continue
+    # If it was optimized, try again! 
     if optimized:
         optimized_file = optimize_conflicts(optimized_file)
+    # Otherwise just return the file
     return optimized_file
 
 
+# This function takes a filename, it's contents in the parent, current and other branch 
+# It then compares the contents, and if it's possible to figure out what result to give, then do it
+# Otherwise, merge conflict.
 def fix_file(filename, parent, file1, file2, test=False):
+    # New file starts as blank
     _file_ = []
+    # Hopeful - assume no merge conflicts!!! 
     conflict = False
+    # Initialize all pointers
     parent_pointer = 0
     file1_pointer = 0
     file2_pointer = 0
+    # Lenght of all 3 files combined
     total_length = max(len(parent), len(file1), len(file2))
+    # To prevent any errors, extend the length of each of the files to the total length
     for i in range(len(parent), total_length):
         parent.append("")
     for i in range(len(file1), total_length):
         file1.append("")
     for i in range(len(file2), total_length):
         file2.append("")
+    # Now all the files are the exact same size
     while parent_pointer < total_length:
         # if two versions are the same
         if file2[file2_pointer] == file1[file1_pointer]:
@@ -916,7 +961,7 @@ def fix_file(filename, parent, file1, file2, test=False):
                 not file2[file2_pointer] == parent[parent_pointer]:
             # append the line to the final file
             _file_.append(file2[file2_pointer])
-            # increment all pointers - SHOULD I?!?!?
+            # increment all pointers
             parent_pointer += 1
             file1_pointer += 1
             file2_pointer += 1
@@ -925,35 +970,48 @@ def fix_file(filename, parent, file1, file2, test=False):
                 not file1[file1_pointer] == parent[parent_pointer]:
             # append the line to the final file
             _file_.append(file1[file1_pointer])
-            # increment all pointers - SHOULD I?!?!?
+            # increment all pointers
             parent_pointer += 1
             file1_pointer += 1
             file2_pointer += 1
         else:
+            # MERGE CONFLICT has happened
             _file_.append('@@@@@@@@@@HEAD@@@@@@@@@@')
+            # File1s contents
             _file_.append(file1[file1_pointer])
             _file_.append('@@@@@@@@@@SEPARATOR@@@@@@@@@@')
+            # File2s contents
             _file_.append(file2[file2_pointer])
             _file_.append('@@@@@@@@@@END@@@@@@@@@@')
-
+            # conflict has happened, so will need to mark the file
             conflict = True
+            # keep going! so increment pointers
             parent_pointer += 1
             file1_pointer += 1
             file2_pointer += 1
+    # Only mark the file as a conflict if not a unit test
     if conflict and not test:
         add_conflict(filename)
 
+    # Remove blank lines from the end of the file
     count = 0
+    # reversed so start from end
     for f in reversed(_file_):
+        # When content has been reached, stop
         if not f == '':
             break
         else:
             count += 1
+        
     if count > 0:
+        # Delete all the blank lines
         del _file_[-count:]
+    # Optmize conflicts and return to user!     
     return optimize_conflicts(_file_)
 
 
+# This method takes as input a filename, the contents of it at the parents(if exists), the current branch
+# and the other branch being merged - and then gives the result saved into the file. 
 def merge_files(filename, parent, file1, file2):
     # base case
     if file1 == file2:
@@ -972,11 +1030,13 @@ def merge_files(filename, parent, file1, file2):
                 + ['\n@@@@@@@@@@END@@@@@@@@@@']
             add_conflict(filename)
 
+    # Write the new files contents
     with open(filename, 'w') as myFile:
         for line in new_file:
             myFile.write('%s\n' % line)
 
 
+# Returns a boolean of true or false on if any files have outstanding conflicts
 def is_conflicts():
     return not len(get_conflicts()) == 0
 
