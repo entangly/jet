@@ -222,22 +222,17 @@ def get_deleted_files(current_files, stored_files):
     return deleted_files
 
 
+# Checks to see if the current directory, or any parents are initialized. 
+# The jet directory is "" if there isn't one, so return False
 def already_initialized():
     return not get_jet_directory() == ""
 
 
+# Returns the md5 hash of the file given by the filename
 def checksum_md5(filename):
     with open(filename, 'r') as f:
         contents = f.read()
     return hashlib.md5(contents).hexdigest()
-
-
-def old_checksum_md5(filename):
-    md5 = hashlib.md5()
-    with open(filename, 'rb') as f:
-        for chunk in iter(lambda: f.read(8192), b''): 
-            md5.update(chunk)
-    return md5.digest()
 
 
 def get_changed_files(current_files, stored_files_and_hashes):
@@ -361,7 +356,7 @@ def diff(file1, file2):
 
     # Due to blank lines at the end of files, last new line is un-needed
     description_to_return = description[:-1]
-    # If nothing was different, change them
+    # If nothing was different, alert them
     if description_to_return == "":
         return "No changes found"
     else:
@@ -742,57 +737,93 @@ def get_joint_parent(branch_1, branch_2):
     return mutual_branch, mutual_commit
 
 
+# This method takes in as parameter a branch name, and then merges it with the current branch.
+# Will cause a merge conflict if it's mathematically impossible to decide what content should appear
 def merge(branch_to_merge):
+    # The parameters is merged with the current branch, so get the current branch
     current_branch = get_branch()
+    # Get all the files currently in the repository
     current_files = get_current_files(None)
+    # Get all the files in the branch to merge with
     other_files = get_file_list_at(branch_to_merge,
                                    get_highest_commit(branch_to_merge))
 
+    # Get the parent branch of the two branches, ie - where did they diverge?
+    # Also gets the commit number of the exact point where the two branches seperated.
     joint_parent_branch,\
         joint_parent_commit_number = get_joint_parent(current_branch,
                                                       branch_to_merge)
+    # Can now use these to get the file list at this point in time
     parent_files = get_file_list_at(joint_parent_branch,
                                     joint_parent_commit_number)
 
+    # Initialize empty arrays
+    
+    # Files to merge are ones that exist in both the new and other branch
     files_to_merge = []
+    # Files to ask about are ones that only exist in one of the branches, therefore ask if they should be kept.
     files_to_ask_about = []
 
+
+    # Loop through each of the current files and check if they're in the other file list
     for file_ in current_files:
         if file_ in other_files:
+            # If they're in both, some kind of merge needs to take place
             files_to_merge.append(file_)
         else:
+            # Otherwise - ask the user if they wish to keep the file.
             files_to_ask_about.append(file_)
+            
+    # Now loop through the other files and check if they're not in current files.
+    # If they are, they'll already be in the merge list, so nothing needs doing
     files_to_ask_about += [x for x in other_files if x not in current_files]
 
+    # Loop through all the files Jet is unsure about
     for f in files_to_ask_about:
+        # Now ask the user if they wish to keep the file
         answer = ask(f)
+        # If the answer is no...
         if not answer:
+            # Just delete the file
             os.remove(f)
         else:
+            # If the file isn't already saved locally...
             if f not in current_files:
+                # Get the contents of the file
                 file_contents = get_file_at(branch_to_merge,
                                             get_highest_commit
                                             (branch_to_merge),
                                             f)
+                # If fetching the contents worked...
                 if file_contents:
+                    # ensure there is a directory to place the file into
+                    make_directories(f, clone=False)
+                    # Write them into the file, and save
                     with open(f, 'w') as myFile:
                         for line in file_contents:
                             myFile.write(line)
 
+    # Now loop through all the files that need merging
     for f in files_to_merge:
+        # Check to see if the file has a parent it diverged from
         if f in parent_files:
+            # If it does, get the parent files contents
             parent_file = get_file_at(joint_parent_branch,
                                       joint_parent_commit_number,
                                       f)
         else:
+            # Otherwise, use an empty array as the parents contents.
             parent_file = []
 
+        # Get the contents of the file in it's current state
         file1 = get_file_at(current_branch,
                             get_highest_commit(current_branch),
                             f)
+        # Get the contents of the file in it's other state
         file2 = get_file_at(branch_to_merge,
                             get_highest_commit(branch_to_merge),
                             f)
+        # Merge the files! 
         merge_files(f, parent_file, file1, file2)
 
 
