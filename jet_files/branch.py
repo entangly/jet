@@ -156,7 +156,7 @@ def switch():
     # Master info stored separately, hence the if statement
     if sys.argv[2] == 'master':
         # Record master as the branch currently on
-        filename = os.path.join(hf.get_jet_directory() + '.jet/branch')
+        filename = os.path.join(hf.get_jet_directory() + '/.jet/branch')
         with open(filename, 'w') as file_:
             file_.write(sys.argv[2])
         # Do the revert process
@@ -177,7 +177,7 @@ def switch():
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
     if os.path.exists(branches_path):
         if os.path.exists(os.path.join(branches_path + sys.argv[2])):
-            filename = os.path.join(hf.get_jet_directory() + '.jet/branch')
+            filename = os.path.join(hf.get_jet_directory() + '/.jet/branch')
             # Setting the new branch name as current branch
             with open(filename, 'w') as file_:
                 file_.write(sys.argv[2])
@@ -197,7 +197,8 @@ def switch():
 
 
 def display():
-    # This method shows all the branches and their parents and prints to the console
+    # This method shows all the branches and their parents
+    #  and prints to the console
     if not hf.already_initialized():
         print "Please init a jet repo before calling other commands"
         return
