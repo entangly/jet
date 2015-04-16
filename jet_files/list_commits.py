@@ -10,11 +10,13 @@ def list_commits():
     try:
         commit_number = sys.argv[2]
         if commit_number == "0":
-            # No information is stored about the initial commit, so just alert user
+            # No information is stored about the initial commit,
+            # so just alert user
             print "Initial commit"
             return
     except IndexError:
-        # This means the user only wants to see what commits are stored about this branch.
+        # This means the user only wants to see
+        #  what commits are stored about this branch.
         folder = hf.get_branch_location()
         commits = hf.get_immediate_subdirectories(folder)
         # Folder names are the commit numbers so... 
@@ -32,14 +34,14 @@ def list_commits():
     for commit in commits:
         if commit == commit_number:
             # The commit number was valid...
-            found = True
             # File that contains the list of files edited by that commit
             filename = os.path.join(hf.get_branch_location() +
                                     '/%s/file_log.txt' % commit_number)
             with open(filename, 'r') as file_:
                 lines = file_.read().splitlines()
             try:
-                # If this doesn't exist, user wants to see what line numbers are in the commit
+                # If this doesn't exist,
+                # user wants to see what line numbers are in the commit
                 line_number = sys.argv[3]
                 try:
                     # Check to see if valid line number
@@ -79,7 +81,8 @@ def list_commits():
                 print ""
                 # To find out more information...
                 print "Type '$jet list %s <line_number>'" \
-                      " to see more information about that change" % commit_number
+                      " to see more information about that change"\
+                      % commit_number
                 return
 
     if not found:

@@ -3,8 +3,9 @@ from os import walk
 import hashlib
 import subprocess
 
+
 # This class represents the colours used to print to the command line
-# They can then be used by typing BColors.PINK etc 
+# They can then be used by typing BColors.PINK etc
 class BColors:
     def __init__(self):
         pass
@@ -17,7 +18,8 @@ class BColors:
     ENDC = '\033[0m'
 
 
-# This method gets the directory which is being version controlled. Eg: the root directory
+# This method gets the directory which is being
+# version controlled. Eg: the root directory
 def get_jet_directory():
     # Get the current directory.
     directory = os.getcwd()
@@ -43,7 +45,7 @@ def get_jet_directory():
 def get_branch_location():
     # Gets what branch you're on
     branch = get_branch()
-    # Master is stored seperately
+    # Master is stored separately
     if branch == 'master':
         return os.path.join(get_jet_directory() + '/.jet/')
     else:
@@ -53,7 +55,7 @@ def get_branch_location():
 
 # Gives the location where the data is stored for the passed in branch
 def get_branch_location_param(branch):
-    # Master is stored seperately
+    # Master is stored separately
     if branch == 'master':
         return os.path.join(get_jet_directory() + '/.jet/')
     else:
@@ -83,13 +85,16 @@ def get_current_files(jet_directory):
             # Add all filenames to the list !
             file_list.append(os.path.join(dirpath, filename))
     
-    # First, check none of the files are in the ignore file, as we are not interested in them
+    # First, check none of the files are in the
+    #  ignore file, as we are not interested in them
     return filter_files_by_ignore(file_list)
 
 
-# Returns the next number that should be used for making a commit in the current branch
+# Returns the next number that should be used
+# for making a commit in the current branch
 def get_new_commit_number():
-    # Commits are stored in folders, so get all the folders in the current branch
+    # Commits are stored in folders,
+    # so get all the folders in the current branch
     commits = get_immediate_subdirectories(get_branch_location())
     try:
         # Irrelevant folder, try to remove it
@@ -116,7 +121,8 @@ def get_new_commit_number():
     return new_commit_number
 
 
-# Returns a copy of the file which contains the last saved files and hashes as a list
+# Returns a copy of the file which
+# contains the last saved files and hashes as a list
 def get_stored_files_and_hashes():
     filename = os.path.join(get_branch_location() + 'latest_saved_files')
     with open(filename, 'r') as myFile:
@@ -125,7 +131,8 @@ def get_stored_files_and_hashes():
 
 
 # Takes the stored files and hashes, and only returns the filenames
-# The lines parameter is optional, and should be the result of get_stored_files_and_hashes()
+# The lines parameter is optional,
+#  and should be the result of get_stored_files_and_hashes()
 def get_stored_files(lines):
     if lines is None:
         lines = get_stored_files_and_hashes()
@@ -259,7 +266,8 @@ def get_change_description(filename):
         return difference
 
 
-# This method calculates the difference between two files and returns it as a string
+# This method calculates the difference
+# between two files and returns it as a string
 # The parameters can be passed in as an array or a filename.
 def diff(file1, file2):
     # Gets both files into list format
@@ -278,24 +286,28 @@ def diff(file1, file2):
             # Otherwise, it's a filename, so open the file
             with open(file2, 'r') as file_:
                 current_lines = file_.read().splitlines()
-    # An IOError means invalid filename, so a diff can therefore not be processed
+    # An IOError means invalid filename,
+    # so a diff can therefore not be processed
     except IOError:
         # Return a standard error message in place of the diff.
         return "Jet is sorry, but there was an error in processing the" \
                " changes for this file"
     # To start with, the diff is blank, so initialize to empty string
     description = ""
-    # Initialize all counters to -1, as they're incremented at the start of the loop.
+    # Initialize all counters to -1,
+    # as they're incremented at the start of the loop.
     line_number = -1
     count = -1
     old_count = -1
-    # Loop until the pointer going through the old file, reaches the end of the file
+    # Loop until the pointer going through the old file,
+    # reaches the end of the file
     while old_count < len(old_lines):
         # Increment all the pointers
         old_count += 1
         count += 1
         line_number += 1
-        # Get the line once - index error shouldn't happen but if it does, break the loop.
+        # Get the line once - index error shouldn't happen
+        # but if it does, break the loop.
         try:
             line = old_lines[old_count]
         except IndexError:
@@ -305,8 +317,10 @@ def diff(file1, file2):
         try:
             current_lines[count]
         except IndexError:
-            # Index error would mean that the line doesn't exist in the current file
-            # Therefore, that line has been deleted, so add to the diff saying so
+            # Index error would mean that the line doesn't
+            # exist in the current file
+            # Therefore, that line has been deleted, so add
+            # to the diff saying so
             description += ("(" + str(line_number) + ") " +
                             "- " +
                             line +
@@ -314,7 +328,8 @@ def diff(file1, file2):
             # Continue to the next line in the file
             continue
         
-        # Lines being the same would assume no difference, so only execute code that deals
+        # Lines being the same would assume no difference,
+        # so only execute code that deals
         # with the lines being different
         if not current_lines[count] == line:
             # If the line in the old file is blank
@@ -330,18 +345,22 @@ def diff(file1, file2):
                     # Add to the diff that the blank line was added.
                     description += ("(" + str(line_number) + ") " +
                                     "+ blank line\n")
-                    # Minus the counter on the old file, to take the missing line into account
+                    # Minus the counter on the old file,
+                    # to take the missing line into account
                     old_count -= 1
                 else:
-                    # Add to the diff the file has changed, and the new contents
+                    # Add to the diff the file has changed,
+                    # and the new contents
                     description += ("(" + str(line_number) + ") " +
                                     "~ " + current_lines[count] + "\n")
 
-    # While there is still content left in the current file, as the counters are different
+    # While there is still content left in the current file,
+    # as the counters are different
     while count <= len(current_lines) - 1:
         # If the line is blank
         if current_lines[count] == "":
-            # Add a blank line to the diff, as the current file has an additional one
+            # Add a blank line to the diff,
+            # as the current file has an additional one
             description += ("(" + str(line_number) + ") " +
                             "+ blank line\n")
         else:
@@ -737,10 +756,13 @@ def get_joint_parent(branch_1, branch_2):
     return mutual_branch, mutual_commit
 
 
-# This method takes in as parameter a branch name, and then merges it with the current branch.
-# Will cause a merge conflict if it's mathematically impossible to decide what content should appear
+# This method takes in as parameter a branch name,
+# and then merges it with the current branch.
+# Will cause a merge conflict if it's mathematically
+# impossible to decide what content should appear
 def merge(branch_to_merge):
-    # The parameters is merged with the current branch, so get the current branch
+    # The parameters is merged with the current
+    #  branch, so get the current branch
     current_branch = get_branch()
     # Get all the files currently in the repository
     current_files = get_current_files(None)
@@ -749,7 +771,8 @@ def merge(branch_to_merge):
                                    get_highest_commit(branch_to_merge))
 
     # Get the parent branch of the two branches, ie - where did they diverge?
-    # Also gets the commit number of the exact point where the two branches seperated.
+    # Also gets the commit number of the exact
+    #  point where the two branches seperated.
     joint_parent_branch,\
         joint_parent_commit_number = get_joint_parent(current_branch,
                                                       branch_to_merge)
@@ -761,11 +784,12 @@ def merge(branch_to_merge):
     
     # Files to merge are ones that exist in both the new and other branch
     files_to_merge = []
-    # Files to ask about are ones that only exist in one of the branches, therefore ask if they should be kept.
+    # Files to ask about are ones that only exist in
+    # one of the branches, therefore ask if they should be kept.
     files_to_ask_about = []
 
-
-    # Loop through each of the current files and check if they're in the other file list
+    # Loop through each of the current files and
+    # check if they're in the other file list
     for file_ in current_files:
         if file_ in other_files:
             # If they're in both, some kind of merge needs to take place
@@ -774,7 +798,8 @@ def merge(branch_to_merge):
             # Otherwise - ask the user if they wish to keep the file.
             files_to_ask_about.append(file_)
             
-    # Now loop through the other files and check if they're not in current files.
+    # Now loop through the other files and
+    #  check if they're not in current files.
     # If they are, they'll already be in the merge list, so nothing needs doing
     files_to_ask_about += [x for x in other_files if x not in current_files]
 
@@ -841,10 +866,11 @@ def ask(filename):
 
 
 # This method takes a file, containing merge conflicts, and optimizes them to 
-# attempt to have as few speperate conflicts as possible
+# attempt to have as few separate conflicts as possible
 def optimize_conflicts(_file_):
     optimized = False
-    # Set variables to show the start, middle and end of a conflict declaration. 
+    # Set variables to show the start,
+    #  middle and end of a conflict declaration.
     # Conflicts are formed:
     #     Start of file
     #     @@@@@@@@@@HEAD@@@@@@@@@@
@@ -867,16 +893,20 @@ def optimize_conflicts(_file_):
                     # Then the file can be optimized! 
                     optimized = True
                     end_of_set = None
-                    # Loop through until the end of the file to find the end of that conflict
-                    # Set the end_of_set variable to the index of end of conflict
+                    # Loop through until the end of the
+                    # file to find the end of that conflict
+                    # Set the end_of_set variable to
+                    # the index of end of conflict
                     for j in range(i+1, len(_file_)):
                         if _file_[j] == end:
                             end_of_set = j
                             # Once found, exit for loop
                             break
                     start_of_set = None
-                    # Loop from the end of conflict marker until the start of that conflict is found
-                    # Set the start_of_set variable to the ends of start of that conflict
+                    # Loop from the end of conflict marker until
+                    # the start of that conflict is found
+                    # Set the start_of_set variable to the ends
+                    # of start of that conflict
                     for k in range(i-1, -1, -1):
                         if _file_[k] == start:
                             start_of_set = k
@@ -884,13 +914,15 @@ def optimize_conflicts(_file_):
                     # If neither could be found, cannot optimize.
                     if start_of_set is None and end_of_set is None:
                         continue
-                    # Empty arrays that will hold the contents of the conflcit
+                    # Empty arrays that will hold the contents of the conflict
                     first_contents = []
                     second_contents = []
-                    # Loop through from the start of first conflict, until the end of that conflcit to get the contents
+                    # Loop through from the start of first conflict,
+                    #  until the end of that conflict to get the contents
                     for y in range(start_of_set + 1, i):
                         if _file_[y] == separator:
-                            # After seperator is found, it's then the other files contents
+                            # After separator is found,
+                            #  it's then the other files contents
                             for z in range(y+1, i):
                                 second_contents.append(_file_[z])
                             break
@@ -900,13 +932,15 @@ def optimize_conflicts(_file_):
                     for y in range(i+2, end_of_set):
                         # Loop through the second conflict.
                         if _file_[y] == separator:
-                            # After seperator is found, it's then the other files contents
+                            # After separator is found, it's then
+                            # the other files contents
                             for z in range(y+1, end_of_set):
                                 second_contents.append(_file_[z])
                             break
                         # Add to first contents array
                         first_contents.append(_file_[y])
-                    # Optimized file is then adjusted to take into account the new contents, with one less conflcit
+                    # Optimized file is then adjusted to take
+                    #  into account the new contents, with one less conflict
                     optimized_file = _file_[:start_of_set] +\
                         [start] +\
                         first_contents +\
@@ -925,8 +959,10 @@ def optimize_conflicts(_file_):
     return optimized_file
 
 
-# This function takes a filename, it's contents in the parent, current and other branch 
-# It then compares the contents, and if it's possible to figure out what result to give, then do it
+# This function takes a filename,
+# it's contents in the parent, current and other branch
+# It then compares the contents, and if it's possible
+# to figure out what result to give, then do it
 # Otherwise, merge conflict.
 def fix_file(filename, parent, file1, file2, test=False):
     # New file starts as blank
@@ -937,9 +973,10 @@ def fix_file(filename, parent, file1, file2, test=False):
     parent_pointer = 0
     file1_pointer = 0
     file2_pointer = 0
-    # Lenght of all 3 files combined
+    # Length of all 3 files combined
     total_length = max(len(parent), len(file1), len(file2))
-    # To prevent any errors, extend the length of each of the files to the total length
+    # To prevent any errors, extend the length
+    # of each of the files to the total length
     for i in range(len(parent), total_length):
         parent.append("")
     for i in range(len(file1), total_length):
@@ -1010,8 +1047,10 @@ def fix_file(filename, parent, file1, file2, test=False):
     return optimize_conflicts(_file_)
 
 
-# This method takes as input a filename, the contents of it at the parents(if exists), the current branch
-# and the other branch being merged - and then gives the result saved into the file. 
+# This method takes as input a filename, the contents of it at
+# the parents(if exists), the current branch
+# and the other branch being merged - and then gives the result
+#  saved into the file.
 def merge_files(filename, parent, file1, file2):
     # base case
     if file1 == file2:

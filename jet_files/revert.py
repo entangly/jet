@@ -18,7 +18,7 @@ def revert():
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
     # Checks more than one branch exists
     if os.path.exists(branches_path):
-        # If it's master, diffrerent file paths
+        # If it's master, different file paths
         if not sys.argv[2] == 'master':
             # Check that the branch name specified exists.
             if not os.path.exists(os.path.join(branches_path + sys.argv[2])):
@@ -39,7 +39,7 @@ def revert():
         # Accept y as well as the suggested yes
         if response == 'yes' or response == 'y':
             print "Reverting....please wait..."
-            # Peforming the actual revert.
+            # Performing the actual revert.
             hf.revert(sys.argv[2], sys.argv[3])
             # Alert user it was completed.
             print "Revert finished. You are now at the state of " \

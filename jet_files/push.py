@@ -35,7 +35,8 @@ def push():
         else:
             print "Hook Failed. Not pushing"
             return
-    # Gets the branch name and the commit number from the last time a push or pull happened.
+    # Gets the branch name and the commit number from
+    # the last time a push or pull happened.
     branch, last_update = hf.get_last_update(branch)
     # Gets the current commit number
     current_commit = hf.get_commit()
@@ -63,7 +64,7 @@ def push():
     # Send commit POST
     print "Creating commit on server..."
     url = "%screate_commit/" % DOMAIN
-    # If there's a messsage been passed in, use it!
+    # If there's a message been passed in, use it!
     if sys.argv[2] == "-m" and len(sys.argv) == 4:
         message = sys.argv[3]
     else:

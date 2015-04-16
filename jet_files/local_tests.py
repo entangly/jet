@@ -1,6 +1,8 @@
 # Purpose of this file is to test the local version of the version control
-# RESULTS array stores either "PASSED" or the error message, depending on the result of the test
-# At the end, the python file prints the RESULT array, and gives a count of the error messages
+# RESULTS array stores either "PASSED" or the error message,
+#  depending on the result of the test
+# At the end, the python file prints the RESULT array,
+#  and gives a count of the error messages
 import os
 import shutil
 from jet_files import helper_functions, init, add, commit_changeset

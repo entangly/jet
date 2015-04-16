@@ -23,7 +23,7 @@ def merge():
     if os.path.isfile(filename):
         changed_files = True
     # Check if any changed files which haven't been added.
-    if len(hf.get_changed_files(None)) > 0:
+    if len(hf.get_changed_files(None, None)) > 0:
         changed_files = True
     # Can't merge with changed files, so display error message
     if changed_files:
@@ -33,7 +33,8 @@ def merge():
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
     # Ensuring that there are multiple branches present
     if os.path.exists(branches_path):
-        # Ensures that the branch name is valid by checking if a folder exists for it
+        # Ensures that the branch name is valid
+        #  by checking if a folder exists for it
         if not os.path.exists(os.path.join(branches_path + sys.argv[2])):
             print "Invalid branch name, please try again."
             return

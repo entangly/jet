@@ -19,7 +19,8 @@ def hook():
     if sys.argv[3] == 'inspect':
         # File which stores which hook is being used
         filename = (hf.get_branch_location() + 'hooks')
-        # Ensuring the correct arguement is in place to know which command to attach to
+        # Ensuring the correct arguement is in place to know which
+        # command to attach to
         if sys.argv[2] == 'commit' or sys.argv[2] == 'push':
             try:
                 with open(filename, 'r') as file_:
@@ -33,7 +34,8 @@ def hook():
             #   <filename>
             #   Commit
             #   <filename>
-            # So these tests check to see which filename is relevant to the command issued.
+            # So these tests check to see which filename is relevant
+            # to the command issued.
             try:
                 if lines[0] == sys.argv[2]:
                     print "The %s command is hooked by:" % sys.argv[2]
@@ -44,7 +46,7 @@ def hook():
             try:
                 if lines[2] == sys.argv[2]:
                     print "The %s command is hooked by:" % sys.argv[2]
-                    print "    %s" % lines[3]\
+                    print "    %s" % lines[3]
             except IndexError:
                 # Index error occurs if only one command had a hook.
                 print "You have no hooks on the %s command" % sys.argv[2]
@@ -55,7 +57,8 @@ def hook():
         if sys.argv[2] == 'commit' or sys.argv[2] == 'push':
             # Checks a valid command is entered
             filename = (hf.get_branch_location() + 'hooks')
-            # Array used to keep the contents of the other command, as that isn't being deleted
+            # Array used to keep the contents of the other command
+            # , as that isn't being deleted
             to_keep = []
             try:
                 with open(filename, 'r') as file_:
@@ -115,7 +118,8 @@ def hook():
                     to_keep.append("")
 
                 # Same as delete function finished
-                # Added the new file and command to the hook file as well as keeping the old one
+                # Added the new file and command to the hook file as well
+                # as keeping the old one
     
                 with open(filename, 'w') as myFile:
                     myFile.write(sys.argv[2] + '\n')

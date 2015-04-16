@@ -32,10 +32,10 @@ def setup():
               "registered please visit www.jetvc.co.uk/register/"
         # Get the users input for their username
         username = raw_input("Username: ")
-        # Using a libary to get the password to avoid complications
+        # Using a library to get the password to avoid complications
         password = getpass.getpass()
         
-        # URL for loging a user in
+        # URL for logging a user in
         url = "%slogin_user/" % DOMAIN
         try:
             # Preparing the POST data
@@ -106,7 +106,7 @@ def setup():
     # All done, tell user! 
     print "All setup."
     print "These details will be saved"
-    # Save the repos id for future use
+    # Save the repo's id for future use
     filename = os.path.join(hf.get_jet_directory()
                             + '/.jet/repo_id')
     with open(filename, 'w') as file_:

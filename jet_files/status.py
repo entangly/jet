@@ -20,7 +20,8 @@ def status():
                                          stored_files_and_hashes)
                                          
     print "You are working on branch %s" % branch
-    # If the amount of files is equal, and nothing has been changed - we're done
+    # If the amount of files is equal, and nothing has been changed
+    #  - we're done
     if len(current_files) == len(stored_files)\
             and len(changed_files) == 0:
         print "Nothing has changed!"

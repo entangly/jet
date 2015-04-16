@@ -155,7 +155,8 @@ def pull():
     files_to_ask_about = []
 
     for file_ in current_files:
-        # If the file is in both the current ones and the server ones, merge it!
+        # If the file is in both the current ones and the server ones,
+        #  merge it!
         if file_ in server_files:
             files_to_merge.append(file_)
         else:
@@ -184,7 +185,8 @@ def pull():
                 content = json.loads(response.content)
                 # Contents stored as json
                 new_contents = content['contents']
-                # Write the new contents to a file after making directories for it
+                # Write the new contents to a file
+                #  after making directories for it
                 hf.make_directories(f, clone=False)
                 with open(f, 'w') as myFile:
                     myFile.write(new_contents)
@@ -218,7 +220,8 @@ def pull():
 
         # Now we have the 3 copies of the file..
 
-        # Check that they are not equal, as if they are that would save processing.
+        # Check that they are not equal,
+        #  as if they are that would save processing.
         if not local_file == server_file:
             try:
                 # Attempt to do the merge on the file.
