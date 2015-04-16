@@ -694,20 +694,21 @@ def revert(branch, commit_number):
     files_at_revert_point = get_file_list_at(branch, commit_number)
     files_to_delete = [x for x in current_files
                        if not x in files_at_revert_point]
-    for file_ in files_to_delete:
-        os.remove(file_)
-    for file_ in files_at_revert_point:
-        new_contents = get_file_at(branch, commit_number, file_)
-        with open(file_, 'w') as myFile:
+    for current_filename_to_process in files_to_delete:
+        os.remove(current_filename_to_process)
+    for current_filename_to_process in files_at_revert_point:
+        new_contents = get_file_at(branch, commit_number,
+                                   current_filename_to_process)
+        with open(current_filename_to_process, 'w') as myFile:
             for content in new_contents:
                 myFile.write("%s\n" % content)
 
     filename = os.path.join(get_jet_directory() + '/.jet/branch')
-    with open(filename, 'w') as file_:
-        file_.write(branch)
+    with open(filename, 'w') as current_filename_to_process:
+        current_filename_to_process.write(branch)
     filename = os.path.join(get_jet_directory() + '/.jet/current_commit')
-    with open(filename, 'w') as file_:
-        file_.write(str(commit_number))
+    with open(filename, 'w') as current_filename_to_process:
+        current_filename_to_process.write(str(commit_number))
 
 
 def get_branch():
