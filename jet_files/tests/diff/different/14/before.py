@@ -1,6 +1,6 @@
 
- sxjackna
-    s jakcsa
+print " sxjackna"
+print "s jakcsa"
 
- cscsc
-      cdkkcs
+print " cscsc"
+print "      cdkkcs"

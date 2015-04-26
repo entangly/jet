@@ -1,3 +1,3 @@
-Test
-Test
-Test
+print "Test"
+print "Test"
+print "Test"

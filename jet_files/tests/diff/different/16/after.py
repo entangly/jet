@@ -1,7 +1,8 @@
 #!/usr/bin/python
 
 import sys
-
+file_name = ''
+file_finish = ''
 
 try:
   # open file stream

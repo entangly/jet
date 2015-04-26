@@ -1,2 +1,2 @@
-Test
-Test
+print "Test"
+print "Test"

@@ -1,6 +1,6 @@
-  hedhfjsd
-dsnksdj
-        sdknadjsa
+print "  hedhfjsd"
+print "dsnksdj"
+print "        sdknadjsa"
 
-      sdabdsa
-    assaxc
+print "     sdabdsa"
+print "    assaxc"

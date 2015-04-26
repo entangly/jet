@@ -1,1 +1,1 @@
-ztest
+print "ztest"

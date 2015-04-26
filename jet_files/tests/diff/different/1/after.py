@@ -1,4 +1,4 @@
-Test
-Test
-Test
-Test
+print "Test"
+"Test"
+"Test"
+"Test"

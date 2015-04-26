@@ -1,15 +1,15 @@
 
 
-sdcdbnajksdb
+print "sdcdbnajksdb"
 
 
 
 
 
 
-snjkanks
+print "snjkanks"
 
 
 
 
-scbjkabsck
+print "scbjkabsck"

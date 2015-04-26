@@ -1,5 +1,5 @@
-Testag maogn
-Teatwenioghwdoangh
-aoignasodfinhoasfinhash
-ipnargoiawdntyowanhyownrhy
-agsdghsahyafshdf
+print "Testag maogn"
+print "Teatwenioghwdoangh"
+print "aoignasodfinhoasfinhash"
+print "ipnargoiawdntyowanhyownrhy"
+print "agsdghsahyafshdf"

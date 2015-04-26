@@ -1,11 +1,11 @@
 
 
-Bfdsjb fdjs
+print "Bfdsjb fdjs"
 
 
-BNJkvsbvkdbjsk
+print "BNJkvsbvkdbjsk"
 
 
 
 
-Njkvskvd
+print "Njkvskvd"

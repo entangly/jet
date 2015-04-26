@@ -15,6 +15,8 @@ import java
 
 
 import sys
+file_name = ''
+file_finish = ''
 
 try:
   # open file stream

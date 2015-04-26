@@ -1044,8 +1044,19 @@ def fix_file(filename, parent, file1, file2, test=False):
     if count > 0:
         # Delete all the blank lines
         del _file_[-count:]
-    # Optmize conflicts and return to user!     
-    return optimize_conflicts(_file_)
+    # Optimize conflicts and return to user!
+    finished = optimize_conflicts(_file_)
+    if test:
+        for i in range(0, len(finished)):
+            if finished[i] == '@@@@@@@@@@HEAD@@@@@@@@@@':
+                finished[i] = '# @@@@@@@@@@HEAD@@@@@@@@@@'
+            if finished[i] == '@@@@@@@@@@SEPARATOR@@@@@@@@@@':
+                finished[i] = '# @@@@@@@@@@SEPARATOR@@@@@@@@@@'
+            if finished[i] == '@@@@@@@@@@END@@@@@@@@@@':
+                finished[i] = '# @@@@@@@@@@END@@@@@@@@@@'
+        return finished
+    else:
+        return finished
 
 
 # This method takes as input a filename, the contents of it at
