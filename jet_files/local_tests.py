@@ -31,14 +31,19 @@ def test_same_files():
                  '5']
     for test in test_list:
         diff = helper_functions.diff(os.path.join(base_tests_path
-                                     + 'tests/diff/same/%s/before.txt' % test),
+                                     + 'jet_files/tests/diff/same/'
+                                       '%s/before.txt' % test),
                                      os.path.join(base_tests_path
-                                     + "tests/diff/same/%s/after.txt" % test))
+                                     + "jet_files/tests/diff/same/"
+                                       "%s/after.txt" % test))
 
         if diff == EXPECTED_RESULT:
             RESULTS.append("Passed")
         else:
             RESULTS.append("Same Test '%s' Failed" % test)
+            RESULTS.append("Tried to open file %s" % os.path.join(
+                base_tests_path
+                + 'jet_files/tests/diff/same/%s/before.txt' % test))
             RESULTS.append("Expected %s" % EXPECTED_RESULT)
             RESULTS.append("Received:\n %s" % diff)
 
@@ -47,19 +52,20 @@ def test_different_files():
     number_of_tests = 20
     for test in range(0, number_of_tests + 1):
         diff = helper_functions.diff(os.path.join(base_tests_path
-                                     + 'tests/diff/different/%s/before.txt'
-                                     % test),
+                                     + 'jet_files/tests/diff/different'
+                                       '/%s/before.txt' % test),
                                      os.path.join(base_tests_path
-                                     + "tests/diff/different/%s/after.txt"
-                                     % test))
+                                     + "jet_files/tests/diff/different"
+                                       "/%s/after.txt" % test))
 
         answer = helper_functions.reform_file(os.path.join(base_tests_path
-                                              + 'tests/diff/different/'
-                                              '%s/before.txt' % test),
+                                              + 'jet_files/tests/diff/'
+                                                'different/'
+                                                '%s/before.txt' % test),
                                               diff.splitlines())
 
         difference = helper_functions.diff(os.path.join(base_tests_path
-                                           + 'tests/diff/different'
+                                           + 'jet_files/tests/diff/different'
                                              '/%s/after.txt'
                                            % test),
                                            answer)
@@ -88,19 +94,22 @@ def test_merges():
     number_of_tests = 15
     for i in range(1, number_of_tests + 1):
         parent_filename = os.path.join(base_tests_path
-                                       + 'tests/merge/%s/parent.txt' % i)
+                                       + 'jet_files/tests/merge/%s/parent.txt'
+                                       % i)
         with open(parent_filename, 'r') as myFile:
             parent = myFile.read().splitlines()
         file1_filename = os.path.join(base_tests_path
-                                      + 'tests/merge/%s/file1.txt' % i)
+                                      + 'jet_files/tests/merge/%s/file1.txt'
+                                      % i)
         with open(file1_filename, 'r') as myFile:
             fileone = myFile.read().splitlines()
         file2_filename = os.path.join(base_tests_path
-                                      + 'tests/merge/%s/file2.txt' % i)
+                                      + 'jet_files/tests/merge/%s/file2.txt'
+                                      % i)
         with open(file2_filename, 'r') as myFile:
             filetwo = myFile.read().splitlines()
         result_filename = os.path.join(base_tests_path
-                                       + 'tests/merge/'
+                                       + 'jet_files/tests/merge/'
                                          '%s/expected_result.txt' % i)
         with open(result_filename, 'r') as myFile:
             expected_result = myFile.read().splitlines()

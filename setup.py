@@ -1,5 +1,4 @@
-from setuptools import setup, find_packages  # Always prefer setuptools over distutils
-from codecs import open  # To use a consistent encoding
+from setuptools import setup, find_packages
 from os import path
 
 here = path.abspath(path.dirname(__file__))
@@ -9,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 setup(
     name='jet',
             
-    version='0.1.1',
+    version='0.1.6',
             
     description='A simple to user, yet powerful version control system',
             
@@ -39,8 +38,8 @@ setup(
             
     packages=find_packages(),
 
-    entry_points={'console_scripts': ['jet = jet_files.jet:run'],},
+    entry_points={'console_scripts': ['jet = jet_files.jet:run'], },
 
             
-    install_requires=['requests',],
+    install_requires=['requests', ],
 )
