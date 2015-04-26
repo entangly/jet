@@ -32,10 +32,10 @@ def test_same_files():
     for test in test_list:
         diff = helper_functions.diff(os.path.join(base_tests_path
                                      + 'jet_files/tests/diff/same/'
-                                       '%s/before.txt' % test),
+                                       '%s/before.py' % test),
                                      os.path.join(base_tests_path
                                      + "jet_files/tests/diff/same/"
-                                       "%s/after.txt" % test))
+                                       "%s/after.py" % test))
 
         if diff == EXPECTED_RESULT:
             RESULTS.append("Passed")
@@ -43,7 +43,7 @@ def test_same_files():
             RESULTS.append("Same Test '%s' Failed" % test)
             RESULTS.append("Tried to open file %s" % os.path.join(
                 base_tests_path
-                + 'jet_files/tests/diff/same/%s/before.txt' % test))
+                + 'jet_files/tests/diff/same/%s/before.py' % test))
             RESULTS.append("Expected %s" % EXPECTED_RESULT)
             RESULTS.append("Received:\n %s" % diff)
 
@@ -53,20 +53,20 @@ def test_different_files():
     for test in range(0, number_of_tests + 1):
         diff = helper_functions.diff(os.path.join(base_tests_path
                                      + 'jet_files/tests/diff/different'
-                                       '/%s/before.txt' % test),
+                                       '/%s/before.py' % test),
                                      os.path.join(base_tests_path
                                      + "jet_files/tests/diff/different"
-                                       "/%s/after.txt" % test))
+                                       "/%s/after.py" % test))
 
         answer = helper_functions.reform_file(os.path.join(base_tests_path
                                               + 'jet_files/tests/diff/'
                                                 'different/'
-                                                '%s/before.txt' % test),
+                                                '%s/before.py' % test),
                                               diff.splitlines())
 
         difference = helper_functions.diff(os.path.join(base_tests_path
                                            + 'jet_files/tests/diff/different'
-                                             '/%s/after.txt'
+                                             '/%s/after.py'
                                            % test),
                                            answer)
 
@@ -94,23 +94,23 @@ def test_merges():
     number_of_tests = 15
     for i in range(1, number_of_tests + 1):
         parent_filename = os.path.join(base_tests_path
-                                       + 'jet_files/tests/merge/%s/parent.txt'
+                                       + 'jet_files/tests/merge/%s/parent.py'
                                        % i)
         with open(parent_filename, 'r') as myFile:
             parent = myFile.read().splitlines()
         file1_filename = os.path.join(base_tests_path
-                                      + 'jet_files/tests/merge/%s/file1.txt'
+                                      + 'jet_files/tests/merge/%s/file1.py'
                                       % i)
         with open(file1_filename, 'r') as myFile:
             fileone = myFile.read().splitlines()
         file2_filename = os.path.join(base_tests_path
-                                      + 'jet_files/tests/merge/%s/file2.txt'
+                                      + 'jet_files/tests/merge/%s/file2.py'
                                       % i)
         with open(file2_filename, 'r') as myFile:
             filetwo = myFile.read().splitlines()
         result_filename = os.path.join(base_tests_path
                                        + 'jet_files/tests/merge/'
-                                         '%s/expected_result.txt' % i)
+                                         '%s/expected_result.py' % i)
         with open(result_filename, 'r') as myFile:
             expected_result = myFile.read().splitlines()
         result = helper_functions.fix_file("irrelevant",
