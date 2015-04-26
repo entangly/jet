@@ -8,7 +8,7 @@ here = path.abspath(path.dirname(__file__))
 setup(
     name='jet',
             
-    version='0.1.6',
+    version='0.2.3',
             
     description='A simple to user, yet powerful version control system',
             
@@ -42,4 +42,8 @@ setup(
 
             
     install_requires=['requests', ],
+
+    include_package_data=True,
+
+    package_data={'jet_files': ['jet_files/tests/*']},
 )
