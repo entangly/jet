@@ -6,15 +6,15 @@ import os
 
 def commit_changeset():
     if not hf.already_initialized():
-        print "Please init a jet repo before calling other commands"
+        print ("Please init a jet repo before calling other commands")
         return
     if hf.is_conflicts():
-        print "You can't commit with outstanding conflicts..."
+        print ("You can't commit with outstanding conflicts...")
         return
     # Login required in order to put a name with the commit
     if not hf.logged_in():
-        print "You must login before commiting! To do this type:" \
-              " $jet login <username>"
+        print ("You must login before commiting! To do this type:"
+               " $jet login <username>")
         return
 
     hook = hf.get_commit_hook()
@@ -22,14 +22,14 @@ def commit_changeset():
     if hook:
         result = hf.run_hook(hook)
         if result:
-            print "Hook passed."
+            print ("Hook passed.")
         else:
-            print "Hook Failed. Not commiting"
+            print ("Hook Failed. Not commiting")
             return
     # Must have the -m and all arguments present
     if len(sys.argv) != 4 or sys.argv[2] != "-m":
-        print "Commit commands need to be formed by typing:" \
-              " $jet commit -m \"Your message here\""
+        print ("Commit commands need to be formed by typing:"
+               " $jet commit -m \"Your message here\"")
     else:
         commit(sys.argv[3], verbose=True)
 
@@ -131,10 +131,11 @@ def commit(message, verbose):
                 file_.write(hf.checksum_md5(file_to_add) + "\n")
         if verbose:
             # Done!
-            print "Commiting"
+            print ("Commiting")
     else:
         if verbose:
-            print "Please add files to commit using jet add before commiting!"
+            print ("Please add files to commit using "
+                   "jet add before commiting!")
 
 
 def run():

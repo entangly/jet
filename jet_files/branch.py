@@ -17,7 +17,7 @@ def branch(branch_name):
         changed_files = True
     # Error if there are uncommitted changed files...
     if changed_files:
-        print "You can't branch until you commit...."
+        print ("You can't branch until you commit....")
         return
     # END changed files check
 
@@ -27,7 +27,7 @@ def branch(branch_name):
         if os.path.exists(os.path.join(branches_path + branch_name))\
                 or branch_name == 'master':
             # Name exists, error 
-            print "Already a branch with that name... please try another!"
+            print ("Already a branch with that name... please try another!")
             return
         else:
             # Make directory for the branch
@@ -94,7 +94,7 @@ def branch(branch_name):
         count += 1
 
     # Branch making complete, store details of branch
-    print "Branch %s made" % branch_name
+    print ("Branch %s made" % branch_name)
     # Storing parent branch
     filename = os.path.join(hf.get_jet_directory()
                             + '/.jet/branches/%s/parent' % branch_name)
@@ -115,16 +115,16 @@ def branch(branch_name):
     with open(filename, 'w') as file_:
         file_.write("0")
     # All done
-    print "You are now working in branch %s" % branch_name
+    print ("You are now working in branch %s" % branch_name)
 
 
 def run():
     if not hf.already_initialized():
-        print "Please init a jet repo before calling other commands"
+        print ("Please init a jet repo before calling other commands")
         return
     if len(sys.argv) != 3:
-        print "Please form branch commands by typing" \
-              " $jet branch <branch_name>"
+        print ("Please form branch commands by typing"
+               " $jet branch <branch_name>")
         return
     branch_name = sys.argv[2]
     branch(branch_name)
@@ -132,10 +132,10 @@ def run():
 
 def switch():
     if not hf.already_initialized():
-        print "Please init a jet repo before calling other commands"
+        print ("Please init a jet repo before calling other commands")
         return
     if len(sys.argv) != 3:
-        print "Please form your switch commands $jet switch <branch_name>"
+        print ("Please form your switch commands $jet switch <branch_name>")
         return
 
     # Checks for any changed files, as you must have committed first!!!
@@ -150,7 +150,7 @@ def switch():
         changed_files = True
     # Error if anything changed!! 
     if changed_files:
-        print "You can't switch branch until you commit...."
+        print ("You can't switch branch until you commit....")
         return
 
     # Master info stored separately, hence the if statement
@@ -171,7 +171,7 @@ def switch():
                 file_.write(file_to_add + "\n")
                 file_.write(hf.checksum_md5(file_to_add) + "\n")
         # All done!
-        print "Successfully switched to branch %s" % sys.argv[2]
+        print ("Successfully switched to branch %s" % sys.argv[2])
         return
     # Only here if the branch to switch to isn't master
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
@@ -189,48 +189,48 @@ def switch():
                 for file_to_add in hf.get_current_files(None):
                     file_.write(file_to_add + "\n")
                     file_.write(hf.checksum_md5(file_to_add) + "\n")
-            print "Successfully switched to branch %s" % sys.argv[2]
+            print ("Successfully switched to branch %s" % sys.argv[2])
         else:
-            print "Invalid branch name"
+            print ("Invalid branch name")
     else:
-        print "Invalid branch name"
+        print ("Invalid branch name")
 
 
 def display():
     # This method shows all the branches and their parents
     #  and prints to the console
     if not hf.already_initialized():
-        print "Please init a jet repo before calling other commands"
+        print ("Please init a jet repo before calling other commands")
         return
-    print "Branch name (parent)"
-    print "Master(root)"
+    print ("Branch name (parent)")
+    print ("Master(root)")
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
     if os.path.exists(branches_path):
         branches = hf.get_immediate_subdirectories(branches_path)
         # Directories are named after the branch, so grab names from here.
         for b in branches:
-            print "%s (%s)" % (b, hf.get_parent(b))
+            print ("%s (%s)" % (b, hf.get_parent(b)))
 
     # Friendly reminder what branch is the current one.
-    print "You are currently on branch %s" % hf.get_branch()
+    print ("You are currently on branch %s" % hf.get_branch())
 
 
 def delete_branch():
     if len(sys.argv) != 3:
-        print "Please form your delete commands $jet delete <branch_name>"
+        print ("Please form your delete commands $jet delete <branch_name>")
         return
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
     # Check that the branches directory is there
     if os.path.exists(branches_path):
         if not os.path.exists(os.path.join(branches_path + sys.argv[2])):
-            print "Invalid branch name, please try again."
+            print ("Invalid branch name, please try again.")
             return
     else:
-        print "Invalid branch name, please try again"
+        print ("Invalid branch name, please try again")
         return
     if sys.argv[2] == 'master':
         # Master cannot be deleted because every other branch is a child of it.
-        print "Cannot delete master"
+        print ("Cannot delete master")
         return
     delete(sys.argv[2])
 
@@ -240,4 +240,4 @@ def delete(branch_name):
     directory = os.path.join(hf.get_jet_directory()
                              + '/.jet/branches/%s/' % branch_name)
     rmtree(directory)
-    print "Deleted"
+    print ("Deleted")

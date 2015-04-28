@@ -7,7 +7,7 @@ from os import walk
 def init():
     # Can't initialize in a folder already controlled by Jet.
     if hf.already_initialized():
-        print "Already a repo initialized"
+        print ("Already a repo initialized")
     else:
         # This is the directory all Jets information will be stored under
         os.mkdir('.jet')
@@ -62,8 +62,8 @@ def init():
         with open(filename, 'w') as file_:
             file_.write("0")
         # Init is all done, inform user with nice green text.
-        print hf.BColors.GREEN + \
-            "Initializing Jet repository in %s" % os.getcwd() + hf.BColors.ENDC
+        print ((hf.BColors.GREEN + "Initializing Jet repository in %s"
+               % os.getcwd() + hf.BColors.ENDC))
 
 
 def run():

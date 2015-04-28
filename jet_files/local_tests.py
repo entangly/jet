@@ -77,16 +77,16 @@ def test_different_files():
 
 
 def test_diff_algorithm():
-    print "Testing diff algorithm"
+    print ("Testing diff algorithm")
     try:
         test_same_files()
-    except Exception, e:
-        print e
+    except Exception as e:
+        print (e)
         RESULTS.append('FAILED DIFF')
     try:
         test_different_files()
-    except Exception, e:
-        print e
+    except Exception as e:
+        print (e)
         RESULTS.append('FAILED DIFF')
 
 
@@ -126,12 +126,12 @@ def test_merges():
 
 
 def test_merging():
-    print "Testing merging algorithm"
+    print ("Testing merging algorithm")
     try:
         test_merges()
-    except Exception, e:
+    except Exception as e:
         RESULTS.append('FAILED MERGING')
-        print e
+        print (e)
 
 
 def test_get_jet_directory():
@@ -470,7 +470,7 @@ def test_branch(branch):
 
 
 def test_common_functions():
-    print "Testing common functions"
+    print ("Testing common functions")
     setup()
     try:
         test_branch('master')
@@ -496,9 +496,9 @@ def test_common_functions():
         test_filtering_files_by_jet_ignore()
         test_relative()
         test_hashing_algorithm_is_unique()
-    except Exception, e:
+    except Exception as e:
         RESULTS.append('FAILED')
-        print e
+        print (e)
     clear_up()
 
 
@@ -506,29 +506,29 @@ def test_dependencies():
     try:
         import requests
         RESULTS.append('Passed')
-    except Exception, e:
+    except Exception as e:
         RESULTS.append('Failed importing requests')
-        print e
+        print (e)
 
 
 def run():
-    print "Beginning tests..."
+    print ("Beginning tests...")
     test_dependencies()
 
     test_diff_algorithm()
     test_merging()
     test_common_functions()
 
-    print "Results:"
+    print ("Results:")
     number_of_tests = len(RESULTS)
     passed = 0
     for result in RESULTS:
         if result == 'Passed':
             passed += 1
-            print helper_functions.BColors.GREEN + \
-                "    Passed" + helper_functions.BColors.ENDC
+            print (helper_functions.BColors.GREEN +
+                "    Passed" + helper_functions.BColors.ENDC)
         else:
-            print helper_functions.BColors.RED +\
-                "    %s" % result + helper_functions.BColors.ENDC
+            print (helper_functions.BColors.RED +
+                "    %s" % result + helper_functions.BColors.ENDC)
 
-    print "Passed %s out of %s tests" % (passed, number_of_tests)
+    print ("Passed %s out of %s tests" % (passed, number_of_tests))

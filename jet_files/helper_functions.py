@@ -4,7 +4,7 @@ import hashlib
 import subprocess
 
 
-# This class represents the colours used to print to the command line
+# This class represents the colours used to print (to the command line
 # They can then be used by typing BColors.PINK etc
 class BColors:
     def __init__(self):
@@ -1109,7 +1109,8 @@ def add_conflict(filename):
 
     file_ = os.path.join(get_branch_location() + 'conflicts')
 
-    print BColors.RED + "Merge conflict for file %s" % filename + BColors.ENDC
+    print (BColors.RED + "Merge conflict for"
+                         " file %s" % filename + BColors.ENDC)
 
     with open(file_, 'w') as myFile:
         for line in conflicts:

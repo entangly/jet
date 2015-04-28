@@ -4,7 +4,7 @@ from jet_files import helper_functions as hf
 import requests
 import json
 
-# Switch these over by uncommenting and commenting when testing on dev server. 
+# Switch these over by un-commenting and commenting when testing on dev server.
 
 #DOMAIN = 'http://0.0.0.0:8000/'
 DOMAIN = 'http://www.jetvc.co.uk/'
@@ -13,15 +13,15 @@ DOMAIN = 'http://www.jetvc.co.uk/'
 # This command takes the 
 def push():
     if not hf.already_initialized():
-        print "Please init a jet repo before calling other commands"
+        print ("Please init a jet repo before calling other commands")
         return
     # Gets the jet directory and branch to avoid re-fetching.
     jet_directory = hf.get_jet_directory()
     branch = hf.get_branch()
     # Make sure the user is logged in and synced with the jet servers
     if not hf.is_setup():
-        print "You must setup before pushing! To do this type:" \
-              " $jet setup"
+        print ("You must setup before pushing! To do this type:"
+               " $jet setup")
         return
     # Gets the hook associated with pushing
     hook = hf.get_push_hook()
@@ -31,9 +31,9 @@ def push():
         result = hf.run_hook(hook)
         # Will only give true if passed
         if result:
-            print "Hook passed."
+            print ("Hook passed.")
         else:
-            print "Hook Failed. Not pushing"
+            print ("Hook Failed. Not pushing")
             return
     # Gets the branch name and the commit number from
     # the last time a push or pull happened.
@@ -42,11 +42,11 @@ def push():
     current_commit = hf.get_commit()
     # If they're the same, don't bother pushing.
     if int(last_update) == int(current_commit):
-        print "No changes to push"
+        print ("No changes to push")
         return
     
     # Connect to jets servers 
-    print "Connecting...."
+    print ("Connecting....")
     # Url containing list of current files
     url = "%scurrent_file_list/%s/%s/" % (DOMAIN,
                                           hf.get_repo_id(),
@@ -55,14 +55,14 @@ def push():
     try:
         response = requests.get(url)
         content = json.loads(response.content)
-    except Exception, e:
-        print "Failed to connect to Jets servers."
-        print "Error - %s" % e
+    except Exception as e:
+        print ("Failed to connect to Jets servers.")
+        print ("Error - %s" % e)
         return
     # Gets the current files in the repo
     current_files = hf.get_file_list_at(branch, hf.get_commit())
     # Send commit POST
-    print "Creating commit on server..."
+    print ("Creating commit on server...")
     url = "%screate_commit/" % DOMAIN
     # If there's a message been passed in, use it!
     if sys.argv[2] == "-m" and len(sys.argv) == 4:
@@ -103,8 +103,8 @@ def push():
         # Read the contents of the file in 
         with open(filename, 'r') as myFile:
             contents = myFile.read()
-        print "Uploading file %s..." % filename
-        # Stip filename to make it relative
+        print ("Uploading file %s..." % filename)
+        # Strip filename to make it relative
         stripped_filename = filename[len(jet_directory):]
         # Remove slash if it exists
         if stripped_filename.startswith('/'):
@@ -130,7 +130,7 @@ def push():
         with open(filename, 'r') as myFile:
             contents = myFile.read()
         # Upload the file
-        print "Uploading file %s..." % hf.relative(filename, os.getcwd())
+        print ("Uploading file %s..." % hf.relative(filename, os.getcwd()))
         # Turn to relative filename
         stripped_filename = filename[len(jet_directory):]
         # Remove slash if it's there
@@ -158,7 +158,7 @@ def push():
     # Assume it's one higher, so save it as one more
     hf.save_last_pull(branch, last_server_pull + 1)
     # Alert user it's complete.
-    print hf.BColors.GREEN + "Pushed" + hf.BColors.ENDC
+    print (hf.BColors.GREEN + "Pushed" + hf.BColors.ENDC)
 
 
 def run():

@@ -5,13 +5,13 @@ import sys
 
 def revert():
     if not hf.already_initialized():
-        print "Please init a jet repo before calling other commands"
+        print ("Please init a jet repo before calling other commands")
         return
     # Checks to make sure the command was well formatted
     if len(sys.argv) != 4:
-        print "Please form revert commands by typing" \
-              " '$jet revert <branch_name> <commit_number>' \n" \
-              "Remember the default branch is called 'master'"
+        print ("Please form revert commands by typing"
+               " '$jet revert <branch_name> <commit_number>' \n"
+               "Remember the default branch is called 'master'")
         return
 
     # The branches path where information on the branches is
@@ -22,10 +22,10 @@ def revert():
         if not sys.argv[2] == 'master':
             # Check that the branch name specified exists.
             if not os.path.exists(os.path.join(branches_path + sys.argv[2])):
-                print "Invalid branch name, aborting revert"
-                print "Please form revert commands by typing" \
-                      " '$jet revert <branch_name> <commit_number>' \n" \
-                      "Remember the default branch is called 'master'"
+                print ("Invalid branch name, aborting revert")
+                print ("Please form revert commands by typing"
+                       " '$jet revert <branch_name> <commit_number>' \n"
+                       "Remember the default branch is called 'master'")
                 return
 
     # Check that the commit number entered is valid.
@@ -38,24 +38,25 @@ def revert():
                              " to revert? (yes/no) ")
         # Accept y as well as the suggested yes
         if response == 'yes' or response == 'y':
-            print "Reverting....please wait..."
+            print ("Reverting....please wait...")
             # Performing the actual revert.
             hf.revert(sys.argv[2], sys.argv[3])
             # Alert user it was completed.
-            print "Revert finished. You are now at the state of " \
-                  "commit number %s in branch %s" % (sys.argv[3], sys.argv[2])
+            print ("Revert finished. You are now at the state of "
+                   "commit number %s in branch %s"
+                   % (sys.argv[3], sys.argv[2]))
         # User wishes to cancel the request
         elif response == 'no' or response == 'n':
-            print "Cancelling revert"
+            print ("Cancelling revert")
         # User wasn't sure what to respond.
         else:
-            print "Invalid response, cancelling"
+            print ("Invalid response, cancelling")
     else:
         # Commit number didn't work, give error message
-        print "Commit number is invalid, aborting revert."
-        print "Please form revert commands by typing" \
-              " '$jet revert <branch_name> <commit_number>' \n" \
-              "Remember the default branch is called 'master'"
+        print ("Commit number is invalid, aborting revert.")
+        print ("Please form revert commands by typing"
+               " '$jet revert <branch_name> <commit_number>' \n"
+               "Remember the default branch is called 'master'")
 
 
 def run():

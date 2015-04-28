@@ -5,7 +5,7 @@ import helper_functions as hf
 
 # This operation takes a copy of the current codebase and stores it.
 def stash():
-    # Getting jet directory and stash path to avoid refetching later
+    # Getting jet directory and stash path to avoid re-fetching later
     jet_directory = hf.get_jet_directory()
     stash_path = os.path.join(jet_directory + '/.jet/stash/')
     # If there is a stash being currently stored.
@@ -16,7 +16,7 @@ def stash():
         # Accept y as shorthand for yes
         if not response == "y" or response == "yes":
             # If they said anything else, cancel the operation.
-            print "Cancelling...."
+            print ("Cancelling....")
             return
         # completely remove all trace of it 
         shutil.rmtree(stash_path)
@@ -52,28 +52,28 @@ def stash():
         # Increment the counter
         count += 1
     # Alert user all went well! 
-    print "Successfully stashed the code"
+    print ("Successfully stashed the code")
 
 
 # This command takes the currently stashed code and restores it. 
 def unstash():
     jet_directory = hf.get_jet_directory()
     if not hf.already_initialized():
-        print "Please init a jet repo before calling other commands"
+        print ("Please init a jet repo before calling other commands")
         return
     # Ensures there is actually some content stashed... 
     stash_path = os.path.join(jet_directory + '/.jet/stash/')
     if not os.path.exists(stash_path):
-        print "Cannot unstash as there is no stashed content"
+        print ("Cannot unstash as there is no stashed content")
         return
     # Double check they wish to do this, as it's irreversible 
-    print "Are you sure you wish to restore the code that is stashed?" \
-          " Any un-committed changes will be lost."
+    print ("Are you sure you wish to restore the code that is stashed?"
+           " Any un-committed changes will be lost.")
     # Get response from user
     response = raw_input("This action is irreversible. (yes/no) ")
     # Allow y as well as yes
     if not response == "y" or response == "yes":
-        print "Cancelling..."
+        print ("Cancelling...")
         return
 
     # Get the current files in the repo
@@ -117,7 +117,7 @@ def unstash():
             # Make the directories to place the file in
             hf.make_directories(filename, clone=False)
         # Alert user the files being changed
-        print "Updating %s" % hf.relative(filename, os.getcwd())
+        print ("Updating %s" % hf.relative(filename, os.getcwd()))
         # Change the file
         with open(filename, 'w') as new_file:
             new_file.write(stored_contents)
@@ -127,12 +127,12 @@ def unstash():
         os.remove(file_to_delete)
 
     # Alert user it all worked! 
-    print "Loaded in the code from the stash"
+    print ("Loaded in the code from the stash")
 
 
 def run():
     if not hf.already_initialized():
-        print "Please init a jet repo before calling other commands"
+        print ("Please init a jet repo before calling other commands")
         return
 
     stash()

@@ -6,14 +6,14 @@ from jet_files import commit_changeset, add
 
 def merge():
     if not hf.already_initialized():
-        print "Please init a jet repo before calling other commands"
+        print ("Please init a jet repo before calling other commands")
         return
     # Checks to see if a branch was specified
     if not len(sys.argv) == 3:
-        print "Please form merge commands '$jet merge" \
-              "<branch>' - where <branch> is the branch to merge into" \
-              "the current one. \nThe merge will make a new commit" \
-              " in the current branch"
+        print ("Please form merge commands '$jet merge"
+               "<branch>' - where <branch> is the branch to merge into"
+               "the current one. \nThe merge will make a new commit"
+               " in the current branch")
         return
     # Loads the changeset file, to see if there are any uncommitted changes
     filename = os.path.join(hf.get_jet_directory() + '/.jet/changeset.txt')
@@ -27,7 +27,7 @@ def merge():
         changed_files = True
     # Can't merge with changed files, so display error message
     if changed_files:
-        print "You can't merge until you commit...."
+        print ("You can't merge until you commit....")
         return
     branch = sys.argv[2]
     branches_path = os.path.join(hf.get_jet_directory() + '/.jet/branches/')
@@ -36,7 +36,7 @@ def merge():
         # Ensures that the branch name is valid
         #  by checking if a folder exists for it
         if not os.path.exists(os.path.join(branches_path + sys.argv[2])):
-            print "Invalid branch name, please try again."
+            print ("Invalid branch name, please try again.")
             return
 
     # Calls the helper function to actually do the merge
@@ -49,10 +49,10 @@ def merge():
     # Commit number used is found for printing
     commit_number_used = hf.get_new_commit_number() - 1
     # Tell user everything worked
-    print "Merged branch %s into branch current branch %s." \
-          "\nCommitted merge with commit number %s." % (hf.get_branch(),
-                                                        branch,
-                                                        commit_number_used)
+    print ("Merged branch %s into branch current branch %s."
+           "\nCommitted merge with commit number %s." % (hf.get_branch(),
+                                                         branch,
+                                                         commit_number_used))
 
 
 def run():
