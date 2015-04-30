@@ -1,3 +1,4 @@
+import getpass
 import json
 import os
 import sys
@@ -87,7 +88,52 @@ def clone():
     if not os.listdir(directory) == []:
         print ("Can only clone into an empty directory, sorry.")
         return
+    status_code = 403
+    first_time = True
     print ("Connecting....")
+    # Initialize variables
+    username = None
+    response = None
+    # Loop until success.
+    while not status_code == 200:
+        # If it's not their first time, they made an error logging in
+        if not first_time:
+            print (hf.BColors.RED +
+                   "Incorrect details - please try again!" +
+                   hf.BColors.ENDC)
+        # print (the instructions
+        print ("Please type your Jet username used in registration"
+               " at www.jetvc.co.uk. If you're not already "
+               "registered please visit www.jetvc.co.uk/register/")
+        # Get the users input for their username
+        username = raw_input("Username: ")
+        # Using a library to get the password to avoid complications
+        password = getpass.getpass()
+
+        # URL for logging a user in
+        url = "%slogin_user/" % DOMAIN
+        try:
+            # Preparing the POST data
+            data = {
+                'username': username,
+                'password': password,
+            }
+            # Code to send the POST
+            response = requests.post(url, data=data)
+            # Not the first time anymore, so set to False
+            first_time = False
+            # Set status code, ready for looping
+            status_code = response.status_code
+        except Exception as e:
+            # Jets servers are down, error..
+            print ("Failed to connect to Jets servers.")
+            print ("Error - %s" % e)
+            return
+    # Will only go here if a 200, if so, then login details were correct!
+
+    # Set to variable for easy access
+    user_id = response.headers['user_id']
+
     # Gets the list of current files in the jetvc repo
     url = "%scurrent_file_list/%s/%s/" % (DOMAIN,
                                           repo_id,
@@ -112,10 +158,15 @@ def clone():
         # REST API to get the information about the file
         url = "%sapi/v1/file/%s/?api_key=%s" % (DOMAIN,
                                                 _file['file_id'],
-                                                "171193")
+                                                user_id)
         # Gets response from the server
-        response = requests.get(url)
-        content = json.loads(response.content)
+        try:
+            response = requests.get(url)
+            content = json.loads(response.content)
+        except Exception as e:
+            print "Error getting contents - do you have permission?!?"
+            print e
+            return
         # Gets the contents of the file
         new_contents = content['contents']
         # Made the directories necessary for it to work.
@@ -125,6 +176,22 @@ def clone():
             new_file.write(new_contents)
     # Run the code to initiate a repository.
     init.run()
+    print ("Congrats you are logged in. These details will be saved")
+    # Store the username in the local directory.
+    filename = os.path.join(hf.get_jet_directory()
+                            + '/.jet/username')
+    # Also store the user id, which is also the API key for calls
+    # Not storing password, for security reasons
+    with open(filename, 'w') as file_:
+        file_.write(username + '\n')
+        file_.write(user_id)
+    # Inform user how to change the setup
+    print ("Run $jet setup to change user")
+    # Save the repo's id for future use
+    filename = os.path.join(hf.get_jet_directory()
+                            + '/.jet/repo_id')
+    with open(filename, 'w') as file_:
+        file_.write(repo_id)
     print (hf.BColors.GREEN + "Successfully cloned the repo."
            + hf.BColors.ENDC)
 
