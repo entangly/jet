@@ -44,7 +44,6 @@ def push():
     if int(last_update) == int(current_commit):
         print ("No changes to push")
         return
-    
     # Connect to jets servers 
     print ("Connecting....")
     # Url containing list of current files
@@ -65,10 +64,13 @@ def push():
     print ("Creating commit on server...")
     url = "%screate_commit/" % DOMAIN
     # If there's a message been passed in, use it!
-    if sys.argv[2] == "-m" and len(sys.argv) == 4:
-        message = sys.argv[3]
-    else:
-        # Otherwise, use a default.
+    try:
+        if sys.argv[2] == "-m" and len(sys.argv) == 4:
+            message = sys.argv[3]
+        else:
+            # Otherwise, use a default.
+            message = "Pushed from local servers"
+    except IndexError:
         message = "Pushed from local servers"
     # Prepare the POST request
     data = {
