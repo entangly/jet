@@ -72,12 +72,12 @@ def force_pull():
 def clone():
     if hf.already_initialized():
         # Doesn't work if there is already a jet repo there.
-        print ("Already a repo here, can't clone into this directory.")
+        print("Already a repo here, can't clone into this directory.")
         return
     # Ensure the command is formed correctly. 
     if not len(sys.argv) == 4:
-        print ("Please form clone commands '$jet clone <repo_id>"
-               " <branch_name>'")
+        print("Please form clone commands '$jet clone <repo_id>"
+              " <branch_name>'")
         return
     # Get the branch and repo id from the input.
     branch = sys.argv[3]
@@ -112,7 +112,7 @@ def clone():
         # REST API to get the information about the file
         url = "%sapi/v1/file/%s/?api_key=%s" % (DOMAIN,
                                                 _file['file_id'],
-                                                hf.get_user_id())
+                                                "171193")
         # Gets response from the server
         response = requests.get(url)
         content = json.loads(response.content)
