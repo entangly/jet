@@ -275,6 +275,10 @@ def checksum_md5(filename):
     return hashlib.md5(contents).hexdigest()
 
 
+# Gets all the files in the directory,
+# that have been changed since the last commit 
+# The lists of files parameters are optional
+# and will be fetched if not given
 def get_changed_files(current_files, stored_files_and_hashes):
     if current_files is None:
         current_files = get_current_files(None)
@@ -286,16 +290,25 @@ def get_changed_files(current_files, stored_files_and_hashes):
     return changed_files
 
 
+# This function processes the changes between the current state of 
+# a file and the state at the previous commit. 
 def get_change_description(filename):
+    # As the commit folder has already been made for this commit,
+    # Subtract 2 from what would be the next one, to get the previous.
     commit_number = get_new_commit_number() - 2
+    # Get the previous state of the file
     previous_file = get_file_at(get_branch(), commit_number, filename)
+    # If it can't be found, return None to signal error
     if previous_file is None:
         return None
+    # Get the difference between the files.
     difference = diff(previous_file, filename)
+    # If there's an error getting a diff, report it
     if not difference:
         return "Jet is sorry, but there was an error in processing the" \
                " changes for this file"
     else:
+        # Otherwise, return the diff as the change description! 
         return difference
 
 
@@ -415,8 +428,13 @@ def diff(file1, file2):
         return description_to_return
 
 
+# Jet stores each file change in numbered folders
+# This gets the number of the folder for a specific file, at
+# a specific commit and specific branch.
 def get_file_change_number(branch, commit_number, filename):
+    # Master branch content is stored elsewhere.
     if not branch == 'master':
+        # Gets the list of files at that point
         file_list_file = os.path.join(get_jet_directory() +
                                       '/.jet/branches/%s/%s/file_log.txt'
                                       % (branch, commit_number))
@@ -426,8 +444,10 @@ def get_file_change_number(branch, commit_number, filename):
     with open(file_list_file, 'r') as myFile:
         file_list = myFile.read().splitlines()
     change_number = 0
+    # Goes through the list of files, until the correct one is found
     for file_ in file_list:
         if file_ == filename or file_[1:] == filename:
+            # Returns the changenumber once the file is found
             return change_number
         else:
             change_number += 1
@@ -570,6 +590,7 @@ def get_username():
     return username
 
 
+# Returns a boolean to see if user is logged in
 def logged_in():
     return not get_username() == ''
 
