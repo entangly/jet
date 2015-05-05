@@ -139,19 +139,25 @@ def get_stored_files(lines):
     return lines[::2]
 
 
-# Gets the hash of the 
+# Gets the hash of the file passed in, at the last point stored
+# The stored_files_and_hashes parameter is optional and used to save re-fetching
 def get_stored_hash(filename, stored_files_and_hashes):
     if not stored_files_and_hashes:
         stored_files_and_hashes = get_stored_files_and_hashes()
+    # Once the filename has been found, the next item in the list is
+    # the corresponding hash,  so return that. 
     return_next = False
     for line in stored_files_and_hashes:
         if return_next:
             return line
         if line == filename:
             return_next = True
+    # Return false if filename not in the list. 
     return False
 
 
+# Gets all the files in the directory, that are not in the list of stored files. 
+# The lists of files parameters are optional and will be fetched if not given
 def get_new_files(current_files, stored_files):
     if current_files is None:
         current_files = get_current_files(None)
@@ -160,63 +166,90 @@ def get_new_files(current_files, stored_files):
     return [x for x in current_files if x not in stored_files]
 
 
+# Gets a list of all the files that have been added to the changeset.
+# Branch location is optional parameter and will be fetched if not given
 def get_files_in_changeset(branch_location):
     if branch_location is None:
         branch_location = get_branch_location()
     try:
+        # Open up the changeset file
         filename = os.path.join(branch_location + 'changeset.txt')
         with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
+        # If there is no changeset file, means nothing added, so return empty list
         return []
     return lines
 
 
+# Gets the files which are new to the repository and added to the changeset
+# The lines parameter is optional and is fetched from the file if not provided
 def get_new_files_in_changeset(lines):
     if lines is None:
         try:
+            # Opens up the changeset file
             filename = os.path.join(get_branch_location() + 'changeset.txt')
             with open(filename, 'r') as myFile:
                 lines = myFile.read().splitlines()
         except IOError:
+            # If no changeset file, then no new files added, so return empty
             return []
+    
     new_files = []
+    # Loop through all the filenames
     for line in lines:
+        # If it starts with a plus, then it's a new file 
         if line.startswith('+'):
             new_files.append(line[1:])
     return new_files
 
 
+# Gets the files which are deleted from the repository and added to the changeset
+# The lines parameter is optional and is fetched from the file if not provided
 def get_deleted_files_in_changeset(lines):
     if lines is None:
         try:
+            # Opens up the changeset file
             filename = os.path.join(get_branch_location() + 'changeset.txt')
             with open(filename, 'r') as myFile:
                 lines = myFile.read().splitlines()
         except IOError:
+            # If no changeset file, then no deleted files added, so return empty
             return []
     deleted_files = []
+    # Loop through all the filenames
     for line in lines:
+        # If it starts with a subtract, then it's a deleted file
         if line.startswith('-'):
             deleted_files.append(line[1:])
     return deleted_files
 
 
+# Gets the files which are changed from the repository and added to the changeset
+# The lines parameter is optional and is fetched from the file if not provided
 def get_changed_files_in_changeset(lines):
     if lines is None:
         try:
+            # Opens up the changeset file
             filename = os.path.join(get_branch_location() + 'changeset.txt')
             with open(filename, 'r') as myFile:
                 lines = myFile.read().splitlines()
         except IOError:
+            # If no changeset file, then no changed files added, so return empty
             return []
     changed_files = []
+    # Loop through all the filenames
     for line in lines:
+        # If it starts with a tilde, then it's a deleted file
         if line.startswith('~'):
             changed_files.append(line[1:])
     return changed_files
 
 
+# Gets all the files in the directory,
+# that have been deleted since the last commit 
+# The lists of files parameters are optional
+# and will be fetched if not given
 def get_deleted_files(current_files, stored_files):
     if current_files is None:
         current_files = get_current_files(None)
