@@ -454,17 +454,26 @@ def get_file_change_number(branch, commit_number, filename):
     return None
 
 
+# Gets the last complete version of the file (not using deltas)
+# and returns it in a string array
 def get_last_complete_file(branch, filename):
     change_number = None
     count = 0
+    # Loop through the commits until the first one containing the file is found
     while change_number is None and count <= get_highest_commit(branch):
+        # Will be None if file not in that point of history.
         change_number = get_file_change_number(branch, count, filename)
         count += 1
     count -= 1
+    
+    # If count is greater than 0 the contents will be in a changes file
     if count > 0:
         name_of_file = 'changes.txt'
     else:
+        # Otherwise it will just be the name of the file.
         name_of_file = os.path.basename(filename)
+    
+    # Master branch stored elsewhere.
     if not branch == 'master':
         modded_filename = os.path.join(get_jet_directory()
                                        + '/.jet/branches/%s/%s/%s/%s'
@@ -474,18 +483,26 @@ def get_last_complete_file(branch, filename):
         modded_filename = os.path.join(get_jet_directory() + '/.jet/%s/%s/%s'
                                        % (count, change_number, name_of_file))
     try:
+        # Open up the files contents.
         with open(modded_filename, 'r') as myFile:
                 current_file = myFile.read().splitlines()
     except IOError:
+        # Returning None signifies an error has happened.
         return None, None
     commit_number = 0
+    # Return the current files contents and the commit number it was found at
     return current_file, commit_number
 
 
+# This function gets the diff that was sotred at a particular point in the history
 def get_diff_at(branch, commit_number, filename):
+    # Gets the file change number from that point
     change_num = get_file_change_number(branch, commit_number, filename)
+    # If there is no change number, file wasn't there
     if change_num is None:
+        # So return an empty file.
         return []
+    # Master contents are stored elsewhere
     if not branch == 'master':
         modded_filename = os.path.join(get_jet_directory()
                                        + '/.jet/branches/%s/%s/%s/changes.txt'
@@ -494,8 +511,10 @@ def get_diff_at(branch, commit_number, filename):
         modded_filename = os.path.join(get_jet_directory()
                                        + '/.jet/%s/%s/changes.txt'
                                        % (commit_number, change_num))
+    # Open the file containing what we're looking for
     with open(modded_filename, 'r') as myFile:
         difference = myFile.read().splitlines()
+    # Return the difference.
     return difference
 
 
