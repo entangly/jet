@@ -164,8 +164,8 @@ def clone():
             response = requests.get(url)
             content = json.loads(response.content)
         except Exception as e:
-            print "Error getting contents - do you have permission?!?"
-            print e
+            print ("Error getting contents - do you have permission?!?")
+            print (e)
             return
         # Gets the contents of the file
         new_contents = content['contents']

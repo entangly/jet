@@ -140,7 +140,8 @@ def get_stored_files(lines):
 
 
 # Gets the hash of the file passed in, at the last point stored
-# The stored_files_and_hashes parameter is optional and used to save re-fetching
+# The stored_files_and_hashes parameter
+#  is optional and used to save re-fetching
 def get_stored_hash(filename, stored_files_and_hashes):
     if not stored_files_and_hashes:
         stored_files_and_hashes = get_stored_files_and_hashes()
@@ -156,7 +157,8 @@ def get_stored_hash(filename, stored_files_and_hashes):
     return False
 
 
-# Gets all the files in the directory, that are not in the list of stored files. 
+# Gets all the files in the directory,
+#  that are not in the list of stored files.
 # The lists of files parameters are optional and will be fetched if not given
 def get_new_files(current_files, stored_files):
     if current_files is None:
@@ -177,7 +179,8 @@ def get_files_in_changeset(branch_location):
         with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
-        # If there is no changeset file, means nothing added, so return empty list
+        # If there is no changeset file,
+        #  means nothing added, so return empty list
         return []
     return lines
 
@@ -204,7 +207,8 @@ def get_new_files_in_changeset(lines):
     return new_files
 
 
-# Gets the files which are deleted from the repository and added to the changeset
+# Gets the files which are deleted from
+# the repository and added to the changeset
 # The lines parameter is optional and is fetched from the file if not provided
 def get_deleted_files_in_changeset(lines):
     if lines is None:
@@ -214,7 +218,8 @@ def get_deleted_files_in_changeset(lines):
             with open(filename, 'r') as myFile:
                 lines = myFile.read().splitlines()
         except IOError:
-            # If no changeset file, then no deleted files added, so return empty
+            # If no changeset file, then no deleted
+            # files added, so return empty
             return []
     deleted_files = []
     # Loop through all the filenames
@@ -225,7 +230,8 @@ def get_deleted_files_in_changeset(lines):
     return deleted_files
 
 
-# Gets the files which are changed from the repository and added to the changeset
+# Gets the files which are changed
+# from the repository and added to the changeset
 # The lines parameter is optional and is fetched from the file if not provided
 def get_changed_files_in_changeset(lines):
     if lines is None:
@@ -235,7 +241,8 @@ def get_changed_files_in_changeset(lines):
             with open(filename, 'r') as myFile:
                 lines = myFile.read().splitlines()
         except IOError:
-            # If no changeset file, then no changed files added, so return empty
+            # If no changeset file, then no changed
+            #  files added, so return empty
             return []
     changed_files = []
     # Loop through all the filenames
@@ -494,7 +501,8 @@ def get_last_complete_file(branch, filename):
     return current_file, commit_number
 
 
-# This function gets the diff that was sotred at a particular point in the history
+# This function gets the diff that was sorted
+#  at a particular point in the history
 def get_diff_at(branch, commit_number, filename):
     # Gets the file change number from that point
     change_num = get_file_change_number(branch, commit_number, filename)
@@ -612,7 +620,7 @@ def reform_file(_file_, diff_list):
             except IndexError:
                 pass
 
-    # Go through the changes and prepare the fiel to return
+    # Go through the changes and prepare the file to return
     to_return = []
     for line in lines:
         if not line == "~J/E\T DELETE ~J/E\T":
@@ -666,7 +674,7 @@ def get_commit_hook():
         return False
 
 
-# Gets the filename of the hook assinged to push command
+# Gets the filename of the hook assigned to push command
 def get_push_hook():
     try:
         # File where it's all stored
@@ -675,7 +683,7 @@ def get_push_hook():
             lines = myFile.read().splitlines()
     except IOError:
         return False
-    # See which file is assinged to push command, not commit
+    # See which file is assigned to push command, not commit
     try:
         if lines[0] == 'push':
             return lines[1]
@@ -704,10 +712,14 @@ def run_hook(filename):
         return False
 
 
+# Checks to see if the commit number entered is valid on the branch.
 def is_valid_commit_number(number, branch):
+    # Turns number to a string
     number = '%s' % number
+    # If no branch is entered, get info from current branch.
     if branch is None:
         commits = get_immediate_subdirectories(get_branch_location())
+    # Master content stored elsewhere
     elif branch == 'master':
         commits = get_immediate_subdirectories(
             os.path.join(get_jet_directory() + '/.jet/'))
@@ -715,6 +727,8 @@ def is_valid_commit_number(number, branch):
         commits = get_immediate_subdirectories(
             os.path.join(get_jet_directory() + '/.jet/branches/%s' % branch))
     try:
+        # Remove the branches folder from the list
+        # as it will break things (if exists)
         commits.remove('branches')
     except ValueError:
         pass
@@ -724,8 +738,12 @@ def is_valid_commit_number(number, branch):
         return False
 
 
+# This function is used to check which files are in the repo at a certain time
+# Therefore it checks teh file logs and removes or adds files at that point
 def edit_commit_list(branch, commit_number, current_list):
+    # Master content stored separately
     if branch == 'master':
+        # filename of the file_log to open
         filename = os.path.join(get_jet_directory()
                                 + '/.jet/%s/file_log.txt'
                                 % commit_number)
@@ -733,10 +751,13 @@ def edit_commit_list(branch, commit_number, current_list):
         filename = os.path.join(get_jet_directory()
                                 + '/.jet/branches/%s/%s/file_log.txt'
                                 % (branch, commit_number))
+    # Not interested in initial commits.
     if commit_number == 0:
         raise AttributeError
+    # Open the file
     with open(filename, 'r') as myFile:
         edits = myFile.read().splitlines()
+    # Go through each edit and add or remove the file from the list
     for edit in edits:
         if edit.startswith('+'):
             current_list.append(edit[1:])
@@ -750,45 +771,58 @@ def edit_commit_list(branch, commit_number, current_list):
     return current_list
 
 
+# Gets the highest commit number on that branch at the present point.
 def get_highest_commit(branch):
+    # Master content is stored elsewhere
     if branch != 'master':
         directories = get_immediate_subdirectories(os.path.join(
             get_jet_directory() + '/.jet/branches/%s' % branch))
     else:
         directories = get_immediate_subdirectories(
             os.path.join(get_jet_directory() + '/.jet/'))
+        # Not interested in the branches directory.
         try:
             directories.remove("branches")
         except ValueError:
             pass
+    # Worst case is 0, so start there
     highest = 0
     for directory in directories:
         if directory > highest:
             highest = directory
+    # Return as a string
     return "%s" % highest
 
 
+# Gets the parent of the input branch by looking at the history.
 def get_parent(branch):
+    # Master doesn't have a parent..
     if branch == 'master':
         raise AttributeError
     filename = os.path.join(get_jet_directory()
                             + '/.jet/branches/%s/parent' % branch)
     with open(filename, 'r') as myFile:
         lines = myFile.read().splitlines()
+    # Answer is stored in first line, so return it.
     return lines[0]
 
 
+# Gets the commit number of the parent branch at the point of branching.
 def get_parent_commit(branch):
     if branch == 'master':
         raise AttributeError
+    # Filename of the file storing that information
     filename = os.path.join(get_jet_directory()
                             + '/.jet/branches/%s/parent' % branch)
     with open(filename, 'r') as myFile:
         lines = myFile.read().splitlines()
+    # Commit number is the second line in, so return that
     return lines[1]
 
 
+# Gets the list of files at the point in history.
 def get_file_list_at(branch, commit_number):
+    # Master content stored elsewhere..
     if branch == 'master':
         filename = os.path.join(get_jet_directory() + '/.jet/0/file_log.txt')
     else:
@@ -797,20 +831,28 @@ def get_file_list_at(branch, commit_number):
     with open(filename, 'r') as myFile_:
         branch_file_list = myFile_.read().splitlines()
 
+    # Modify the list by using previous commits file lists.
     if commit_number > 0:
         commit_int = int(commit_number)
         for i in range(1, commit_int + 1):
             branch_file_list = edit_commit_list(branch, i, branch_file_list)
+    # Return the modified list to represent the file list at that point.
     return branch_file_list
 
 
+# Reverts the current repository state back to that in the commit
+#  and branch number specified.
 def revert(branch, commit_number):
+    # Gets the current list of files
     current_files = get_current_files(None)
+    # List of files at the point to revert to
     files_at_revert_point = get_file_list_at(branch, commit_number)
     files_to_delete = [x for x in current_files
                        if not x in files_at_revert_point]
+    # Removes all files which are currently there, but not at the revert point
     for current_filename_to_process in files_to_delete:
         os.remove(current_filename_to_process)
+    # Write files that are new at the revert point to disk.
     for current_filename_to_process in files_at_revert_point:
         new_contents = get_file_at(branch, commit_number,
                                    current_filename_to_process)
@@ -818,6 +860,7 @@ def revert(branch, commit_number):
             for content in new_contents:
                 myFile.write("%s\n" % content)
 
+    # Update the current branch and commit to reflect where the user is.
     filename = os.path.join(get_jet_directory() + '/.jet/branch')
     with open(filename, 'w') as current_filename_to_process:
         current_filename_to_process.write(branch)
@@ -826,33 +869,43 @@ def revert(branch, commit_number):
         current_filename_to_process.write(str(commit_number))
 
 
+# Gets the current branch name
 def get_branch():
     filename = os.path.join(get_jet_directory() + '/.jet/branch')
     with open(filename, 'r') as myFile:
         lines = myFile.read().splitlines()
+    # Content is in first line, so return that.
     return lines[0]
 
 
+# Gets the current commit number
 def get_commit():
     filename = os.path.join(get_jet_directory() + '/.jet/current_commit')
     with open(filename, 'r') as myFile:
         lines = myFile.read().splitlines()
+    # Content is in first line, so just return that.
     return lines[0]
 
 
+# Gets the joint parent of two branches - ie where they diverged.
 def get_joint_parent(branch_1, branch_2):
+    # Worst case is assume they branched from master.
     mutual_branch = 'master'
     b1_branch_list = []
+    # Form a list of all the branch parents of b1.
     while not branch_1 == 'master':
         b1_branch_list.append(branch_1)
         branch_1 = get_parent(branch_1)
     b2_branch_list = []
+    # Form a list of all the branch parents of b2
     while not branch_2 == 'master':
         b2_branch_list.append(branch_2)
         branch_2 = get_parent(branch_2)
+    # Include master in the branch lists.
     b1_branch_list.append('master')
     b2_branch_list.append('master')
     found = False
+    # Find the highest point at which the branch lists overlap.
     for b1 in b1_branch_list:
         if found:
             continue
@@ -862,6 +915,7 @@ def get_joint_parent(branch_1, branch_2):
                 found = True
                 continue
 
+    # Use this information to get the commit number at which they diverged.
     index = b2_branch_list.index(mutual_branch)
     index_of_child = index - 1
     try:
@@ -869,6 +923,7 @@ def get_joint_parent(branch_1, branch_2):
     except IndexError:
         mutual_commit = 0
 
+    # Return the branch name and the commit number
     return mutual_branch, mutual_commit
 
 
@@ -1207,60 +1262,79 @@ def is_conflicts():
     return not len(get_conflicts()) == 0
 
 
+# Gets the list of files that have conflicts in them
 def get_conflicts():
     file_ = os.path.join(get_branch_location() + 'conflicts')
     try:
         with open(file_, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
+        # If no conflict file, then empty list
         lines = []
     return lines
 
 
+# Adds a conflict to the conflict file to show it needs resolving
 def add_conflict(filename):
+    # Gets the current list of conflicts
     conflicts = get_conflicts()
     if filename not in conflicts:
+        # Adds the new conflict to the list of files
         conflicts.append(filename)
 
+    # Filename of the new conflict list.
     file_ = os.path.join(get_branch_location() + 'conflicts')
 
+    # Alerts the user that a merge conflict has happened.
     print (BColors.RED + "Merge conflict for"
                          " file %s" % filename + BColors.ENDC)
 
+    # Write the new contents into the conflict file.
     with open(file_, 'w') as myFile:
         for line in conflicts:
             myFile.write('%s\n' % line)
 
 
+# This method takes a filename out of the list of ones with a conflict.
 def resolve_conflict(filename):
+    # Gets a list of all conflicts.
     conflicts = get_conflicts()
     if filename in conflicts:
+        # Try remove filename from the list
         conflicts.remove(filename)
     else:
+        # -1 signals an error
         return -1
 
     file_ = os.path.join(get_branch_location() + 'conflicts')
-
+    # Update the files contents with new list.
     with open(file_, 'w') as myFile:
         for line in conflicts:
             myFile.write('%s\n' % line)
 
+    # Return the amount of conflicts left.
     return len(conflicts)
 
 
+# Takes a filename and checks it's content against the jet ignore file.
 def filter_one_file_by_ignore(filename):
     try:
         name_of_jet_ignore = os.path.join(get_jet_directory() + '/.jet_ignore')
         with open(name_of_jet_ignore, 'r') as myFile:
+            # Gets the list of things to ignore
             lines = myFile.read().splitlines()
     except IOError:
+        # If no Jet ignore, then compare with an empty list.
         return filter_file_by_ignore(filename, [])
+    # Compare that filename to the things to ignore
     return filter_file_by_ignore(filename, lines)
 
 
+# Compares the filename with the list of things to ignore.
 # True for passed, false for ignore
 def filter_file_by_ignore(filename, lines):
     for line in lines:
+        # * represents anything
         if line.startswith('*') and line.endswith('*'):
             if line[1:-1] in filename:
                 return False
@@ -1273,11 +1347,14 @@ def filter_file_by_ignore(filename, lines):
         if line == filename:
             return False
         cwd = os.getcwd()
+        # Change filename to be relative to current directory.
         relative_filename = filename[len(cwd):]
         if relative_filename.startswith('/'):
+            # remove slash
             relative_filename = relative_filename[1:]
         if relative_filename.startswith(line):
             return False
+    # Don't track filenames ending in ~
     if filename.endswith("~"):
         return False
 
@@ -1285,57 +1362,73 @@ def filter_file_by_ignore(filename, lines):
     return True
 
 
+# Filters all the filenames by the Jet ignore file
 def filter_files_by_ignore(filenames):
     try:
         name_of_jet_ignore = os.path.join(get_jet_directory() + '/.jet_ignore')
         with open(name_of_jet_ignore, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
+        # If IOError then no jet ignore, so return all the files
         return [x for x in filenames if (filter_file_by_ignore(x, []))]
+    # Filter all files individually.
     return [x for x in filenames if (filter_file_by_ignore(x, lines))]
 
 
+# Changes the filename to be relative to the current working directory.
 def relative(filename, cwd):
+    # If below the directory, then just print the relative filename
     if cwd in filename:
         to_return = filename[len(cwd):]
+        # Remove slash
         if to_return.startswith('/'):
             return to_return[1:]
         else:
             return to_return
     else:
+        # Used to add ../ for each parent.
         h, t = os.path.split(filename)
         count = 0
         if h == '':
             h = '~J/E\T'
             count = len(cwd.split('/')) - 2
+        # If only one directory above..
         if h in cwd:
             return '../%s' % t
         head = filename
         to_append = []
 
+        # Go through each folder and ensure the head is in there.
         while head not in cwd:
+            # Split the path into head and tail
             head, tail = os.path.split(head)
             count += 1
             to_append.append(tail)
+            # If at root
             if head == '':
                 break
         back_slashes = []
         count -= 1
+        # Go through each count and add ../
         while count > 0:
             back_slashes.append('../')
             count -= 1
         to_append.reverse()
+        # Return the new relative filename with ../ in place.
         relative_name = "%s%s" % (''.join(back_slashes),
                                   '/'.join(to_append))
         return relative_name
 
 
+# Gets the id of the user from jet vc's database.
 def get_user_id():
     filename = os.path.join(get_jet_directory() + '/.jet/username')
     try:
         with open(filename, 'r') as file_:
                     lines = file_.read().splitlines()
+        # Stored in second line, so return that
         user_id = lines[1]
+    # Any errors, not been setup correctly, so return None.
     except IOError:
         user_id = None
     except IndexError:
@@ -1343,65 +1436,83 @@ def get_user_id():
     return user_id
 
 
+# Gets the id or the repository that is being synced with on the server.
 def get_repo_id():
     filename = os.path.join(get_jet_directory() + '/.jet/repo_id')
     try:
         with open(filename, 'r') as file_:
             lines = file_.read().splitlines()
+        # Stored in first line, so return that.
         repo_id = lines[0]
     except IOError:
+        # If IOError, then return None, as not been setup.
         repo_id = None
     return repo_id
 
 
+# Returns a boolean to see if the user has setup their username etc.
 def is_setup():
     return get_user_id() and get_repo_id()
 
 
+# Ensures all the directories are present in order to write to a file location
 def make_directories(filename, clone):
+    # Clone won't have a jet directory yet..
     if clone:
         jet_directory = os.getcwd()
     else:
         jet_directory = get_jet_directory()
+    # Make filename relative.
     stripped_filename = filename[len(jet_directory):]
+    # Remove slash
     if stripped_filename.startswith('/'):
         stripped_filename = stripped_filename[1:]
-    fname = os.path.basename(stripped_filename)
-    folders = stripped_filename[:-len(fname)]
+    # Gets the name of the file from the filename.
+    f_name = os.path.basename(stripped_filename)
+    # Gets the list of folders that need making
+    folders = stripped_filename[:-len(f_name)]
     try:
+        # Make the folders.
         os.makedirs(folders)
     except OSError:
         pass
 
 
+# Gets from the filename the last time that Jet pulled from the server.
 def get_last_server_pull(branch):
     filename = os.path.join(get_branch_location_param(branch) + 'last_pull')
     try:
         with open(filename, 'r') as file_:
             lines = file_.read().splitlines()
+        # Stored in first line, turn into an integer.
         last_pull = int(lines[0])
     except IOError:
         last_pull = -1
     return last_pull
 
 
+# Save to a file the last time pull was done so that not re-pulling
 def save_last_pull(branch, new_number):
     filename = os.path.join(get_branch_location_param(branch) + 'last_pull')
     with open(filename, 'w') as file_:
         file_.write(str(new_number))
 
 
+# Gets the last time that a commit was pushed to the server.
 def get_last_update(branch):
     filename = os.path.join(get_branch_location_param(branch) + 'last_update')
     try:
         with open(filename, 'r') as file_:
             lines = file_.read().splitlines()
+        # Commit number is stored in the first line
         commit_number = int(lines[0])
     except IOError:
+        # Assume not pushed if no file found, so return 0
         commit_number = 0
     return branch, commit_number
 
 
+# Adds information about the last time information was pushed from server.
 def add_update(branch, commit):
     filename = os.path.join(get_branch_location_param(branch) + 'last_update')
     with open(filename, 'w') as file_:
