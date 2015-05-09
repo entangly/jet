@@ -518,22 +518,31 @@ def get_diff_at(branch, commit_number, filename):
     return difference
 
 
+# This function returns the contents of the file at 
+# the mentioned point in history
 def get_file_at(branch, commit_number, filename):
+    # Checks the commit number is valid 
     if not is_valid_commit_number(commit_number, branch):
         return None
+    # Gets the last full commit - to avoid over-calculating deltas 
     last_complete, last_full_commit = get_last_complete_file(branch, filename)
+    # If it can't be found, return None
     if last_complete is None:
         return None
     commits_to_add = []
     commit = last_full_commit + 1
+    # If it's 0, it's the full file so return it.
     if commit_number == '0' or commit_number == 0:
         return last_complete
+    # Loop through all the commits between the last full file
+    # and the current status to find new commit number of deltas to apply
     while not int(commit) == int(commit_number):
         commits_to_add.append(commit)
         commit += 1
     commits_to_add.append(commit)
 
     current_file = last_complete
+    # Apple the deltas to make the full file.
     for c in commits_to_add:
         current_file = reform_file(current_file, get_diff_at(branch,
                                                              c,
@@ -542,38 +551,52 @@ def get_file_at(branch, commit_number, filename):
     return current_file
 
 
+# This function takes a file, and a delta and joins them together
+# to make a new file. 
 def reform_file(_file_, diff_list):
+    # Ensure the file input is a list.
     if type(_file_) == list:
         lines = _file_
     else:
         with open(_file_, 'r') as file_:
             lines = file_.read().splitlines()
+    # If there is no diff, return the file
     if len(diff_list) == 0:
         return lines
+    # If no changes, return the file
     if diff_list[0] == 'No changes found':
         return lines
+    # Loop through each line in the diff to apply the change
     for d in diff_list:
         try:
+            # Gets the index of the first space in the diff
             index = d.index(' ')
-            line_number_list = d[1:index-1]
+            # Gets the line number to apply the diff to
+            line_number_list = d[1:index-1] 
             line_number = ''
             for number in line_number_list:
                 line_number += number
+            # Gets the line number as an integer
             count = int(line_number)
         except ValueError:
+            # Error, so return the files contents as is 
             if type(_file_) == list:
                 lines = _file_
             else:
                 with open(_file_, 'r') as file_:
                     lines = file_.read().splitlines()
             return lines
+        # Gets the action to perform (add, subtract or change)
         action = d[index + 1]
+        # Gets the content to perform the action to 
         content = d[index + 3:]
+        # Change
         if action == '~':
             try:
                 lines[count] = content
             except IndexError:
                 pass
+        # Plus a new line
         elif action == '+':
             try:
                 if content == 'blank line':
@@ -582,12 +605,14 @@ def reform_file(_file_, diff_list):
                     lines.insert(count, content)
             except IndexError:
                 pass
+        # Deleted
         elif action == '-':
             try:
                 lines[count] = "~J/E\T DELETE ~J/E\T"
             except IndexError:
                 pass
 
+    # Go through the changes and prepare the fiel to return
     to_return = []
     for line in lines:
         if not line == "~J/E\T DELETE ~J/E\T":
@@ -595,14 +620,19 @@ def reform_file(_file_, diff_list):
     return to_return
 
 
+# Gets the username of the logged in user.
 def get_username():
+    # File that stores the information
     filename = os.path.join(get_jet_directory() + '/.jet/username')
     try:
+        # Read the file
         with open(filename, 'r') as file_:
                     lines = file_.read().splitlines()
         username = lines[0]
+    # IOError means it hasn't been set
     except IOError:
         username = ''
+    # Index error means tampered with file, delete and un-set.
     except IndexError:
         os.remove(filename)
         username = ''
@@ -614,48 +644,60 @@ def logged_in():
     return not get_username() == ''
 
 
+# Gets the filename of the hook assigned to the commit command
 def get_commit_hook():
     try:
+        # File where the info is stored
         filename = (get_branch_location() + 'hooks')
         with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
         return False
+    # See which file is assigned to commit, not push
     try:
         if lines[0] == 'commit':
             return lines[1]
         elif lines[2] == 'commit':
             return lines[3]
         else:
+            # None found, return false.
             return False
     except IndexError:
         return False
 
 
+# Gets the filename of the hook assinged to push command
 def get_push_hook():
     try:
+        # File where it's all stored
         filename = (get_branch_location() + 'hooks')
         with open(filename, 'r') as myFile:
             lines = myFile.read().splitlines()
     except IOError:
         return False
+    # See which file is assinged to push command, not commit
     try:
         if lines[0] == 'push':
             return lines[1]
         elif lines[2] == 'push':
             return lines[3]
         else:
+            # No hook found, so return false
             return False
     except IndexError:
         return False
 
 
+# Runs the python file that is the hook and gets the result 
 def run_hook(filename):
     # noinspection PyBroadException
     try:
+        # Runs the python file that is the hook and gets the result 
         return_code = subprocess.call("python %s" % filename, shell=True)
     except Exception:
+        # Something went wrong, return false
         return False
+    # If 0, it all worked
     if return_code == 0:
         return True
     else:
